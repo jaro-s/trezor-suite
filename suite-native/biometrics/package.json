@@ -11,6 +11,7 @@
         "lint:js": "yarn g:eslint '**/*.{ts,tsx,js}'"
     },
     "dependencies": {
+        "@reduxjs/toolkit": "2.11.2",
         "@suite-native/alerts": "workspace:*",
         "@suite-native/analytics": "workspace:*",
         "@suite-native/atoms": "workspace:*",
@@ -23,6 +24,7 @@
         "jotai": "2.17.1",
         "react": "19.2.4",
         "react-native": "0.83.2",
-        "react-native-svg": "15.15.3"
+        "react-native-svg": "15.15.3",
+        "react-redux": "9.2.0"
     }
 }
