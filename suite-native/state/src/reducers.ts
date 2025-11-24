@@ -59,6 +59,7 @@ import {
     migrateAccountLabel,
     migrateAccountsDeprecateNetworks,
     migrateAutoEjectToWalletSettings,
+    migrateBiometricsAtomToRedux,
     migrateDeviceState,
     migrateLocaleTagToAppLocaleCode,
     migrateTransactionsBnbToBsc,
@@ -123,6 +124,9 @@ export const prepareRootReducers = (deps: PrepareRootReducersDeps) => {
         persistedKeys: biometricsPersistWhitelist,
         key: biometricsSlice.name,
         version: 1,
+        migrations: {
+            1: migrateBiometricsAtomToRedux,
+        },
     });
 
     const tradingPersistedReducer = preparePersistReducer({
