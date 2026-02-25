@@ -44,6 +44,8 @@ const config: webpack.Configuration = {
         modules: ['node_modules'],
         alias: {
             src: path.resolve(__dirname, '../../suite/src/'),
+            // @walletconnect/pay is strict ESM and imports 'brotli/decompress' without .js extension
+            'brotli/decompress': require.resolve('brotli/decompress.js'),
         },
         fallback: {
             // Polyfills crypto API for NodeJS libraries in the browser. 'crypto' does not run without 'stream'
