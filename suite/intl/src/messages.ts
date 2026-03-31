@@ -5498,6 +5498,14 @@ export const messages = defineMessages({
         defaultMessage:
             'Enable an MCP (Model Context Protocol) server that allows AI agents to interact with your Trezor device. The server runs on localhost only.',
     },
+    TR_EXPERIMENTAL_NEW_BALANCE_GRAPH: {
+        id: 'TR_EXPERIMENTAL_NEW_BALANCE_GRAPH',
+        defaultMessage: 'New balance graph',
+    },
+    TR_EXPERIMENTAL_NEW_BALANCE_GRAPH_DESCRIPTION: {
+        id: 'TR_EXPERIMENTAL_NEW_BALANCE_GRAPH_DESCRIPTION',
+        defaultMessage: 'Enable the redesigned balance graph in portfolio and account views.',
+    },
     TR_MCP_CLIENT_CONFIGURATION: {
         id: 'TR_MCP_CLIENT_CONFIGURATION',
         defaultMessage: 'Client Configuration',
@@ -7493,6 +7501,10 @@ export const messages = defineMessages({
         id: 'TR_GRAPH_LOGARITHMIC',
         defaultMessage: 'Logarithmic',
     },
+    TR_GRAPH_SHOW_TRANSACTIONS: {
+        id: 'TR_GRAPH_SHOW_TRANSACTIONS',
+        defaultMessage: 'Show transactions',
+    },
     TR_GRAPH_VIEW: {
         id: 'TR_GRAPH_VIEW',
         defaultMessage: 'Graph view',
@@ -7500,6 +7512,10 @@ export const messages = defineMessages({
     TR_SHOW_GRAPH: {
         id: 'TR_SHOW_GRAPH',
         defaultMessage: 'Show graph',
+    },
+    TR_HIDE_GRAPH: {
+        id: 'TR_HIDE_GRAPH',
+        defaultMessage: 'Hide graph',
     },
     TR_DATE_DAY_LONG: {
         id: 'TR_DATE_DAY_LONG',

@@ -9245,6 +9245,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@seibei-iguchi/liveline@npm:0.10.0":
+  version: 0.10.0
+  resolution: "@seibei-iguchi/liveline@npm:0.10.0"
+  peerDependencies:
+    react: ">=18"
+  checksum: 10/7dbd41494ae49e5185f646ae70d29c8d44643a6ed0482ddc5614bc58b10f64c984ecf18492ef5916f38e35ffa405603131e2f55bb8773a92e1be7bd0a32fabc0
+  languageName: node
+  linkType: hard
+
 "@sentry-internal/browser-utils@npm:10.42.0":
   version: 10.42.0
   resolution: "@sentry-internal/browser-utils@npm:10.42.0"
@@ -10273,7 +10282,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@solana/rpc-spec-types@npm:2.3.0":
+"@solana/rpc-spec-types@npm:2.3.0, @solana/rpc-spec-types@npm:^2.3.0":
   version: 2.3.0
   resolution: "@solana/rpc-spec-types@npm:2.3.0"
   peerDependencies:
@@ -15819,6 +15828,7 @@ __metadata:
     "@solana-program/token": "npm:^0.5.1"
     "@solana-program/token-2022": "npm:^0.4.2"
     "@solana/kit": "npm:^2.3.0"
+    "@solana/rpc-spec-types": "npm:^2.3.0"
     "@solana/rpc-types": "npm:^2.3.0"
     "@stellar/stellar-sdk": "npm:14.5.0"
     "@trezor/blockchain-link-types": "workspace:*"
@@ -16779,6 +16789,7 @@ __metadata:
     "@hookform/resolvers": "npm:^5.2.2"
     "@mobily/ts-belt": "npm:^3.13.1"
     "@reduxjs/toolkit": "npm:2.11.2"
+    "@seibei-iguchi/liveline": "npm:0.10.0"
     "@sentry/core": "npm:10.42.0"
     "@solana/kit": "npm:^2.3.0"
     "@suite-common/analytics": "workspace:*"
@@ -17390,16 +17401,16 @@ __metadata:
   linkType: hard
 
 "@types/d3-array@npm:^3.0.3":
-  version: 3.2.1
-  resolution: "@types/d3-array@npm:3.2.1"
-  checksum: 10/4a9ecacaa859cff79e10dcec0c79053f027a4749ce0a4badeaff7400d69a9c44eb8210b147916b6ff5309be049030e7d68a0e333294ff3fa11c44aa1af4ba458
+  version: 3.2.2
+  resolution: "@types/d3-array@npm:3.2.2"
+  checksum: 10/1afebd05b688cafaaea295f765b409789f088b274b8a7ca40a4bc2b79760044a898e06a915f40bbc59cf39eabdd2b5d32e960b136fc025fd05c9a9d4435614c6
   languageName: node
   linkType: hard
 
 "@types/d3-color@npm:*":
-  version: 3.1.0
-  resolution: "@types/d3-color@npm:3.1.0"
-  checksum: 10/c5e2129602d5d28bd178632198b158f5d27c958252a9ddf9fdc86ac38b987ae96fdd465be88913914d2ce8a4975358f86ea56362d0ac01365b234a5a8bc31861
+  version: 3.1.3
+  resolution: "@types/d3-color@npm:3.1.3"
+  checksum: 10/1cf0f512c09357b25d644ab01b54200be7c9b15c808333b0ccacf767fff36f17520b2fcde9dad45e1bd7ce84befad39b43da42b4fded57680fa2127006ca3ece
   languageName: node
   linkType: hard
 
@@ -17420,9 +17431,9 @@ __metadata:
   linkType: hard
 
 "@types/d3-path@npm:*":
-  version: 3.0.0
-  resolution: "@types/d3-path@npm:3.0.0"
-  checksum: 10/8c884583a00c28fc562c8aecf452b2cfc8fdf90b824d19d5c968632fe3a50bd886d7f2097d70da01e6352fbe5e35716abab1a40518eb4828d29f4a7043488851
+  version: 3.1.1
+  resolution: "@types/d3-path@npm:3.1.1"
+  checksum: 10/0437994d45d852ecbe9c4484e5abe504cd48751796d23798b6d829503a15563fdd348d93ac44489ba9c656992d16157f695eb889d9ce1198963f8e1dbabb1266
   languageName: node
   linkType: hard
 
@@ -17443,18 +17454,25 @@ __metadata:
   linkType: hard
 
 "@types/d3-shape@npm:^3.1.0":
-  version: 3.1.7
-  resolution: "@types/d3-shape@npm:3.1.7"
+  version: 3.1.8
+  resolution: "@types/d3-shape@npm:3.1.8"
   dependencies:
     "@types/d3-path": "npm:*"
-  checksum: 10/b7ddda2a9c916ba438308bfa6e53fa2bb11c2ce13537ba2a7816c16f9432287b57901921c7231d2924f2d7d360535c3795f017865ab05abe5057c6ca06ca81df
+  checksum: 10/ebc161d49101d84409829fea516ba7ec71ad51a1e97438ca0fafc1c30b56b3feae802d220375323632723a338dda7237c652e831e0b53527a6222ab0d1bb7809
   languageName: node
   linkType: hard
 
-"@types/d3-time@npm:*, @types/d3-time@npm:^3.0.0":
+"@types/d3-time@npm:*":
   version: 3.0.0
   resolution: "@types/d3-time@npm:3.0.0"
   checksum: 10/7ef819c98eb0254dc5df901c94ec7f435f9becdedff048c89f905403b934a4d8dee7730659549d60e5ce18e0e9010009b1ab1522aadc724751edaecafc54ba53
+  languageName: node
+  linkType: hard
+
+"@types/d3-time@npm:^3.0.0":
+  version: 3.0.4
+  resolution: "@types/d3-time@npm:3.0.4"
+  checksum: 10/b1eb4255066da56023ad243fd4ae5a20462d73bd087a0297c7d49ece42b2304a4a04297568c604a38541019885b2bc35a9e0fd704fad218e9bc9c5f07dc685ce
   languageName: node
   linkType: hard
 
@@ -27829,9 +27847,9 @@ __metadata:
   linkType: hard
 
 "fast-equals@npm:^5.0.1":
-  version: 5.0.1
-  resolution: "fast-equals@npm:5.0.1"
-  checksum: 10/9dc1ef767903600e5694a89a787782fc3a4f56cc04d235afc13616c848c33563b8f415b1c6a248b2a236424f624aa1a7513f46b7fa69590a640e7784f1296bce
+  version: 5.4.0
+  resolution: "fast-equals@npm:5.4.0"
+  checksum: 10/bea068ceb7825d486d88a17ccc3fe889d1833efefa8dc64c83806e797f66b3ea953ac4aebd96af022d828de315ec87476e76418a5da774217d0ab66de53d68f5
   languageName: node
   linkType: hard
 
@@ -41260,8 +41278,8 @@ __metadata:
   linkType: hard
 
 "recharts@npm:^2.15.3":
-  version: 2.15.3
-  resolution: "recharts@npm:2.15.3"
+  version: 2.15.4
+  resolution: "recharts@npm:2.15.4"
   dependencies:
     clsx: "npm:^2.0.0"
     eventemitter3: "npm:^4.0.1"
@@ -41274,7 +41292,7 @@ __metadata:
   peerDependencies:
     react: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
     react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: 10/611315edc8f25238c7eaa4842e549abff59e4df51a2c8b5bdd80ce9778717e0097e35e56ea4a3c4f6139ad3083fbf6041065c8a5c6c6a3d950cb04490bd54237
+  checksum: 10/d29656d465ccdfcf95de7bc35e53c1f30fbd45e3d7b53c70bc2cd1892707058606eab8b0a648c1e1d0b3f21cc3b6774abf3f304da4d4534f550500909623492f
   languageName: node
   linkType: hard
 
@@ -46797,8 +46815,8 @@ __metadata:
   linkType: hard
 
 "victory-vendor@npm:^36.6.8":
-  version: 36.6.8
-  resolution: "victory-vendor@npm:36.6.8"
+  version: 36.9.2
+  resolution: "victory-vendor@npm:36.9.2"
   dependencies:
     "@types/d3-array": "npm:^3.0.3"
     "@types/d3-ease": "npm:^3.0.0"
@@ -46814,7 +46832,7 @@ __metadata:
     d3-shape: "npm:^3.1.0"
     d3-time: "npm:^3.0.0"
     d3-timer: "npm:^3.0.1"
-  checksum: 10/d418be8a77ba5dce59db2c7bcef4b78486ae339bd8f5e9a84ab30f3be6a6a541686f84e9f15c277f5957f5aece30f8ee087f3844d032827823f450f62f8c64c8
+  checksum: 10/db67b3d9b8070d4eae4122edc72be7067b4e32363340cdd4d5b628e7dd65bea0c7c5b4116016658d223adaa575bcc6b7b3a71507aa4f34b2609ed61dbfbba1ea
   languageName: node
   linkType: hard
 

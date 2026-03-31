@@ -4,15 +4,14 @@ import { Bar, CartesianGrid, Cell, ComposedChart, Line, Tooltip, XAxis, YAxis } 
 import styled, { useTheme } from 'styled-components';
 
 import { selectAccountTransactionsWithNulls } from '@suite-common/wallet-core';
+import { type AccountKey } from '@suite-common/wallet-types';
 import { isPending } from '@suite-common/wallet-utils';
-import { Icon } from '@trezor/components';
 import { typography, zIndices } from '@trezor/theme';
 
-import { GraphRangeSelector } from 'src/components/suite/graph/GraphRangeSelector';
 import { GraphSkeleton } from 'src/components/suite/graph/GraphSkeleton';
-import type { TransactionsGraphProps } from 'src/components/suite/graph/types';
-import { useGraph, useSelector } from 'src/hooks/suite';
-import { type Account, type WalletAccountTransaction } from 'src/types/wallet';
+import { type TransactionsGraphProps } from 'src/components/suite/graph/types';
+import { useSelector } from 'src/hooks/suite';
+import { type WalletAccountTransaction } from 'src/types/wallet';
 import { calcFakeGraphDataForTimestamps, calcXDomain, calcYDomain } from 'src/utils/wallet/graph';
 
 import { GraphBar } from './GraphBar';
@@ -30,24 +29,14 @@ const Wrapper = styled.div`
     ${typography['body-xs']}
     white-space: nowrap;
 
-    /* little hack to remove first and last horizontal line from cartesian grid (lines that wrap the area of the chart) */
-
     .recharts-wrapper .recharts-cartesian-grid-horizontal line:first-child,
     .recharts-wrapper .recharts-cartesian-grid-horizontal line:last-child {
         stroke-opacity: 0;
     }
 
-    /* hides circle dot in case only one month is displayed */
-
     .recharts-dot.recharts-line-dot {
         display: none;
     }
-`;
-
-const Toolbar = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 `;
 
 const Description = styled.div`
@@ -60,65 +49,56 @@ const Description = styled.div`
 `;
 
 const emptyList: ReturnType<typeof selectAccountTransactionsWithNulls>[] = [];
+
 const useTransactionGraphUpdater = ({
     onRequestGraphUpdate,
-    account,
+    accountKey,
 }: {
     onRequestGraphUpdate: (abortController: AbortController) => Promise<unknown> | undefined;
-    account: Account | undefined;
+    accountKey?: AccountKey;
 }) => {
     const [currentPromise, setCurrentPromise] = useState<{
-        promiseId: string;
-        promise: Promise<unknown>;
         abortController: AbortController;
+        promise: Promise<unknown>;
+        promiseId: string;
     } | null>(null);
 
     const allTransactions = useSelector(state =>
-        account ? selectAccountTransactionsWithNulls(state, account.key) : emptyList,
+        accountKey ? selectAccountTransactionsWithNulls(state, accountKey) : emptyList,
     );
 
     const newestTransactions = allTransactions
         .slice(0, 3)
         .flat()
-        .filter((tx): tx is WalletAccountTransaction =>
-            Boolean(Boolean(tx) && tx && !isPending(tx)),
-        );
+        .filter((tx): tx is WalletAccountTransaction => Boolean(tx) && !isPending(tx));
 
     const promiseId = newestTransactions.map(tx => tx.txid).join('-');
 
     useEffect(() => {
-        if (promiseId !== currentPromise?.promiseId && account) {
-            const nextAbortController = new AbortController();
-
-            currentPromise?.abortController.abort();
-
-            setCurrentPromise({
-                promiseId,
-                abortController: nextAbortController,
-                promise: Promise.resolve()
-                    .then(() =>
-                        currentPromise?.promise?.then(
-                            result => result,
-                            _ => {
-                                // NOTE: swallow this error as we want to continue on with the next promise
-                            },
-                        ),
-                    )
-                    .then(() => {
-                        nextAbortController.signal.throwIfAborted();
-
-                        return Promise.resolve(onRequestGraphUpdate(nextAbortController));
-                    }),
-            });
+        if (!accountKey || promiseId === currentPromise?.promiseId) {
+            return;
         }
-    }, [
-        account,
-        currentPromise?.abortController,
-        currentPromise?.promise,
-        currentPromise?.promiseId,
-        promiseId,
-        onRequestGraphUpdate,
-    ]);
+
+        const nextAbortController = new AbortController();
+        currentPromise?.abortController.abort();
+
+        setCurrentPromise({
+            promiseId,
+            abortController: nextAbortController,
+            promise: Promise.resolve()
+                .then(() =>
+                    currentPromise?.promise?.then(
+                        result => result,
+                        () => undefined,
+                    ),
+                )
+                .then(() => {
+                    nextAbortController.signal.throwIfAborted();
+
+                    return Promise.resolve(onRequestGraphUpdate(nextAbortController));
+                }),
+        });
+    }, [accountKey, currentPromise, onRequestGraphUpdate, promiseId]);
 };
 
 export const TransactionsGraph = memo(
@@ -126,7 +106,6 @@ export const TransactionsGraph = memo(
         account,
         balanceValueFn,
         data,
-        hideToolbar,
         isLoading,
         localCurrency,
         minMaxValues,
@@ -140,21 +119,14 @@ export const TransactionsGraph = memo(
         const [maxYTickWidth, setMaxYTickWidth] = useState(20);
 
         const theme = useTheme();
-        const { selectedView } = useGraph();
         const yDomain = calcYDomain(
             variant === 'all-assets' ? 'fiat' : 'crypto',
-            selectedView,
+            'linear',
             minMaxValues,
             account?.formattedBalance,
         );
 
-        const setWidth = (n: number) => {
-            setMaxYTickWidth(prevValue => (prevValue > n ? prevValue : n));
-        };
-
-        const rightMargin = Math.max(0, maxYTickWidth - 50) + 10; // 50 is the default spacing
-
-        // calculate fake data for full interval (eg. 1 year) even for ticks/timestamps without txs
+        const rightMargin = Math.max(0, maxYTickWidth - 50) + 10;
         const extendedDataForInterval =
             variant === 'one-asset'
                 ? calcFakeGraphDataForTimestamps(xTicks, data, account.formattedBalance)
@@ -164,31 +136,23 @@ export const TransactionsGraph = memo(
         const [hovered, setHovered] = useState(hoveredIndex);
         const isBarColored = (index: number) => [-1, index].includes(hovered);
 
-        const tooltipContentProps = {
-            selectedRange,
-            localCurrency,
-            extendedDataForInterval,
-            onShow: (index: number) => setHovered(index),
-        };
+        const typedReceivedValueFn = receivedValueFn as (
+            sourceData: (typeof extendedDataForInterval)[number],
+        ) => string | number | undefined;
+        const typedSentValueFn = sentValueFn as (
+            sourceData: (typeof extendedDataForInterval)[number],
+        ) => string | number | undefined;
+        const typedBalanceValueFn = balanceValueFn as (
+            sourceData: (typeof extendedDataForInterval)[number],
+        ) => string | number | undefined;
 
         useTransactionGraphUpdater({
             onRequestGraphUpdate: abortController => onRefresh?.(abortController),
-            account,
+            accountKey: account?.key,
         });
 
         return (
             <Wrapper>
-                {!hideToolbar && (
-                    <Toolbar>
-                        <GraphRangeSelector
-                            placement={{
-                                position: 'bottom',
-                                alignment: 'start',
-                            }}
-                        />
-                        {onRefresh && <Icon size={14} name="repeat" onClick={onRefresh} />}
-                    </Toolbar>
-                )}
                 <Description>
                     {isLoading && <GraphSkeleton animate />}
 
@@ -197,7 +161,6 @@ export const TransactionsGraph = memo(
                             <ComposedChart
                                 data={extendedDataForInterval}
                                 barGap={0}
-                                // stackOffset="sign"
                                 margin={{
                                     top: 10,
                                     bottom: 30,
@@ -209,11 +172,9 @@ export const TransactionsGraph = memo(
                                 <CartesianGrid vertical={false} stroke={theme.borderNeutral} />
 
                                 <XAxis
-                                    // xAxisId="primary"
                                     dataKey="time"
                                     type="number"
                                     domain={calcXDomain(xTicks, data, selectedRange)}
-                                    // width={10}
                                     stroke={theme.elementBorderFieldFocused}
                                     interval="preserveEnd"
                                     tick={<GraphXAxisTick selectedRange={selectedRange} />}
@@ -225,20 +186,20 @@ export const TransactionsGraph = memo(
                                 <YAxis
                                     type="number"
                                     orientation="right"
-                                    scale={selectedView}
+                                    scale="linear"
                                     domain={yDomain}
-                                    allowDataOverflow={selectedView === 'log'}
+                                    allowDataOverflow={false}
                                     stroke="transparent"
                                     tick={
                                         variant === 'one-asset' ? (
                                             <GraphYAxisTick
                                                 symbol={account.symbol}
-                                                setWidth={setWidth}
+                                                setWidth={width => setMaxYTickWidth(width)}
                                             />
                                         ) : (
                                             <GraphYAxisTick
                                                 localCurrency={localCurrency}
-                                                setWidth={setWidth}
+                                                setWidth={width => setMaxYTickWidth(width)}
                                             />
                                         )
                                     }
@@ -258,13 +219,19 @@ export const TransactionsGraph = memo(
                                                 sentValueFn={sentValueFn}
                                                 receivedValueFn={receivedValueFn}
                                                 balanceValueFn={balanceValueFn}
-                                                {...tooltipContentProps}
+                                                selectedRange={selectedRange}
+                                                localCurrency={localCurrency}
+                                                extendedDataForInterval={extendedDataForInterval}
+                                                onShow={setHovered}
                                             />
                                         ) : (
                                             <GraphTooltipDashboard
                                                 sentValueFn={sentValueFn}
                                                 receivedValueFn={receivedValueFn}
-                                                {...tooltipContentProps}
+                                                selectedRange={selectedRange}
+                                                localCurrency={localCurrency}
+                                                extendedDataForInterval={extendedDataForInterval}
+                                                onShow={setHovered}
                                             />
                                         )
                                     }
@@ -273,10 +240,8 @@ export const TransactionsGraph = memo(
                                 {variant === 'one-asset' && (
                                     <Line
                                         type="linear"
-                                        dataKey={(data: any) =>
-                                            selectedView === 'log'
-                                                ? Number(balanceValueFn(data)) || yDomain[0]
-                                                : Number(balanceValueFn(data))
+                                        dataKey={dataPoint =>
+                                            Number(typedBalanceValueFn(dataPoint) ?? 0)
                                         }
                                         stroke={theme.borderWarning}
                                         dot={false}
@@ -297,13 +262,15 @@ export const TransactionsGraph = memo(
                                     </filter>
                                 </defs>
                                 <Bar
-                                    dataKey={(data: any) => Number(receivedValueFn(data) ?? 0)}
+                                    dataKey={dataPoint =>
+                                        Number(typedReceivedValueFn(dataPoint) ?? 0)
+                                    }
                                     barSize={selectedRange.label === 'all' ? 8 : 16}
-                                    shape={<GraphBar variant="received" />}
+                                    shape={<GraphBar />}
                                 >
                                     {extendedDataForInterval.map((entry, index) => (
                                         <Cell
-                                            key={`cell-${entry}`}
+                                            key={`${entry.time}-received`}
                                             filter={isBarColored(index) ? 'url(#shadow)' : ''}
                                             fill={
                                                 isBarColored(index) ? theme.borderBrand : '#aeaeae'
@@ -312,13 +279,13 @@ export const TransactionsGraph = memo(
                                     ))}
                                 </Bar>
                                 <Bar
-                                    dataKey={(data: any) => Number(sentValueFn(data) ?? 0)}
+                                    dataKey={dataPoint => Number(typedSentValueFn(dataPoint) ?? 0)}
                                     barSize={selectedRange.label === 'all' ? 8 : 16}
-                                    shape={<GraphBar variant="sent" />}
+                                    shape={<GraphBar />}
                                 >
                                     {extendedDataForInterval.map((entry, index) => (
                                         <Cell
-                                            key={`cell-${entry}`}
+                                            key={`${entry.time}-sent`}
                                             filter={isBarColored(index) ? 'url(#shadow)' : ''}
                                             fill={
                                                 isBarColored(index)
