@@ -12,7 +12,10 @@ export type {
     EnsureSuiteSyncKeysDep,
     EnsureSuiteSyncKeysResult,
 } from './ensureSuiteSyncKeys';
-export type { WriteModeRequiredForAllocationErrType } from './quotaManager/quotaManagerTypes';
+export type {
+    WriteModeRequiredForAllocationErrType,
+    QuotaManagerCommunicationFailedErrType,
+} from './quotaManager/quotaManagerTypes';
 export type { TurnOffSuiteSyncDep, TurnOffSuiteSync } from './turnOffSuiteSync';
 export type { TurnOnSuiteSyncDep, TurnOnSuiteSync } from './turnOnSuiteSync';
 export type { SuiteSyncUnavailableOnDeviceErrorType } from './ensureSuiteSyncKeys';
