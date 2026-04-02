@@ -7,7 +7,6 @@ import {
 import {
     type ChallengeFailedErrType,
     type EnsureOwnerHasAllocatedQuota,
-    type EnsureOwnerHasAllocatedQuotaParams,
     type HttpErrType,
     type NoQuotaLeftToAllocateErrType,
     type ProofOfDelegatedIdentityFailedErrType,
@@ -16,15 +15,15 @@ import {
 import { parseDeviceStaticSessionId } from '@suite-common/wallet-utils';
 import { err, ok } from '@trezor/type-utils';
 
-import { prepareChallengeSession } from './challenge/prepareChallengeSession';
+import { type PrepareChallengeSessionDep } from './challenge/prepareChallengeSession';
 import {
     DEFAULT_DEVICE_SIZE_QUOTA,
     EVOLU_SIGN_ADD_SPACE_TO_OWNER_REQUEST_HEADER,
 } from './constants';
+import { quotaManagerCommunicationFailed } from './errors';
 import { quotaManagerOwnerFetched } from './quotaManagerActions';
-import { selectLeftDeviceQuota, selectQuotaManagerBaseUrl } from './quotaManagerSelectors';
-import { checkStorageByOwnerId } from './storage/checkStorage';
-import { transferStorageThunk } from './storage/transferStorageThunk';
+import { type CheckStorageByOwnerIdDep } from './storage/checkStorage';
+import { type TransferStorageDep } from './storage/createTransferStorage';
 import { getAccountIncrementSizeQuota } from './util/getAccountIncrementSizeQuota';
 import { prepareMessageBufferEvoluAddSpaceToOwner } from './util/prepareMessageBufferEvoluAddSpaceToOwner';
 
@@ -48,29 +47,43 @@ export const NoQuotaLeftToAllocate = (): NoQuotaLeftToAllocateErrType => ({
     type: 'NoQuotaLeftToAllocate',
 });
 
-export const ensureOwnerHasAllocatedQuotaThunk =
-    ({
-        ownerId,
-        deviceStaticSessionId,
-        delegatedKey,
-        isWriteMode,
-    }: EnsureOwnerHasAllocatedQuotaParams) =>
-    async (dispatch: Dispatch, getState: () => any): ReturnType<EnsureOwnerHasAllocatedQuota> => {
-        const { walletDescriptor, deviceId } = parseDeviceStaticSessionId(deviceStaticSessionId);
-        const quotaManagerBaseUrl = selectQuotaManagerBaseUrl(getState());
+type GetQuotaManagerBaseUrl = () => string | null;
+type GetLeftDeviceQuota = (deviceId: string) => number | undefined;
 
-        const hasOwnerStorage = await checkStorageByOwnerId({
-            baseUrl: quotaManagerBaseUrl,
+export type EnsureOwnerHasAllocatedQuotaDeps = {
+    dispatch: Dispatch;
+    getQuotaManagerBaseUrl: GetQuotaManagerBaseUrl;
+    getLeftDeviceQuota: GetLeftDeviceQuota;
+} & TransferStorageDep &
+    PrepareChallengeSessionDep &
+    CheckStorageByOwnerIdDep;
+
+export type EnsureOwnerHasAllocatedQuotaDep = {
+    ensureOwnerHasAllocatedQuota: EnsureOwnerHasAllocatedQuota;
+};
+
+export const createEnsureOwnerHasAllocatedQuota =
+    (deps: EnsureOwnerHasAllocatedQuotaDeps): EnsureOwnerHasAllocatedQuota =>
+    async ({ ownerId, deviceStaticSessionId, delegatedKey, isWriteMode }) => {
+        const { walletDescriptor, deviceId } = parseDeviceStaticSessionId(deviceStaticSessionId);
+
+        const hasOwnerStorage = await deps.checkStorageByOwnerId({
+            baseUrl: deps.getQuotaManagerBaseUrl(),
             ownerId,
         });
 
         if (!hasOwnerStorage.success) {
-            return err(HttpError());
+            const isHttp404 =
+                hasOwnerStorage.error.type === 'HttpError' && hasOwnerStorage.error.code === 404;
+
+            if (!isHttp404) {
+                return err(quotaManagerCommunicationFailed(hasOwnerStorage.error));
+            }
         }
 
         // Storage exists for this owner
-        if (hasOwnerStorage.payload.status === 'Allocated') {
-            dispatch(
+        if (hasOwnerStorage.success && hasOwnerStorage.payload.status === 'Allocated') {
+            deps.dispatch(
                 quotaManagerOwnerFetched({
                     walletDescriptor,
                     totalSpace: hasOwnerStorage.payload.totalSpace,
@@ -85,7 +98,7 @@ export const ensureOwnerHasAllocatedQuotaThunk =
             return err(WriteModeRequiredForAllocation());
         }
 
-        const leftDeviceQuota = selectLeftDeviceQuota(getState(), deviceId);
+        const leftDeviceQuota = deps.getLeftDeviceQuota(deviceId);
         const sizeToAllocate = getAccountIncrementSizeQuota({
             unspentStorage: leftDeviceQuota ?? DEFAULT_DEVICE_SIZE_QUOTA,
         });
@@ -94,12 +107,12 @@ export const ensureOwnerHasAllocatedQuotaThunk =
             return err(NoQuotaLeftToAllocate());
         }
 
-        const sessionChallenge = await prepareChallengeSession({
-            baseUrl: quotaManagerBaseUrl,
+        const sessionChallenge = await deps.prepareChallengeSession({
+            baseUrl: deps.getQuotaManagerBaseUrl(),
         });
 
         if (!sessionChallenge.success) {
-            return err(HttpError());
+            return err(quotaManagerCommunicationFailed(sessionChallenge.error));
         }
 
         const proofOfDelegatedIdentity = getProofOfDelegatedIdentity({
@@ -114,23 +127,25 @@ export const ensureOwnerHasAllocatedQuotaThunk =
         });
 
         if (!proofOfDelegatedIdentity.success) {
-            return err(ProofOfDelegatedIdentityFailed());
+            return err(quotaManagerCommunicationFailed(proofOfDelegatedIdentity.error));
         }
 
-        await dispatch(
-            transferStorageThunk({
-                params: {
-                    ownerId,
-                    publicKey: getPublicIdentityKeyFromDelegatedKey(delegatedKey),
-                    proof: proofOfDelegatedIdentity.payload,
-                    size: sizeToAllocate,
-                    challenge: sessionChallenge.payload.challenge,
-                    sessionId: sessionChallenge.payload.sessionId,
-                },
-                walletDescriptor,
-                deviceId,
-            }),
-        );
+        const transferStorageResult = await deps.transferStorage({
+            params: {
+                ownerId,
+                publicKey: getPublicIdentityKeyFromDelegatedKey(delegatedKey),
+                proof: proofOfDelegatedIdentity.payload,
+                size: sizeToAllocate,
+                challenge: sessionChallenge.payload.challenge,
+                sessionId: sessionChallenge.payload.sessionId,
+            },
+            walletDescriptor,
+            deviceId,
+        });
+
+        if (!transferStorageResult.success) {
+            return err(quotaManagerCommunicationFailed(transferStorageResult.error));
+        }
 
         return ok();
     };

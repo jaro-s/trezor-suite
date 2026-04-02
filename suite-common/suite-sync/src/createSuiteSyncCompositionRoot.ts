@@ -5,7 +5,10 @@ import { type EnsureDelegatedIdentityKeyDep } from '@suite-common/delegated-iden
 import { toGetter } from '@suite-common/dependency-injection';
 import { selectAllDeviceStaticIds, selectDeviceByStaticSessionId } from '@suite-common/device';
 import { type PlatformEncryptionDep } from '@suite-common/platform-encryption';
-import { createSuiteSyncQuotaManagerCompositionRoot } from '@suite-common/suite-sync-quota-manager';
+import {
+    createSuiteSyncQuotaManagerCompositionRoot,
+    quotaManagerFetch,
+} from '@suite-common/suite-sync-quota-manager';
 import {
     type CreateSuiteStorageDep,
     type CreateSuiteSyncOwnerDep,
@@ -13,6 +16,7 @@ import {
 import { type SuiteSync } from '@suite-common/suite-sync-types';
 import { selectAccounts } from '@suite-common/wallet-core';
 import { type Analytics } from '@trezor/analytics-uploader';
+import type TrezorConnect from '@trezor/connect';
 
 import { createEnsureSuiteSyncKeys } from './createEnsureSuiteSyncKeys';
 import { createTurnOffSuiteSync } from './createTurnOffSuiteSync';
@@ -32,10 +36,7 @@ import { selectSuiteSyncWalletLabel } from './data/wallet/suiteSyncWalletSelecto
 import { type GetDeviceForStaticSessionId } from './getDeviceForStaticSessionId';
 import { createEnsureSuiteSyncOwner } from './owner/createEnsureSuiteSyncOwner';
 import { createLoadSuiteSyncOwnerFromState } from './owner/createLoadSuiteSyncOwnerFromState';
-import {
-    type RetrieveSuiteSyncOwnerDeps,
-    createRetrieveSuiteSyncOwner,
-} from './owner/createRetrieveSuiteSyncOwner';
+import { createRetrieveSuiteSyncOwner } from './owner/createRetrieveSuiteSyncOwner';
 import { createSaveSuiteSyncOwner } from './owner/createSaveSuiteSyncOwner';
 import { createChangeRelayUrl } from './relay/createChangeRelayUrl';
 import { isUsingTrezorServer } from './relay/isUsingTrezorServer';
@@ -60,7 +61,7 @@ export type SuiteSyncAnalyticsDep = {
 type CreateSuiteSyncCompositionRootDeps = {
     getState: () => any;
     dispatch: Dispatch;
-    trezorConnect: RetrieveSuiteSyncOwnerDeps['trezorConnect'];
+    trezorConnect: Pick<typeof TrezorConnect, 'evoluGetNode' | 'evoluSignRegistrationRequest'>;
 } & SuiteSyncAnalyticsDep &
     EnsureDelegatedIdentityKeyDep &
     CreateSuiteStorageDep &
@@ -106,7 +107,10 @@ export const createSuiteSyncCompositionRoot = (
         dispatch: deps.dispatch,
         getState: deps.getState,
         getDeviceForStaticSessionId,
+        ensureDelegatedIdentityKey: deps.ensureDelegatedIdentityKey,
         getIsUsingTrezorRelay: () => isUsingTrezorServer(selectSuiteSyncRelayUrl(deps.getState())),
+        quotaManagerFetch,
+        trezorConnect: deps.trezorConnect,
     });
 
     const ensureStorage = createEnsureStorage({
