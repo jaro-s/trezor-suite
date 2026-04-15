@@ -76,11 +76,16 @@ describe('bridge', () => {
     test('2 clients. one acquires and releases, the other one is watching', async () => {
         await enumerateAndListen();
 
+        const firstDescriptor = descriptors[0];
+        if (!firstDescriptor) {
+            throw new Error('Expected at least one descriptor');
+        }
+
         const bride1spy = jest.spyOn(bridge1.deviceEvents, 'emit');
         const bride2spy = jest.spyOn(bridge2.deviceEvents, 'emit');
 
         const session1 = await bridge1.acquire({
-            input: { previous: null, path: descriptors[0].path },
+            input: { previous: null, path: firstDescriptor.path },
         });
         expect(session1).toEqual({
             success: true,
@@ -91,7 +96,7 @@ describe('bridge', () => {
         await wait();
 
         const expectedDescriptor1 = getDescriptor({
-            path: descriptors[0].path,
+            path: firstDescriptor.path,
             session: Session('1'),
         });
 
@@ -109,12 +114,12 @@ describe('bridge', () => {
             return;
         }
 
-        await bridge1.release({ path: descriptors[0].path, session: session1.payload });
+        await bridge1.release({ path: firstDescriptor.path, session: session1.payload });
 
         await wait();
 
         const expectedDescriptor2 = getDescriptor({
-            path: descriptors[0].path,
+            path: firstDescriptor.path,
             session: null,
         });
 
@@ -129,7 +134,7 @@ describe('bridge', () => {
         });
 
         const session2 = await bridge2.acquire({
-            input: { previous: null, path: descriptors[0].path },
+            input: { previous: null, path: firstDescriptor.path },
         });
         expect(session2).toEqual({ success: true, payload: '2' });
     });
@@ -137,11 +142,16 @@ describe('bridge', () => {
     test('session can be "stolen" by another client', async () => {
         await enumerateAndListen();
 
+        const firstDescriptor = descriptors[0];
+        if (!firstDescriptor) {
+            throw new Error('Expected at least one descriptor');
+        }
+
         const bride1spy = jest.spyOn(bridge1.deviceEvents, 'emit');
         const bride2spy = jest.spyOn(bridge2.deviceEvents, 'emit');
 
         const session1 = await bridge1.acquire({
-            input: { previous: null, path: descriptors[0].path },
+            input: { previous: null, path: firstDescriptor.path },
         });
 
         expect(session1).toEqual({ success: true, payload: '1' });
@@ -153,13 +163,13 @@ describe('bridge', () => {
 
         // bridge 2 steals session
         const session2 = await bridge2.acquire({
-            input: { previous: session1.payload, path: descriptors[0].path },
+            input: { previous: session1.payload, path: firstDescriptor.path },
         });
 
         expect(session2).toEqual({ success: true, payload: '2' });
 
         const expectedDescriptor = getDescriptor({
-            path: descriptors[0].path,
+            path: firstDescriptor.path,
             session: Session('2'),
             sessionOwner: 'app B',
         });
@@ -182,7 +192,11 @@ describe('bridge', () => {
         test('client 1 (acquire - read), client 2 (acquire - send - read)', async () => {
             await enumerateAndListen();
 
-            const { path } = descriptors[0];
+            const firstDescriptor = descriptors[0];
+            if (!firstDescriptor) {
+                throw new Error('Expected at least one descriptor');
+            }
+            const { path } = firstDescriptor;
             const session1 = await bridge1.acquire({
                 input: { previous: null, path },
             });
