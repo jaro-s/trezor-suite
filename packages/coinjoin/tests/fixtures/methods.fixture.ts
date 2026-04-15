@@ -985,7 +985,7 @@ const {
     addresses: {
         unused,
         used: [used1, used2],
-        change: [{ balance, sent, received, transfers, ...change1 }, ...change],
+        change: [firstChange, ...change],
     },
     history: {
         transactions: [, , pending, ...transactions],
@@ -993,6 +993,9 @@ const {
     utxo: [utxo],
     ...rest
 } = SEGWIT_XPUB_RESULT;
+// @ts-expect-error: indexing with noUncheckedIndexedAccess
+const { balance, sent, received, transfers, ...change1 }: NonNullable<typeof firstChange> =
+    firstChange;
 
 export const SEGWIT_XPUB_RESULT_HALF = {
     ...rest,

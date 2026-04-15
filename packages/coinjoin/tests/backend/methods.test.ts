@@ -160,7 +160,8 @@ describe(`CoinjoinBackend methods`, () => {
     });
 
     it('scanAccount 1-block reorg', async () => {
-        const [PRELAST_BLOCK, LAST_BLOCK] = FIXTURES.BLOCKS.slice(-2);
+        type BlockFixture = (typeof FIXTURES.BLOCKS)[number];
+        const [PRELAST_BLOCK, LAST_BLOCK] = FIXTURES.BLOCKS.slice(-2) as [BlockFixture, BlockFixture];
         const PRELAST_CP = { blockHeight: PRELAST_BLOCK.height, blockHash: PRELAST_BLOCK.hash };
         const REORG_BLOCK = {
             ...LAST_BLOCK,
