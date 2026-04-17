@@ -70,8 +70,7 @@ export async function findProcessFromIncomingPort(
                 } else {
                     const fullPathCommand = `cat /proc/${pid}/cmdline`;
                     const fullPathRaw = await spawnAndCollectStdout(fullPathCommand);
-                    // @ts-expect-error: indexing with noUncheckedIndexedAccess
-                    const fullPath: string = fullPathRaw.split('\0')[0];
+                    const fullPath = fullPathRaw.split('\0')[0] ?? '';
                     const trimmedFullPath = fullPath.trim();
                     // Binaries can be all over the place on Linux, so we don't check the path
 

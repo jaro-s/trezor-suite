@@ -92,9 +92,10 @@ export class CoinjoinBackendClient implements CoinjoinBackendClientShape {
                     .then<BlockFilterResponse>(({ blockFiltersBatch, ...rest }) => {
                         if (!blockFiltersBatch.length) return { status: 'up-to-date' };
                         const filters = blockFiltersBatch.map(item => {
-                            // @ts-expect-error: indexing with noUncheckedIndexedAccess
-                            const [blockHeight, blockHash, filter]: [string, string, string] =
-                                item.split(':');
+                            const itemParts = item.split(':');
+                            const blockHeight = itemParts[0] ?? '';
+                            const blockHash = itemParts[1] ?? '';
+                            const filter = itemParts[2] ?? '';
 
                             return { blockHeight: Number(blockHeight), blockHash, filter };
                         });

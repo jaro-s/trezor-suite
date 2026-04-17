@@ -12,9 +12,10 @@ const WASABI_URL = 'https://wasabiwallet.io';
 const BLOCKBOOK_URL = 'wss://staging-btc.trezor.io/websocket';
 const TIMEOUT = 20000;
 
-// @ts-expect-error: indexing with noUncheckedIndexedAccess
-const [bestKnownHash, batchSizeString = '500', torSocket = '']: [string, string, string] =
-    process.argv.slice(2);
+const benchmarkArgs = process.argv.slice(2);
+const bestKnownHash = benchmarkArgs[0] ?? '';
+const batchSizeString = benchmarkArgs[1] ?? '500';
+const torSocket = benchmarkArgs[2] ?? '';
 const batchSize = Number(batchSizeString);
 const [host, port] = torSocket.split(':');
 const agent = host && port ? new SocksProxyAgent(`socks://${host}:${port}`) : undefined;
@@ -31,8 +32,7 @@ const stripHeaders = () => {
                 ?.split(': ');
 
             if (allowedHeaders) {
-                // @ts-expect-error: indexing with noUncheckedIndexedAccess
-                const allowedValue: string = allowedHeaders[1];
+                const allowedValue = allowedHeaders[1] ?? '';
                 const allowedKeys = allowedValue.split(';');
 
                 headers.forEach(line => {

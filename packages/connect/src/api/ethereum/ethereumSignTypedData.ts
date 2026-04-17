@@ -24,8 +24,8 @@ export function parseArrayType(arrayTypeName: string) {
             `typename ${arrayTypeName} could not be parsed as an EIP-712 array`,
         );
     }
-    // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const [_, entryTypeName, arraySize]: [string, string, string] = arrayMatch;
+    const entryTypeName = arrayMatch[1] ?? '';
+    const arraySize = arrayMatch[2] ?? '';
 
     return {
         entryTypeName,
@@ -106,8 +106,8 @@ export function encodeData(typeName: string, data: any) {
     }
     const numberMatch = paramTypeNumber.exec(typeName);
     if (numberMatch) {
-        // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const [_, intType, bits]: [string, string, string] = numberMatch;
+        const intType = numberMatch[1] ?? '';
+        const bits = numberMatch[2] ?? '';
         const bytes = Math.ceil(parseInt(bits, 10) / 8);
 
         return intToHex(data, bytes, intType === 'int');
@@ -142,8 +142,8 @@ export function getFieldType(
 ): PROTO.EthereumFieldType {
     const arrayMatch = paramTypeArray.exec(typeName);
     if (arrayMatch) {
-        // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const [_, arrayItemTypeName, arraySize]: [string, string, string] = arrayMatch;
+        const arrayItemTypeName = arrayMatch[1] ?? '';
+        const arraySize = arrayMatch[2] ?? '';
         const entryType = getFieldType(arrayItemTypeName, types);
 
         return {
@@ -155,8 +155,8 @@ export function getFieldType(
 
     const numberMatch = paramTypeNumber.exec(typeName);
     if (numberMatch) {
-        // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const [_, type, bits]: [string, string, string] = numberMatch;
+        const type = numberMatch[1] ?? '';
+        const bits = numberMatch[2] ?? '';
 
         return {
             data_type: type === 'uint' ? PROTO.EthereumDataType.UINT : PROTO.EthereumDataType.INT,
@@ -166,8 +166,7 @@ export function getFieldType(
 
     const bytesMatch = paramTypeBytes.exec(typeName);
     if (bytesMatch) {
-        // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const [_, size]: [string, string] = bytesMatch;
+        const size = bytesMatch[1] ?? '';
 
         return {
             data_type: PROTO.EthereumDataType.BYTES,

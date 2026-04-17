@@ -22,8 +22,10 @@ export default class RequestLogin extends AbstractMethod<'requestLogin', PROTO.S
         const origin = payload.origin || settings.origin;
 
         if (origin) {
-            // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const [proto, host, port]: [string, string, string | undefined] = origin.split(':');
+            const originParts = origin.split(':');
+            const proto = originParts[0] ?? '';
+            const host = originParts[1] ?? '';
+            const port = originParts[2];
             identity.proto = proto;
             identity.host = host.substring(2);
             if (port) {

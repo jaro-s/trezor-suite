@@ -46,10 +46,11 @@ export const getCommitmentData = (identifier: string, roundId: string) => {
 
 // transform '0d 0h 1m 0s' (WabiSabi TimeSpan) to milliseconds
 export const readTimeSpan = (ts: string) => {
-    // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const [days, hours, minutes, seconds]: [number, number, number, number] = ts
-        .split(' ')
-        .map(v => parseInt(v, 10));
+    const parts = ts.split(' ').map(v => parseInt(v, 10));
+    const days = parts[0] ?? 0;
+    const hours = parts[1] ?? 0;
+    const minutes = parts[2] ?? 0;
+    const seconds = parts[3] ?? 0;
 
     const date = new Date();
     const now = date.getTime();

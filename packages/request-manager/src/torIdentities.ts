@@ -18,8 +18,9 @@ export class TorIdentities {
         timeout?: number,
         protocol?: 'http' | 'https',
     ): SocksProxyAgent {
-        // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const [user, password]: [string, string] = identity.split(':');
+        const identityParts = identity.split(':');
+        const user = identityParts[0] ?? '';
+        const password = identityParts[1] ?? '';
 
         if (password && this.passwords[user] !== password) {
             if (this.identities[user]) {

@@ -21,8 +21,7 @@ export const interceptNetSocketConnect: Interceptor = ({ context, validateReques
                 ?.split(': ');
 
             if (allowedHeaders) {
-                // @ts-expect-error: indexing with noUncheckedIndexedAccess
-                const allowedValue: string = allowedHeaders[1];
+                const allowedValue = allowedHeaders[1] ?? '';
                 const allowedKeys = allowedValue.split(';');
 
                 headers.forEach(line => {
@@ -78,8 +77,7 @@ export const interceptNetSocketConnect: Interceptor = ({ context, validateReques
             details = typeof callback === 'string' ? `${callback}:${request}` : request.toString();
         }
 
-        // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const hostname: string = details.split(':')[0];
+        const hostname = details.split(':')[0] ?? '';
         validateRequest({ hostname });
 
         context.handler({

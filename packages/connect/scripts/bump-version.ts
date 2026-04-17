@@ -11,8 +11,7 @@ if (args.length !== 1) {
     throw new Error('semver arg is missing');
 }
 
-// @ts-expect-error: indexing with noUncheckedIndexedAccess
-const [semver]: [string] = args;
+const semver = args[0] ?? '';
 
 const allowedSemvers = ['patch', 'prepatch', 'minor', 'preminor', 'prerelease'];
 if (!allowedSemvers.includes(semver)) {

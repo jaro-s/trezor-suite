@@ -79,9 +79,8 @@ describe.skip('TorControlPort', () => {
                             sock.write('250 OK');
                             break;
                         case !!authchallengeRequest: {
-                            // @ts-expect-error: indexing with noUncheckedIndexedAccess
-                            const nonce: string = authchallengeRequest
-                                ? authchallengeRequest[1]
+                            const nonce = authchallengeRequest
+                                ? (authchallengeRequest[1] ?? '')
                                 : '';
                             clientNonce = nonce;
                             sock.write(

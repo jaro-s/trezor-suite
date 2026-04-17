@@ -365,11 +365,9 @@ export class DeviceList extends TypedEmitter<DeviceListEvents> implements IDevic
 
     getDeviceByStaticState(state: StaticSessionId): Device | undefined {
         const stateParts = state.split('@');
-        // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const afterAt: string = stateParts[1];
+        const afterAt = stateParts[1] ?? '';
         const deviceIdParts = afterAt.split(':');
-        // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const deviceId: string = deviceIdParts[0];
+        const deviceId = deviceIdParts[0] ?? '';
 
         return this.getPrioritizedDevices().find(d => d.features?.device_id === deviceId);
     }

@@ -57,9 +57,9 @@ const parseArgv = () => {
         if (arg.startsWith('--')) {
             const key = arg.slice(2);
             if (key.includes('=')) {
-                // @ts-expect-error: indexing with noUncheckedIndexedAccess
-                const [k]: [string] = key.split('=');
-                const v = key.split('=')[1];
+                const keyParts = key.split('=');
+                const k = keyParts[0] ?? '';
+                const v = keyParts[1];
                 add(k, v?.toLowerCase());
             } else {
                 // @ts-expect-error: indexing with noUncheckedIndexedAccess
