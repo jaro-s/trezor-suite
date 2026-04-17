@@ -16,7 +16,7 @@ type MenuItem = Omit<MenuItemConstructorOptions, 'submenu'> & {
 
 // for those wondering why is this a function, it is because otherwise app.name used in the template has incorrect value @trezor/suite-desktop instead of "Trezor Suite"
 export const buildMainMenu = (mainWindowProxy: MainWindowProxy) => {
-    const mainMenuTemplate: MenuItem[] = [
+    const mainMenuTemplate: [MenuItem, MenuItem, MenuItem, MenuItem, MenuItem] = [
         // { role: 'appMenu' }
         // "App menu" for macOS conditionally added below
         // { role: 'fileMenu' }
@@ -82,9 +82,6 @@ export const buildMainMenu = (mainWindowProxy: MainWindowProxy) => {
     const editMenu = mainMenuTemplate[1];
     const viewMenu = mainMenuTemplate[2];
     const windowMenu = mainMenuTemplate[3];
-    if (!editMenu || !viewMenu || !windowMenu) {
-        throw new Error('Main menu template is missing expected entries');
-    }
 
     if (!isDevEnv) {
         // remove toggleDevTools from "View"
