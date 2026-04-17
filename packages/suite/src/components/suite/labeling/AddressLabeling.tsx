@@ -21,10 +21,6 @@ export const AddressLabeling = ({ symbol, address, knownOnly }: AddressLabelingP
 
     const relevantAccounts = findAccountsByAddress(symbol, address, accounts);
 
-    if (relevantAccounts.length < 1) {
-        return !knownOnly ? <Address value={address} isTruncated /> : null;
-    }
-
     const firstAccount = relevantAccounts[0];
 
     if (!firstAccount) {
