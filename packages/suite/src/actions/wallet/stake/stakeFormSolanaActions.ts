@@ -101,12 +101,17 @@ const getTransactionData = async (
 
     const selectedBlockchain = blockchain[account.symbol];
 
+    const firstOutput = formValues.outputs[0];
+    if (!firstOutput?.amount) {
+        throw new Error('Missing stake form output amount');
+    }
+
     let txData;
     if (stakeType === 'stake') {
         txData = await prepareStakeSolTx({
             from: account.descriptor,
             path: account.path,
-            amount: formValues.outputs[0]?.amount ?? '',
+            amount: firstOutput.amount,
             symbol: account.symbol,
             selectedBlockchain,
             estimatedFee,
@@ -117,7 +122,7 @@ const getTransactionData = async (
         txData = await prepareUnstakeSolTx({
             from: account.descriptor,
             path: account.path,
-            amount: formValues.outputs[0]?.amount ?? '',
+            amount: firstOutput.amount,
             symbol: account.symbol,
             selectedBlockchain,
             estimatedFee,

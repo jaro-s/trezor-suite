@@ -224,9 +224,12 @@ const buildFakePendingEvmTx = ({
     token?: TokenInfo;
 }): AccountTransaction & Partial<WalletAccountTransaction> => {
     const output = precomposedTransaction.outputs[0];
+    if (!output) {
+        throw new Error('Missing transaction output');
+    }
     const fromAddress = account.descriptor;
-    const toAddress = output?.address ?? '';
-    const amount = output?.amount.toString() ?? '0';
+    const toAddress = output.address ?? '';
+    const amount = output.amount.toString();
     const isLegacyTx = !isEip1559(precomposedTransaction);
 
     const blockTime = Math.floor(Date.now() / 1000);

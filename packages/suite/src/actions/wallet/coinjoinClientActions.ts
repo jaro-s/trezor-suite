@@ -669,9 +669,16 @@ const signCoinjoinTx =
                             tx.inputs.forEach((input, index) => {
                                 const utxo = utxos[utxoIndex];
                                 if (input.script_type !== 'EXTERNAL' && utxo) {
+                                    const signature = signTx.payload.signatures[index];
+                                    if (!signature) {
+                                        throw new Error(
+                                            `Missing coinjoin signature at index ${index}`,
+                                        );
+                                    }
+
                                     response.inputs.push({
                                         outpoint: utxo.outpoint,
-                                        signature: signTx.payload.signatures[index] ?? '',
+                                        signature,
                                         index,
                                     });
                                     utxoIndex++;

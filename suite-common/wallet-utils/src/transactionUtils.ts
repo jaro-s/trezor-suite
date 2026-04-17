@@ -728,21 +728,21 @@ const getEthereumRbfParams = (
 
     const txSignature = getEvmTransactionTextSignature(transactionData);
 
-    const toAddress = vout[0]?.addresses?.[0] ?? '';
+    const firstVout = vout[0];
+    const toAddress = firstVout?.addresses?.[0];
+    if (!toAddress) return;
 
     let output;
     switch (txSignature) {
         case 'transfer': {
             const token = tx.tokens[0];
+            if (!token?.to || !token.contract || !token.amount) return;
 
             output = {
-                address: token?.to ?? '',
-                token: token?.contract ?? '',
-                amount: token?.amount ?? '0',
-                formattedAmount: convertAmountSubunitsToUnits(
-                    token?.amount ?? '0',
-                    token?.decimals ?? 0,
-                ),
+                address: token.to,
+                token: token.contract,
+                amount: token.amount,
+                formattedAmount: convertAmountSubunitsToUnits(token.amount, token.decimals ?? 0),
             };
             break;
         }
@@ -763,12 +763,16 @@ const getEthereumRbfParams = (
             };
             break;
         }
-        default:
+        default: {
+            const defaultValue = firstVout?.value;
+            if (!defaultValue) return;
+
             output = {
                 address: toAddress,
-                amount: vout[0]?.value ?? '0',
-                formattedAmount: formatNetworkAmount(vout[0]?.value ?? '0', account.symbol),
+                amount: defaultValue,
+                formattedAmount: formatNetworkAmount(defaultValue, account.symbol),
             };
+        }
     }
 
     return {
@@ -817,12 +821,15 @@ const getBitcoinRbfParams = (
                 });
             }
         } else {
+            const address = output.addresses?.[0];
+            if (!address || !output.value) return;
+
             const changeOutput = changeAddresses.find(a => output.addresses?.includes(a.address));
             outputs.push({
                 type: changeOutput ? 'change' : 'payment',
-                address: output.addresses?.[0] ?? '',
-                amount: output.value ?? '0',
-                formattedAmount: formatNetworkAmount(output.value ?? '0', account.symbol),
+                address,
+                amount: output.value,
+                formattedAmount: formatNetworkAmount(output.value, account.symbol),
             });
             if (changeOutput) {
                 changeAddress = changeOutput;
