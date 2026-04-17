@@ -14,7 +14,7 @@ const createDeviceAnimationStory = (
     const modelEntries = Object.entries(config.models) as [DeviceModelInternal, any][];
     const firstEntry = modelEntries[0];
     if (!firstEntry) {
-        return { args: {} as any };
+        throw new Error(`No models configured for animation type "${type}"`);
     }
     const [firstModel, firstModelCfg] = firstEntry;
     const colors: number[] = (firstModelCfg?.colors as number[]) ?? [1];
