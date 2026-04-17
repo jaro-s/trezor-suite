@@ -276,8 +276,8 @@ describe('onCallFirmwareUpdate', () => {
                     // }
                 }
 
-                // @ts-expect-error: indexing with noUncheckedIndexedAccess
-                const versionStr: string = /.*-(.*)?.bin$/.exec(url)?.[1];
+                const versionStr = /.*-(.*)?.bin$/.exec(url)?.[1];
+                if (!versionStr) throw new Error(`Cannot parse version from URL: ${url}`);
                 const version = versionStr.split('.').map(i => Number(i));
 
                 return httpRequestMock(version);
