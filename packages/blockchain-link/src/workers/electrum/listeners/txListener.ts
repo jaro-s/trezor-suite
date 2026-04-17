@@ -62,11 +62,10 @@ export const txListener = (worker: BaseWorker<ElectrumAPI>) => {
     };
 
     const subscribe = async (data: Payload<Subscribe>) => {
-        const shToSubscribe = (
+        const shToSubscribe =
             data.type === 'accounts'
                 ? addressManager.addAccounts(data.accounts)
-                : addressManager.addAddresses(data.addresses)
-        ).filter((hash): hash is string => Boolean(hash));
+                : addressManager.addAddresses(data.addresses);
 
         if (!shToSubscribe.length) return { subscribed: false };
 
