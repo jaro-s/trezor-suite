@@ -267,9 +267,9 @@ export function FolderImpl({ item, anchors }: FolderProps): ReactElement {
                 routeFromChildren,
             ]),
         );
-        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        // @ts-expect-error: fallback object is a partial PageItem (missing `kind`/`type`)
         const children: PageItem[] = Object.entries(menu.items || {}).map(([key, menuItem]) => {
-            const routeMenuItem = routes[key] || {
+            const routeMenuItem = routes[key] ?? {
                 name: key,
                 ...('locale' in menu && { locale: menu.locale }),
                 route: menu.route + '/' + key,
