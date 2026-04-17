@@ -118,15 +118,9 @@ export class CoinjoinBackend extends TypedEmitter<Events> {
     }
 
     async getAccountCheckpoint(xpub: string) {
+        const derived = deriveAddresses([], xpub, 'receive', 0, 1, this.network);
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const firstDerived: ReturnType<typeof deriveAddresses>[number] = deriveAddresses(
-            [],
-            xpub,
-            'receive',
-            0,
-            1,
-            this.network,
-        )[0];
+        const firstDerived: (typeof derived)[number] = derived[0];
         const { address } = firstDerived;
         const addressFirstPage = await this.client.fetchAddress(address);
 

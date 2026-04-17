@@ -149,8 +149,9 @@ export const getTransactions = async (
         return tx;
     };
     const getVout = (txid: string, vout: number) => {
+        const tx = getTx(txid);
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const v: ReturnType<typeof getTx>['vout'][number] = getTx(txid).vout[vout];
+        const v: (typeof tx.vout)[number] = tx.vout[vout];
 
         return v;
     };

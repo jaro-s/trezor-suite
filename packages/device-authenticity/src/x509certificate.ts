@@ -427,8 +427,9 @@ const parseExtensions = (data: Asn1) => {
 
         if (algorithm === '2.5.29.15') {
             // https://www.alvestrand.no/objectid/2.5.29.15.html
+            const bitString = readBitString(extnValue.contents);
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const keyCertSignBit: string = readBitString(extnValue.contents)[5];
+            const keyCertSignBit: string = bitString[5];
             extensions.push({
                 key: 'keyUsage',
                 critical,
