@@ -79,13 +79,12 @@ export const buildMainMenu = (mainWindowProxy: MainWindowProxy) => {
         },
     ];
 
-    const [, editMenu, viewMenu, windowMenu] = mainMenuTemplate as [
-        MenuItem,
-        MenuItem,
-        MenuItem,
-        MenuItem,
-        ...MenuItem[],
-    ];
+    const editMenu = mainMenuTemplate[1];
+    const viewMenu = mainMenuTemplate[2];
+    const windowMenu = mainMenuTemplate[3];
+    if (!editMenu || !viewMenu || !windowMenu) {
+        throw new Error('Main menu template is missing expected entries');
+    }
 
     if (!isDevEnv) {
         // remove toggleDevTools from "View"
