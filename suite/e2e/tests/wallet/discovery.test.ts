@@ -6,16 +6,8 @@ import { expect, test } from '../../support/fixtures';
 // discovery should end within this time frame
 const DISCOVERY_LIMIT = 1000 * 60 * 2;
 
-const coinsToActivate = [
-    'ltc',
-    'eth',
-    'etc',
-    'bch',
-    'doge',
-    'ada',
-    'xrp',
-    'zec',
-] as NetworkSymbol[];
+const accountsActivatedByDefault: NetworkSymbol[] = ['btc', 'eth'];
+const coinsToActivate: NetworkSymbol[] = ['ltc', 'etc', 'bch', 'doge', 'ada', 'xrp', 'zec'];
 
 test.describe('Discovery', { tag: ['@T3W1', '@T3T1', '@smoke'] }, () => {
     test.beforeEach(async ({ onboardingPage }) => {
@@ -60,7 +52,10 @@ test.describe('Discovery', { tag: ['@T3W1', '@T3T1', '@smoke'] }, () => {
             await page.expectReduxSubtreeToContain('wallet.discovery', 'status', 'complete', {
                 timeout: DISCOVERY_LIMIT,
             });
-            const expectedAccounts = ['btc', ...coinsToActivate] as NetworkSymbol[];
+            const expectedAccounts = [
+                ...accountsActivatedByDefault,
+                ...coinsToActivate,
+            ] as NetworkSymbol[];
             for (const symbol of expectedAccounts) {
                 await expect
                     .soft(
