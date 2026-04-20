@@ -12,11 +12,7 @@ const createDeviceAnimationStory = (
     const animationType = DEVICE_ANIMATION_TYPES[type];
     const config = DEVICE_ANIMATION_CONFIG[animationType];
     const modelEntries = Object.entries(config.models) as [DeviceModelInternal, any][];
-    const firstEntry = modelEntries[0];
-    if (!firstEntry) {
-        throw new Error(`No models configured for animation type "${type}"`);
-    }
-    const [firstModel, firstModelCfg] = firstEntry;
+    const [firstModel, firstModelCfg] = modelEntries[0] ?? [];
     const colors: number[] = (firstModelCfg?.colors as number[]) ?? [1];
     const hasSize = (config as { hasSize?: boolean }).hasSize ?? false;
 
