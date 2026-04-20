@@ -92,7 +92,7 @@ export const ConfirmOnTrezorContent = ({
 
     const gradientColor = utils.colors.surfaceFillPage;
 
-    const [snap0, snap1, snap2] = snapPoints as [number, number, number];
+    const [snap0, snap1, snap2] = snapPoints;
 
     const animatedSheetStyle = useAnimatedStyle(() => {
         const paddingTop = interpolate(translateY.value, [snap2, snap1, snap0], [insets.top, 0, 0]);
