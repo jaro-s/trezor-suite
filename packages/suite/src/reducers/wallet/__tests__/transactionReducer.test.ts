@@ -33,7 +33,7 @@ describe('transaction reducer', () => {
 
     it('reset transactions', () => {
         const account = testAccounts[0];
-        if (!account) return;
+        if (!account) throw new Error('Missing test account');
         const { key } = account;
         delete testTransactions[key];
 
@@ -52,7 +52,7 @@ describe('transaction reducer', () => {
 
     it('remove transactions', () => {
         const account = testAccounts[0];
-        if (!account) return;
+        if (!account) throw new Error('Missing test account');
         const { key } = account;
 
         const otherAccountKey = testAccounts[1]?.key ?? '';
@@ -77,7 +77,7 @@ describe('transaction reducer', () => {
 
     it('remove transactions (incl. nonexistent)', () => {
         const account = testAccounts[0];
-        if (!account) return;
+        if (!account) throw new Error('Missing test account');
         const txs = testTransactions[account.key] ?? [];
         const tx1 = txs[0];
         const tx2 = txs[1];
@@ -99,7 +99,7 @@ describe('transaction reducer', () => {
 
     it('add transactions', () => {
         const account = testAccounts[0];
-        if (!account) return;
+        if (!account) throw new Error('Missing test account');
         const { key } = account;
         expect(
             reducer(
