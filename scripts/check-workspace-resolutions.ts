@@ -13,11 +13,7 @@ import { getWorkspacesList } from './utils/getWorkspacesList';
         {},
     );
 
-    Object.keys(workspaces).forEach(workspaceName => {
-        const workspace = workspaces[workspaceName];
-        if (!workspace) {
-            return;
-        }
+    Object.entries(workspaces).forEach(([workspaceName, workspace]) => {
         const packageJSON = fs.readFileSync(path.join(workspace.location, 'package.json'), {
             encoding: 'utf-8',
         });
