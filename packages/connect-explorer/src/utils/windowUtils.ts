@@ -2,12 +2,11 @@ export const getQueryVariable = (variable: string) => {
     const query = window.location.hash.substring(3);
     const vars = query.split('&');
     for (let i = 0; i < vars.length; i++) {
-        const varEntry = vars[i] ?? '';
-        const pair = varEntry.split('=');
-        const key = pair[0] ?? '';
-        const val = pair[1] ?? '';
-        if (decodeURIComponent(key) === variable) {
-            return decodeURIComponent(val);
+        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        const entry: string = vars[i];
+        const pair = entry.split('=');
+        if (decodeURIComponent(pair[0] ?? '') === variable) {
+            return decodeURIComponent(pair[1] ?? '');
         }
     }
 };
