@@ -161,9 +161,7 @@ export const composeStakingTransaction = (
 
     // format max (calculate sends it as satoshi)
     // update errorMessage values (symbol)
-    Object.keys(wrappedResponse).forEach(key => {
-        const tx = wrappedResponse[key];
-        if (!tx) return;
+    Object.entries(wrappedResponse).forEach(([_key, tx]) => {
         if (tx.type !== 'error') {
             tx.max = tx.max ? convertAmountSubunitsToUnits(tx.max, decimals) : undefined;
             tx.estimatedFeeLimit = customFeeLimit ?? tx.estimatedFeeLimit;
