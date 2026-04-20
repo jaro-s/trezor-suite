@@ -184,7 +184,9 @@ describe('Blockchain Actions', () => {
                 );
                 expect(actions.length).toEqual(result.length);
                 actions.forEach((action, index) => {
-                    expect(action.type).toEqual(result?.[index]);
+                    const expected = result[index];
+                    if (!expected) throw new Error(`Missing expected result at index ${index}`);
+                    expect(action.type).toEqual(expected);
                 });
                 const resultTxs = 'resultTxs' in f ? f.resultTxs : undefined;
                 if (resultTxs) {
@@ -195,9 +197,8 @@ describe('Blockchain Actions', () => {
                         expect(keyTxs.length).toEqual(resTxs.length);
                         keyTxs.forEach((t, i) => {
                             const resTx = resTxs[i];
-                            if (resTx) {
-                                expect(t).toMatchObject(resTx);
-                            }
+                            if (!resTx) throw new Error(`Missing expected tx at index ${i}`);
+                            expect(t).toMatchObject(resTx);
                         });
                     });
                 }
