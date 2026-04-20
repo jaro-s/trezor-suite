@@ -141,16 +141,13 @@ export const signTransaction =
         const { stakeType } = formValues;
         let txData;
         if (stakeType === 'stake') {
-            const firstOutput = formValues.outputs[0];
-            if (!firstOutput?.amount) {
-                throw new Error('Missing stake form output amount');
-            }
+            const amount = formValues.outputs[0]?.amount ?? '0';
 
             txData = await prepareStakeEthTx({
                 symbol: account.symbol,
                 from: account.descriptor,
                 identity,
-                amount: firstOutput.amount,
+                amount,
                 gasPrice: transactionInfo.feePerByte,
                 feeLimit: transactionInfo.feeLimit,
                 maxFeePerGas: transactionInfo.maxFeePerGas,
@@ -160,16 +157,13 @@ export const signTransaction =
             });
         }
         if (stakeType === 'unstake') {
-            const firstOutput = formValues.outputs[0];
-            if (!firstOutput?.amount) {
-                throw new Error('Missing unstake form output amount');
-            }
+            const amount = formValues.outputs[0]?.amount ?? '0';
 
             txData = await prepareUnstakeEthTx({
                 symbol: account.symbol,
                 from: account.descriptor,
                 identity,
-                amount: firstOutput.amount,
+                amount,
                 gasPrice: transactionInfo.feePerByte,
                 feeLimit: transactionInfo.feeLimit,
                 maxFeePerGas: transactionInfo.maxFeePerGas,
