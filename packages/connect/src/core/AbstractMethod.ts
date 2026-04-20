@@ -58,16 +58,8 @@ function validateStaticSessionId(input: unknown): StaticSessionId {
             'Method_InvalidParameter',
             'DeviceState: invalid staticSessionId: ' + input,
         );
-    const parts = input.split('@');
-    // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const firstTestnetAddress: string = parts[0];
-    // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const rest: string = parts[1];
-    const restParts = rest.split(':');
-    // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const deviceId: string = restParts[0];
-    // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const instance: string = restParts[1];
+    const [firstTestnetAddress = '', rest = ''] = input.split('@');
+    const [deviceId = '', instance = ''] = rest.split(':');
     if (
         typeof firstTestnetAddress === 'string' &&
         typeof deviceId === 'string' &&
