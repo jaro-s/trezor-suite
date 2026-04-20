@@ -71,8 +71,8 @@ const createTrezordNode = (
 describe('http', () => {
     let port: number;
     beforeAll(async () => {
-        // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        [port] = await getFreePort();
+        const ports = await getFreePort();
+        port = ports[0] ?? 0;
     });
 
     (['usb', 'udp'] as const).forEach(api => {
