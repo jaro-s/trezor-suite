@@ -90,7 +90,7 @@ export const useTradingFormAccount = (tradingType: TradingType) => {
     );
 
     const pickFallbackAccount = useCallback(
-        (accounts: [Account, ...Account[]]) =>
+        (accounts: Account[]) =>
             accounts.find(acc => isAccountEligibleForTrade(acc)) ?? accounts[0],
         [isAccountEligibleForTrade],
     );
@@ -112,9 +112,17 @@ export const useTradingFormAccount = (tradingType: TradingType) => {
             return sameSymbolAccount;
         }
 
-        // Trading screens require at least one visible device account.
-        // The non-empty tuple type on pickFallbackAccount guarantees a return value.
-        return pickFallbackAccount(visibileDeviceAccounts as [Account, ...Account[]]);
+        const fallback = pickFallbackAccount(visibileDeviceAccounts);
+        // Trading screens require at least one visible device account,
+        // so pickFallbackAccount always resolves here.
+        if (!fallback) {
+            // This should never happen — trading UI requires accounts to be present.
+            console.error('useTradingFormAccount: no fallback account found');
+
+            return visibileDeviceAccounts[0] ?? ({} as Account);
+        }
+
+        return fallback;
     }, [
         visibileDeviceAccounts,
         isAccountEligibleForTrade,
