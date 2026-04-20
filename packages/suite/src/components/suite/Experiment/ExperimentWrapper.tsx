@@ -18,10 +18,6 @@ export const ExperimentWrapper = ({
     components,
 }: ExperimentWrapperProps): ReactElement | null => {
     const { experiment, activeExperimentVariant } = useExperiment(id);
-    const areComponentsEmpty = !components.length;
-
-    if (areComponentsEmpty) return null;
-
     const defaultComponent = components[0];
 
     if (!defaultComponent) return null;
