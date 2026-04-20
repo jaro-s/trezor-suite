@@ -90,7 +90,7 @@ export const useTradingFormAccount = (tradingType: TradingType) => {
     );
 
     const pickFallbackAccount = useCallback(
-        (accounts: Account[]) =>
+        (accounts: [Account, ...Account[]]) =>
             accounts.find(acc => isAccountEligibleForTrade(acc)) ?? accounts[0],
         [isAccountEligibleForTrade],
     );
@@ -112,11 +112,9 @@ export const useTradingFormAccount = (tradingType: TradingType) => {
             return sameSymbolAccount;
         }
 
-        // Trading screens require at least one visible device account,
-        // so this always resolves. The ?? chain satisfies noUncheckedIndexedAccess.
-        const fallback = pickFallbackAccount(visibileDeviceAccounts) ?? visibileDeviceAccounts[0];
-
-        return fallback!;
+        // Trading screens require at least one visible device account.
+        // The non-empty tuple type on pickFallbackAccount guarantees a return value.
+        return pickFallbackAccount(visibileDeviceAccounts as [Account, ...Account[]]);
     }, [
         visibileDeviceAccounts,
         isAccountEligibleForTrade,
