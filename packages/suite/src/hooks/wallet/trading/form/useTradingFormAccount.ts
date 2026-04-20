@@ -112,18 +112,11 @@ export const useTradingFormAccount = (tradingType: TradingType) => {
             return sameSymbolAccount;
         }
 
-        const fallback = pickFallbackAccount(visibileDeviceAccounts);
         // Trading screens require at least one visible device account,
-        // so pickFallbackAccount always resolves here.
-        if (!fallback) {
-            // This should never happen — trading UI requires accounts to be present.
-            // Using console.error instead of throw to avoid crashing the UI.
-            console.error('useTradingFormAccount: no fallback account found');
+        // so this always resolves. The ?? chain satisfies noUncheckedIndexedAccess.
+        const fallback = pickFallbackAccount(visibileDeviceAccounts) ?? visibileDeviceAccounts[0];
 
-            return visibileDeviceAccounts[0] ?? ({} as Account);
-        }
-
-        return fallback;
+        return fallback!;
     }, [
         visibileDeviceAccounts,
         isAccountEligibleForTrade,
