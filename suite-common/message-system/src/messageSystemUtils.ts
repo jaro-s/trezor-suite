@@ -373,9 +373,9 @@ export const resolveMessageContent = (localizedMessages: Localization, language:
         return localizedMessages[language];
     }
 
-    const fallbackLanguage = language.split('-')[0] ?? language;
+    const fallbackLanguage = language.split('-')[0];
 
-    return localizedMessages[fallbackLanguage] ?? localizedMessages.en;
+    return (fallbackLanguage && localizedMessages[fallbackLanguage]) ?? localizedMessages.en;
 };
 
 export const toMessageSystemOptions = <T extends string>(
