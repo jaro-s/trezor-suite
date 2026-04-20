@@ -278,7 +278,8 @@ export function FolderImpl({ item, anchors }: FolderProps): ReactElement {
                 ...routeMenuItem,
                 ...menuItem,
             };
-        }) as PageItem[];
+        });
+        // @ts-expect-error: fallback routeMenuItem is a partial PageItem (missing kind/type)
         // eslint-disable-next-line react-hooks/immutability
         item.children = children;
     }
