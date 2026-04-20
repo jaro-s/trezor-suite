@@ -267,8 +267,7 @@ export function FolderImpl({ item, anchors }: FolderProps): ReactElement {
                 routeFromChildren,
             ]),
         );
-        // @ts-expect-error: fallback object is a partial PageItem (missing `kind`/`type`)
-        const children: PageItem[] = Object.entries(menu.items || {}).map(([key, menuItem]) => {
+        const children = Object.entries(menu.items || {}).map(([key, menuItem]) => {
             const routeMenuItem = routes[key] ?? {
                 name: key,
                 ...('locale' in menu && { locale: menu.locale }),
@@ -279,7 +278,7 @@ export function FolderImpl({ item, anchors }: FolderProps): ReactElement {
                 ...routeMenuItem,
                 ...menuItem,
             };
-        });
+        }) as PageItem[];
         // eslint-disable-next-line react-hooks/immutability
         item.children = children;
     }
