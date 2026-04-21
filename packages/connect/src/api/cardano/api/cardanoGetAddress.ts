@@ -78,8 +78,9 @@ export default class CardanoGetAddress extends AbstractMethod<'cardanoGetAddress
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
             const first: (typeof this.params)[number] = this.params[0];
 
+            const addressN = first.proto.address_parameters.address_n;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const accountIndex: number = first.proto.address_parameters.address_n[2];
+            const accountIndex: number = addressN[2];
 
             return `Export Cardano address for account #${fromHardened(accountIndex) + 1}`;
         }

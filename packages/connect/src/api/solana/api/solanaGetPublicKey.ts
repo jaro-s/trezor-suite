@@ -66,8 +66,9 @@ export default class SolanaGetPublicKey extends AbstractMethod<
         }
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
         const first: (typeof this.params)[number] = this.params[0];
+        const addressN = first.address_n;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const accountIndex: number = first.address_n[2];
+        const accountIndex: number = addressN[2];
 
         return {
             view: 'export-xpub' as const,

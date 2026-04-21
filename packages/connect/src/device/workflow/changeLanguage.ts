@@ -62,8 +62,9 @@ export const changeLanguage = async ({ device, language, binary }: Context) => {
     if (!device.currentRelease) {
         throw ERRORS.TypedError('Runtime', 'changeLanguage: release not found');
     }
+    const { translations } = device.currentRelease;
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const languageBinPath: string = device.currentRelease.translations[language];
+    const languageBinPath: string = translations[language];
     const downloadedBinary = await getLanguage(languageBinPath);
 
     if (!downloadedBinary) {
