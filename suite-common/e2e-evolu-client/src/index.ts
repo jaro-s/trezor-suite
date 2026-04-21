@@ -2,6 +2,7 @@ export {
     BaseEvoluClient,
     RELAY_URL,
     QUOTA_URL,
+    createQuery,
     wipeAndRestartEvoluRelayServer,
     checkEvoluRelayServerRunning,
     seedQuotaManagerData,

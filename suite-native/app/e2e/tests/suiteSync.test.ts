@@ -6,13 +6,13 @@ import { isEqual, omit } from 'lodash';
 import {
     BaseEvoluClient,
     checkEvoluRelayServerRunning,
+    createQuery,
     immuneFixtures,
     logToRelayDocker,
     seedQuotaManagerData,
     wipeAndRestartEvoluRelayServer,
 } from '@suite-common/e2e-evolu-client';
 import { Model, TrezorUserEnvLink } from '@trezor/trezor-user-env-link';
-import { scheduleAction } from '@trezor/utils';
 
 import { btcDiscoveryFinishedStateT3T1 } from '../fixtures/btcDiscoveryFinishedStateT3T1';
 import { btcDiscoveryFinishedStateT3W1 } from '../fixtures/btcDiscoveryFinishedStateT3W1';
@@ -44,23 +44,42 @@ class NativeEvoluClient extends BaseEvoluClient {
         const omitFields = options?.omit ?? ['createdAt'];
         const timeout = options?.timeout ?? 10_000;
 
-        let lastError: Error | undefined;
+        const ownerId = (await this.evolu.appOwner).id;
+        const query = createQuery(db =>
+            db.selectFrom(table).where('ownerId', '=', ownerId).selectAll(),
+        );
 
-        await scheduleAction(
-            async () => {
-                const actualData = await this.readFrom(table);
-                const actualOmitted = actualData.map(item => omit(item, omitFields));
-
-                if (!isEqual(expectedData, actualOmitted)) {
-                    lastError = new Error(
+        return new Promise<void>((resolve, reject) => {
+            const timer = setTimeout(() => {
+                unsubscribe();
+                const rows = this.evolu.getQueryRows(query) as Record<string, unknown>[];
+                const actualOmitted = rows.map(item => omit(item, omitFields));
+                reject(
+                    new Error(
                         `Table "${table}" data does not match.\nDiff:\n${diff(expectedData, actualOmitted)}`,
-                    );
-                    throw lastError;
+                    ),
+                );
+            }, timeout);
+
+            const check = () => {
+                const rows = this.evolu.getQueryRows(query) as Record<string, unknown>[];
+                const actualOmitted = rows.map(item => omit(item, omitFields));
+                console.log(
+                    `[EvoluClient] expectInTable table=${table}: ${rows.length} rows`,
+                    rows.length > 0 ? JSON.stringify(actualOmitted) : '(empty)',
+                );
+                if (isEqual(expectedData, actualOmitted)) {
+                    clearTimeout(timer);
+                    unsubscribe();
+                    resolve();
                 }
-            },
-            { deadline: Date.now() + timeout, gap: 500 },
-        ).catch(e => {
-            throw lastError ?? e;
+            };
+
+            // subscribeQuery fires reactively whenever rowsByQueryMapStore updates —
+            // both on initial DB load and on relay sync arrival. loadQuery seeds the
+            // initial load which triggers the first subscription callback.
+            const unsubscribe = this.evolu.subscribeQuery(query)(check);
+            void this.evolu.loadQuery(query);
         });
     }
 }
