@@ -70,8 +70,9 @@ export class CoinjoinFilterController implements FilterControllerShape {
             const progressCooldown = createCooldown(PROGRESS_INFO_COOLDOWN);
             do {
                 const { filters, M, P, zeroedKey } = batch.response;
+                const sliced = filters.slice(-1);
                 // @ts-expect-error: indexing with noUncheckedIndexedAccess
-                const [last]: [(typeof filters)[0]] = filters.slice(-1);
+                const [last]: [(typeof filters)[0]] = sliced;
 
                 // In case of new block mined during the discovery, its height
                 // is used as `to` instead of `bestHeight` from the beginning

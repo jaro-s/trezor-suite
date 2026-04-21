@@ -343,8 +343,9 @@ const parseUtcTime = (time: Asn1) => {
  * }
  */
 const parseValidity = (asn1: Asn1) => {
+    const list = derToAsn1List(asn1.contents);
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const [from, to]: [Asn1, Asn1] = derToAsn1List(asn1.contents);
+    const [from, to]: [Asn1, Asn1] = list;
 
     return {
         from: parseUtcTime(from),
@@ -408,8 +409,9 @@ const parseExtensions = (data: Asn1) => {
 
     const extensions: Extension[] = [];
     derToAsn1List(asn1.contents).forEach(item => {
+        const parts = derToAsn1List(item.contents);
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const [id, ...pieces]: [Asn1, ...Asn1[]] = derToAsn1List(item.contents);
+        const [id, ...pieces]: [Asn1, ...Asn1[]] = parts;
         if (id.cls !== 0 || id.tag !== 6 || id.structured) {
             throw new Error('Bad extension. Does not begin with an OBJECT IDENTIFIER.');
         }

@@ -55,10 +55,11 @@ describe('data/firmwareInfo', () => {
         it('should offer lastest release and intermediary v2 for T1B1 <  1.12.0', () => {
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
             const t1b1Assets: { [file: string]: FirmwareRelease } = firmwareAssets.t1b1.universal;
-            // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const [latestRelase]: [FirmwareRelease] = Object.values(t1b1Assets).sort((a, b) =>
+            const sorted = Object.values(t1b1Assets).sort((a, b) =>
                 versionUtils.isNewer(b.version, a.version) ? 1 : -1,
             );
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            const [latestRelase]: [FirmwareRelease] = sorted;
             const features = getDeviceFeatures({
                 bootloader_mode: null,
                 major_version: 1,

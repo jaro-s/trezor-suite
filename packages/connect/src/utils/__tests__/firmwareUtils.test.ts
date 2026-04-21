@@ -86,10 +86,11 @@ describe('firmwareUtils', () => {
             });
 
             it('first release with bootloader equal to min_bootloader in lastest release should return latest release as compatible', () => {
-                // @ts-expect-error: indexing with noUncheckedIndexedAccess
-                const [latestRelase]: [FirmwareRelease] = Object.values(t3t1Universal).sort(
-                    (a, b) => (versionUtils.isNewer(b.version, a.version) ? 1 : -1),
+                const sorted = Object.values(t3t1Universal).sort((a, b) =>
+                    versionUtils.isNewer(b.version, a.version) ? 1 : -1,
                 );
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                const [latestRelase]: [FirmwareRelease] = sorted;
 
                 const releasesAscendentOrder = Object.values(t3t1Universal).sort((a, b) =>
                     versionUtils.isNewer(a.version, b.version) ? 1 : -1,

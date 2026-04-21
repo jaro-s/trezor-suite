@@ -83,8 +83,9 @@ describe('api/ethereum/Fees', () => {
             const backend = await initBlockchain(coinInfo, () => {});
             const feeLevels = new EthereumFeeLevels(coinInfo);
 
+            const levels = await feeLevels.load(backend, ETH_REQUEST);
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const [level]: [FeeLevel] = await feeLevels.load(backend, ETH_REQUEST);
+            const [level]: [FeeLevel] = levels;
 
             // 0.1 Gwei → 0.1 × 1e9 = 100 000 000 wei
             expect(level.feePerUnit).toBe('100000000');
@@ -102,8 +103,9 @@ describe('api/ethereum/Fees', () => {
             const backend = await initBlockchain(coinInfo, () => {});
             const feeLevels = new EthereumFeeLevels(coinInfo);
 
+            const levels = await feeLevels.load(backend, ETH_REQUEST);
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const [level]: [FeeLevel] = await feeLevels.load(backend, ETH_REQUEST);
+            const [level]: [FeeLevel] = levels;
 
             // must be an integer wei string — fromWei("1500000000.7", 'gwei') would crash
             expect(level.feePerUnit).toMatch(/^\d+$/);
@@ -153,8 +155,9 @@ describe('api/ethereum/Fees', () => {
             const backend = await initBlockchain(coinInfo, () => {});
             const feeLevels = new EthereumFeeLevels(coinInfo);
 
+            const levels = await feeLevels.load(backend, ETH_REQUEST);
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const [level]: [FeeLevel] = await feeLevels.load(backend, ETH_REQUEST);
+            const [level]: [FeeLevel] = levels;
 
             // maxFee = 10 000 Gwei → 10 000 × 1e9 = 10 000 000 000 000 wei
             expect(level.feePerUnit).toBe('10000000000000');

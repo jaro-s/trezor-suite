@@ -73,8 +73,8 @@ export const ActiveAnchorProvider = ({ children }: { children: ReactNode }): Rea
                         }
                     }
 
-                    const activeEntry = ret[activeSlug];
-                    if (activeEntry) activeEntry.isActive = true;
+                    // const activeEntry = ;
+                    if (ret[activeSlug]) activeEntry.isActive = true;
 
                     return ret;
                 });

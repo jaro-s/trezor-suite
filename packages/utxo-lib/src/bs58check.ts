@@ -90,7 +90,8 @@ export function decodeAddress(address: string, network = BITCOIN_NETWORK) {
     const offset = multibyte ? 2 : 1;
 
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const version: number = multibyte ? payload.readUInt16BE(0) : payload[0];
+    const indexedByte: number = payload[0];
+    const version: number = multibyte ? payload.readUInt16BE(0) : indexedByte;
     const hash = payload.subarray(offset);
 
     return { version, hash };
