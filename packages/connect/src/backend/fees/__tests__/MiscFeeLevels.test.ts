@@ -58,17 +58,17 @@ describe('MiscFeeLevels – Solana', () => {
         // minFee clamp
         const feeMin = new MiscFeeLevels(SOL_COIN_INFO);
         await feeMin.load(makeBackend(TOO_LOW_RESPONSE), REQUEST);
-        const { levels } = feeMin;
+        const minLevels = feeMin.levels;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const minLevel: (typeof levels)[number] = levels[0];
+        const minLevel: (typeof minLevels)[number] = minLevels[0];
         expect(minLevel.feePerUnit).toBe(SOL_COIN_INFO.minFee.toString());
 
         // maxFee clamp
         const feeMax = new MiscFeeLevels(SOL_COIN_INFO);
         await feeMax.load(makeBackend(TOO_HIGH_RESPONSE), REQUEST);
-        const { levels } = feeMax;
+        const maxLevels = feeMax.levels;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const maxLevel: (typeof levels)[number] = levels[0];
+        const maxLevel: (typeof maxLevels)[number] = maxLevels[0];
         expect(maxLevel.feePerUnit).toBe(SOL_COIN_INFO.maxFee.toString());
     });
 
