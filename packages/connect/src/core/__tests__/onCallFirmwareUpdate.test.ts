@@ -229,9 +229,9 @@ const setupTest = () => {
         deviceList,
         postMessage,
         selectDevice: () => {
+            const devices = deviceList.getAllDevices();
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const device: ReturnType<typeof deviceList.getAllDevices>[number] =
-                deviceList.getAllDevices()[0];
+            const device: (typeof devices)[number] = devices[0];
 
             return device;
         },
