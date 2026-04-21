@@ -170,8 +170,8 @@ describe('api/usb', () => {
         api.usbInterface.onconnect({
             device: {
                 ...createMockedDevice(),
-                serialNumber: null,
-                // @ts-expect-error
+                serialNumber: undefined,
+                // @ts-expect-error: device is a mock property not on USBDevice
                 device: {
                     deviceDescriptor: {
                         iSerialNumber: 'foo',
