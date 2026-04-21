@@ -168,6 +168,8 @@ jobs:
           docker cp trezor-user-env.unix:/trezor-user-env/logs/emulator_bridge.log "$LOG_DIR/tenv-emulator-bridge-debugging.log" || true
           docker cp trezor-user-env.unix:/trezor-user-env/docker/version.txt "$LOG_DIR/trezor-user-env-version.txt" || true
           docker logs trezor-user-env-regtest > "$LOG_DIR/electrum-regtest.txt" || true
+          docker logs suite-sync > "$LOG_DIR/suite-sync.log" 2>&1 || true
+          docker logs quota-db > "$LOG_DIR/quota-db.log" 2>&1 || true
 
       - name: "Store test artifacts"
         if: ${{ !cancelled() }}

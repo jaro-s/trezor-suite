@@ -163,12 +163,13 @@ describe('Suite Sync - Labelling [@androidOnly @T3T1 @smoke]', () => {
         // Seed the relay before enabling SuiteSync so the labels are ready to sync on connect.
         const addressSeed = immuneFixtures.createAddressSeed(FIRST_BTC_RECEIVE_ADDRESS);
         const outputSeed = immuneFixtures.createOutputSeed();
+        // Seed quota before init so the relay accepts writes as soon as Evolu connects.
+        seedQuotaManagerData({ ownerId: immuneFixtures.ownerId });
         await evoluClient.init({ ownerSecret: immuneFixtures.ownerSecret });
         evoluClient.writeTo('wallet', immuneFixtures.walletSeed);
         evoluClient.writeTo('account', immuneFixtures.accountSeed);
         evoluClient.writeTo('address', addressSeed);
         evoluClient.writeTo('output', outputSeed);
-        seedQuotaManagerData({ ownerId: immuneFixtures.ownerId });
 
         // Verify relay received the seeded data before the app connects.
         await evoluClient.expectInTable(
