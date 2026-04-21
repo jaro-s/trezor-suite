@@ -13,7 +13,7 @@ import { typography } from '@trezor/theme';
 
 import { updateGraphData } from 'src/actions/wallet/graphActions';
 import { HiddenPlaceholder, TransactionsGraph } from 'src/components/suite';
-import { useDispatch, useGraph, useSelector } from 'src/hooks/suite';
+import { useDispatch, useSelector } from 'src/hooks/suite';
 import { useIsContentBelowBreakpoint } from 'src/support/suite/ContentFlex';
 import { type AppState } from 'src/types/suite';
 import { type Account } from 'src/types/wallet';
@@ -81,7 +81,6 @@ export const DashboardGraph = memo(
         const selectedDevice = useSelector(selectSelectedDevice);
         const baseCurrencyCode = useSelector(selectBaseCurrency);
         const dispatch = useDispatch();
-        const { selectedRange } = useGraph();
         const isContentBelowBreakpoint = useIsContentBelowBreakpoint();
         const [data, setData] = useState<AggregatedDashboardHistory[]>([]);
         const [isProcessing, setIsProcessing] = useState(false);
@@ -102,10 +101,9 @@ export const DashboardGraph = memo(
             dispatch(
                 updateGraphData({
                     accounts,
-                    selectedRange,
                 }),
             );
-        }, [accounts, dispatch, selectedRange]);
+        }, [accounts, dispatch]);
 
         useEffect(() => {
             if (isNewBalanceGraphEnabled || graph.isLoading) {

@@ -143,6 +143,7 @@ export const TransactionSummary = ({ account }: TransactionSummaryProps) => {
                     isLoading={isGraphLoading}
                     onLiveChange={setIsLive}
                     showLiveOption={isNewBalanceGraphEnabled && hasLiveSupport}
+                    accounts={[account]}
                 />
                 {isNewBalanceGraphEnabled ? (
                     <Switch

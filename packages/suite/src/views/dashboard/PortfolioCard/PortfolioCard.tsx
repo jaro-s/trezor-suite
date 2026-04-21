@@ -24,11 +24,14 @@ import {
     Row,
 } from '@trezor/components';
 
+import { markInitialDashboardGraphDeferCompleted } from 'src/actions/suite/suiteActions';
+import { updateGraphData } from 'src/actions/wallet/graphActions';
 import { DashboardSection } from 'src/components/dashboard';
 import { GraphRangeSelector, GraphSkeleton } from 'src/components/suite';
 import { useDiscovery, useDispatch, useSelector } from 'src/hooks/suite';
 import { useTotalFiatBalance } from 'src/hooks/wallet/useTotalFiatBalance';
 import { type AppState } from 'src/types/suite';
+import { type GraphRange } from 'src/types/wallet/graph';
 import { isNetworkWithGraphFeature, isNetworkWithLegacyGraphFeature } from 'src/utils/wallet/graph';
 import { selectDiscoveryOverallStatus } from 'src/utils/wallet/selectDiscoveryOverallStatus';
 
@@ -45,11 +48,24 @@ const MarginContainer = ({ children }: { children: React.ReactNode }) => (
 );
 
 const selectGraphIsLoading = (state: AppState) => state.wallet.graph.isLoading;
+const INITIAL_NEW_DASHBOARD_GRAPH_DEFER_MS = 400;
+const renderDashboardGraphSkeleton = () => (
+    <MarginContainer>
+        <Column height={320}>
+            <GraphSkeleton data-testid="@dashboard/loading" />
+        </Column>
+    </MarginContainer>
+);
 
 export const PortfolioCard = memo(() => {
     const currentFiatRates = useSelector(selectCurrentFiatRates);
     const baseCurrencyCode = useSelector(selectBaseCurrency);
     const isGraphLoading = useSelector(selectGraphIsLoading);
+    const suiteLifecycleStatus = useSelector(state => state.suite.lifecycle.status);
+    const hasCompletedInitialDashboardGraphDefer = useSelector(
+        state => state.suite.hasCompletedInitialDashboardGraphDefer,
+    );
+    const isRouterLoaded = useSelector(state => state.router.loaded);
     const { discovery, isDiscoveryRunning } = useDiscovery();
     const discoveryStatus = useSelector(selectDiscoveryOverallStatus);
     const enabledNetworks = useSelector(selectEnabledNetworks);
@@ -105,6 +121,20 @@ export const PortfolioCard = memo(() => {
 
     const isGraphAvailable = hasNetworkWithEnabledGraph;
     const isGraphCollapsed = dashboardGraphHidden && isGraphAvailable;
+    const isNewDashboardGraphDeferred =
+        isNewBalanceGraphEnabled &&
+        isGraphAvailable &&
+        !hasCompletedInitialDashboardGraphDefer &&
+        suiteLifecycleStatus === 'ready' &&
+        isRouterLoaded &&
+        discoveryStatus?.status !== 'loading';
+    const onSelectedRange = (range: GraphRange) =>
+        dispatch(
+            updateGraphData({
+                accounts: graphEligibleAccounts,
+                selectedRange: range,
+            }),
+        );
 
     useEffect(() => {
         if ((!hasAnyDashboardLiveSupport || !isNewBalanceGraphEnabled) && isLive) {
@@ -112,74 +142,127 @@ export const PortfolioCard = memo(() => {
         }
     }, [hasAnyDashboardLiveSupport, isLive, isNewBalanceGraphEnabled]);
 
+    useEffect(() => {
+        if (
+            !isNewBalanceGraphEnabled ||
+            hasCompletedInitialDashboardGraphDefer ||
+            !isGraphAvailable ||
+            suiteLifecycleStatus !== 'ready' ||
+            !isRouterLoaded ||
+            discoveryStatus?.status === 'loading'
+        ) {
+            return;
+        }
+
+        let isCancelled = false;
+        let firstFrameId: number | undefined;
+
+        const deferTimeoutId = window.setTimeout(() => {
+            firstFrameId = window.requestAnimationFrame(() => {
+                if (!isCancelled) {
+                    dispatch(markInitialDashboardGraphDeferCompleted());
+                }
+            });
+        }, INITIAL_NEW_DASHBOARD_GRAPH_DEFER_MS);
+
+        return () => {
+            isCancelled = true;
+
+            if (firstFrameId !== undefined) {
+                window.cancelAnimationFrame(firstFrameId);
+            }
+
+            clearTimeout(deferTimeoutId);
+        };
+    }, [
+        discoveryStatus?.status,
+        dispatch,
+        hasCompletedInitialDashboardGraphDefer,
+        isGraphAvailable,
+        isNewBalanceGraphEnabled,
+        isRouterLoaded,
+        suiteLifecycleStatus,
+    ]);
+
     // TODO: DashboardGraph will get mounted twice (thus triggering data processing twice)
     // 1. DashboardGraph gets mounted
     // 2. Discovery starts, DashboardGraph is unmounted, Loading mounts
     // 3. Discovery stops (no accounts added), Loading unmounted, new instance of DashboardGraph gets mounted
 
-    let body = null;
-    if (discoveryStatus && discoveryStatus.status === 'exception') {
-        body = (
-            <MarginContainer>
-                <PortfolioCardException
-                    exception={discoveryStatus}
-                    discovery={discovery}
-                    failed={failedAccounts}
-                />
-            </MarginContainer>
-        );
-    } else if (passphraseEntryCanceled) {
-        body = (
-            <MarginContainer>
-                <PortfolioCardException
-                    exception={{
-                        status: 'exception',
-                        type: 'discovery-failed',
-                    }}
-                    discovery={discovery}
-                    failed={failedAccounts}
-                />
-            </MarginContainer>
-        );
-    } else if (discoveryStatus && discoveryStatus.status === 'loading') {
-        if (isDeviceEmpty) {
-            body = (
+    const renderBody = () => {
+        if (discoveryStatus && discoveryStatus.status === 'exception') {
+            return (
                 <MarginContainer>
-                    <EmptyWalletSkeleton />
+                    <PortfolioCardException
+                        exception={discoveryStatus}
+                        discovery={discovery}
+                        failed={failedAccounts}
+                    />
                 </MarginContainer>
             );
-        } else if (hasLoadedNonEmptyAccount && isGraphAvailable) {
-            body = (
+        }
+
+        if (passphraseEntryCanceled) {
+            return (
+                <MarginContainer>
+                    <PortfolioCardException
+                        exception={{
+                            status: 'exception',
+                            type: 'discovery-failed',
+                        }}
+                        discovery={discovery}
+                        failed={failedAccounts}
+                    />
+                </MarginContainer>
+            );
+        }
+
+        if (discoveryStatus && discoveryStatus.status === 'loading') {
+            if (isDeviceEmpty) {
+                return (
+                    <MarginContainer>
+                        <EmptyWalletSkeleton />
+                    </MarginContainer>
+                );
+            }
+
+            if (hasLoadedNonEmptyAccount && isGraphAvailable) {
+                return (
+                    <DashboardGraph
+                        accounts={graphEligibleAccounts}
+                        isLive={isLive}
+                        isNewBalanceGraphEnabled={isNewBalanceGraphEnabled}
+                    />
+                );
+            }
+
+            return isGraphAvailable ? renderDashboardGraphSkeleton() : null;
+        }
+
+        if (isDeviceEmpty) {
+            return (
+                <MarginContainer>
+                    <EmptyWallet />
+                </MarginContainer>
+            );
+        }
+
+        if (isGraphAvailable) {
+            return isNewDashboardGraphDeferred ? (
+                renderDashboardGraphSkeleton()
+            ) : (
                 <DashboardGraph
                     accounts={graphEligibleAccounts}
                     isLive={isLive}
                     isNewBalanceGraphEnabled={isNewBalanceGraphEnabled}
                 />
             );
-        } else if (isGraphAvailable) {
-            body = (
-                <MarginContainer>
-                    <Column height={320}>
-                        <GraphSkeleton data-testid="@dashboard/loading" />
-                    </Column>
-                </MarginContainer>
-            );
         }
-    } else if (isDeviceEmpty) {
-        body = (
-            <MarginContainer>
-                <EmptyWallet />
-            </MarginContainer>
-        );
-    } else if (isGraphAvailable) {
-        body = (
-            <DashboardGraph
-                accounts={graphEligibleAccounts}
-                isLive={isLive}
-                isNewBalanceGraphEnabled={isNewBalanceGraphEnabled}
-            />
-        );
-    }
+
+        return null;
+    };
+
+    const body = renderBody();
 
     const isDiscoveryEmpty = discoveryStatus?.type === 'discovery-empty';
     const isWalletEmpty = !discoveryStatus && isDeviceEmpty;
@@ -242,18 +325,26 @@ export const PortfolioCard = memo(() => {
                             {showGraphControls && (
                                 <Row padding={24} justifyContent="space-between" gap={24}>
                                     <GraphRangeSelector
+                                        onSelectedRange={onSelectedRange}
                                         isLive={isLive}
                                         isLoading={isGraphLoading}
+                                        isDisabled={isNewDashboardGraphDeferred}
                                         onLiveChange={setIsLive}
                                         showLiveOption={
                                             isNewBalanceGraphEnabled && hasAnyDashboardLiveSupport
                                         }
                                         liveTooltipContent={
                                             isNewBalanceGraphEnabled &&
-                                            hasPartialDashboardLiveSupport
-                                                ? `Live data is unavailable for: ${unsupportedLiveNetworksLabel}.`
-                                                : undefined
+                                            hasPartialDashboardLiveSupport ? (
+                                                <Translation
+                                                    id="TR_GRAPH_LIVE_UNAVAILABLE_FOR_NETWORKS"
+                                                    values={{
+                                                        networks: unsupportedLiveNetworksLabel,
+                                                    }}
+                                                />
+                                            ) : undefined
                                         }
+                                        accounts={graphEligibleAccounts}
                                     />
                                     {!isGraphCollapsed && showMissingDataTooltip && (
                                         <Row gap={12}>

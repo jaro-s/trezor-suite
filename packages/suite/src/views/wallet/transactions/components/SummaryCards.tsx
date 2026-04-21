@@ -31,7 +31,7 @@ const getFormattedLabelLong = (rangeLabel: GraphRange['label']) => {
         case 'day':
             return <Translation id="TR_DATE_DAY_LONG" />;
         case 'hour':
-            return 'Last hour';
+            return <Translation id="TR_DATE_HOUR_LONG" />;
         default:
             return exhaustive(rangeLabel);
     }
