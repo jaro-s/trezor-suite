@@ -33,7 +33,6 @@ export const bip69SortingStrategy: SortingStrategy = ({ result, request, convert
         const { outputs } = result;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
         const outA: CoinSelectOutputFinal = outputs[a];
-        const { outputs } = result;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
         const outB: CoinSelectOutputFinal = outputs[b];
 
