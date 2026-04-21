@@ -166,7 +166,7 @@ describe('api/usb', () => {
 
         api.listen();
 
-        // @ts-expect-error
+        // @ts-expect-error: mock device with extra properties
         api.usbInterface.onconnect({
             device: {
                 ...createMockedDevice(),
