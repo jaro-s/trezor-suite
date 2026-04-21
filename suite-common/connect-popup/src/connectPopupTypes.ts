@@ -146,4 +146,5 @@ export type ConnectPopupCallWithState<
 
 export type AppRememberedPermission = {
     types: MethodPermission[];
+    silentMode?: boolean;
 } & ConnectCallSource;
