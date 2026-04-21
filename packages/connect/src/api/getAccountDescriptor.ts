@@ -152,6 +152,11 @@ export default class GetAccountDescriptor extends AbstractMethod<
                         request.derivationType,
                     );
 
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                const accountIndex: number = address_n[2];
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                const purposeIndex: number = address_n[0];
+
                 const response: GetAccountDescriptorResponse = {
                     descriptor,
                     path: getSerializedPath(address_n),
@@ -163,8 +168,8 @@ export default class GetAccountDescriptor extends AbstractMethod<
                         (request.coinInfo.type === 'bitcoin' && legacyXpub
                             ? buildOutputDescriptor({
                                   coin: request.coinInfo.name,
-                                  account: fromHardened(address_n[2]),
-                                  purpose: fromHardened(address_n[0]),
+                                  account: fromHardened(accountIndex),
+                                  purpose: fromHardened(purposeIndex),
                                   scriptType: getScriptType(address_n),
                                   xpub: legacyXpub,
                                   rootFingerprint,

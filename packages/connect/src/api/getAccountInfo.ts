@@ -213,6 +213,11 @@ export default class GetAccountInfo extends AbstractMethod<'getAccountInfo', Req
                         legacyXpub = accountDescriptor.legacyXpub;
                         descriptorChecksum = accountDescriptor.descriptorChecksum;
                         rootFingerprint = accountDescriptor.rootFingerprint;
+                        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                        const accountIndex: number = address_n[2];
+                        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                        const purposeIndex: number = address_n[0];
+
                         // outputDescriptorBip380 is provided by firmware >= 2.6.5.
                         // For older firmware, build it from the available data (bitcoin only).
                         outputDescriptorBip380 =
@@ -220,8 +225,8 @@ export default class GetAccountInfo extends AbstractMethod<'getAccountInfo', Req
                             (request.coinInfo.type === 'bitcoin' && legacyXpub
                                 ? buildOutputDescriptor({
                                       coin: request.coinInfo.name,
-                                      account: fromHardened(address_n[2]),
-                                      purpose: fromHardened(address_n[0]),
+                                      account: fromHardened(accountIndex),
+                                      purpose: fromHardened(purposeIndex),
                                       scriptType: getScriptType(address_n),
                                       xpub: legacyXpub,
                                       rootFingerprint,
