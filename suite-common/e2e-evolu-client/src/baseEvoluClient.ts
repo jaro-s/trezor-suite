@@ -169,6 +169,21 @@ const waitForRelayReady = async (maxWaitMs = 30_000) => {
         try {
             await fetch(RELAY_HEALTH_URL);
 
+            // Verify the quota manager is up and its DB connection is live by making
+            // a real API call. The health endpoint's quotaManager field stays "pending"
+            // permanently so it cannot be used as a readiness indicator.
+            const quotaResponse = await fetch(`${QUOTA_URL}/storage/ask`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ publicKey: QUOTA_PUBLIC_KEY }),
+            });
+
+            // 2xx = key found, 404 = key not found but DB is queryable — both mean ready.
+            // 5xx means the DB connection is not yet established — retry.
+            if (quotaResponse.status >= 500) {
+                throw new Error(`Quota manager not ready: HTTP ${quotaResponse.status}`);
+            }
+
             return;
         } catch {
             await new Promise(resolve => setTimeout(resolve, pollIntervalMs));

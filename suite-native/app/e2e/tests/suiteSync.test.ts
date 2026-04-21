@@ -170,6 +170,13 @@ describe('Suite Sync - Labelling [@androidOnly @T3T1 @smoke]', () => {
         evoluClient.writeTo('output', outputSeed);
         seedQuotaManagerData({ ownerId: immuneFixtures.ownerId });
 
+        // Verify relay received the seeded data before the app connects.
+        await evoluClient.expectInTable(
+            'account',
+            [immuneFixtures.buildExpectedAccount({ label: immuneFixtures.accountSeed.label })],
+            { timeout: 30_000 },
+        );
+
         await onTabBar.navigateToSettings();
         await onSettings.enableSuiteSync();
         await onTabBar.tapBackButton();
