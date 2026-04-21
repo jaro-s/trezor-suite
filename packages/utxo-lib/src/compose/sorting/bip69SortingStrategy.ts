@@ -19,8 +19,9 @@ export const bip69SortingStrategy: SortingStrategy = ({ result, request, convert
     const defaultPermutation: number[] = [];
     const convertedOutputs = result.outputs.map((output, index) => {
         defaultPermutation.push(index);
+        const { outputs } = request;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const reqOutput: (typeof request.outputs)[number] = request.outputs[index];
+        const reqOutput: (typeof outputs)[number] = outputs[index];
         if (reqOutput) {
             return convertOutput(output, reqOutput);
         }
@@ -29,10 +30,12 @@ export const bip69SortingStrategy: SortingStrategy = ({ result, request, convert
     });
 
     const permutation = defaultPermutation.sort((a, b) => {
+        const { outputs } = result;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const outA: CoinSelectOutputFinal = result.outputs[a];
+        const outA: CoinSelectOutputFinal = outputs[a];
+        const { outputs } = result;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const outB: CoinSelectOutputFinal = result.outputs[b];
+        const outB: CoinSelectOutputFinal = outputs[b];
 
         return outputComparator(outA, outB);
     });

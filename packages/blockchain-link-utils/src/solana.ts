@@ -437,8 +437,9 @@ export const getDetails = (
         )
         .filter(({ address }) => !(txType === 'self' && address === accountAddress));
 
+    const { signatures } = transaction.transaction;
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const txSignature: string = transaction.transaction.signatures[0];
+    const txSignature: string = signatures[0];
 
     const getVin = ({ address, amount }: { address: string; amount?: BigNumber }, i: number) => ({
         txid: txSignature.toString(),
@@ -742,8 +743,9 @@ export const transformTransaction = (
 
     const details = getDetails(tx, nativeEffects, accountAddress, type);
 
+    const { signatures } = tx.transaction;
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const txid: string = tx.transaction.signatures[0];
+    const txid: string = signatures[0];
 
     return {
         type: txType,

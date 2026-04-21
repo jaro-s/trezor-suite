@@ -77,8 +77,9 @@ describe('Transaction', () => {
                     }
                 });
                 tx.outs.forEach((output, i) => {
+                    const { outs } = f.raw;
                     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-                    const expectedOut: (typeof f.raw.outs)[number] = f.raw.outs[i];
+                    const expectedOut: (typeof outs)[number] = outs[i];
                     expect(output.value).toEqual(expectedOut.value);
                     expect(output.script.toString('hex')).toEqual(expectedOut.script);
                     expect(output.decredVersion).toEqual(expectedOut.version);

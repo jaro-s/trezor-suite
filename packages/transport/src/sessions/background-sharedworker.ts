@@ -27,8 +27,9 @@ background.on('releaseRequest', descriptor => {
 });
 
 self.onconnect = function (e) {
+    const { ports } = e;
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const port: MessagePort = e.ports[0];
+    const port: MessagePort = ports[0];
 
     ports.push(port);
 

@@ -66,8 +66,9 @@ export default class TezosGetPublicKey extends AbstractMethod<
                 label: 'Export multiple Tezos public keys',
             };
         }
+        const { params } = this;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const first: (typeof this.params)[number] = this.params[0];
+        const first: (typeof params)[number] = params[0];
         const addressN = first.address_n;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
         const accountIndex: number = addressN[2];
@@ -82,8 +83,9 @@ export default class TezosGetPublicKey extends AbstractMethod<
         const responses: MethodReturnType<typeof this.name> = [];
         const cmd = this.getDevice().getCommands();
         for (let i = 0; i < this.params.length; i++) {
+            const { params } = this;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const batch: (typeof this.params)[number] = this.params[i];
+            const batch: (typeof params)[number] = params[i];
             const { message } = await cmd.typedCall('TezosGetPublicKey', 'TezosPublicKey', batch);
             responses.push({
                 path: batch.address_n,

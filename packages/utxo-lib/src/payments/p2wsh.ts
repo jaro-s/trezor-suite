@@ -217,8 +217,9 @@ export function p2wsh(a: Payment, opts?: PaymentOpts): Payment {
         }
 
         if (a.witness && a.witness.length > 0) {
+            const { witness } = a;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const wScript: Buffer = a.witness[a.witness.length - 1];
+            const wScript: Buffer = witness[a.witness.length - 1];
             if (a.redeem && a.redeem.output && !a.redeem.output.equals(wScript))
                 throw new TypeError('Witness and redeem.output mismatch');
             if (

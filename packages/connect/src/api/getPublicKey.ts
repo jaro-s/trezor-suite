@@ -96,8 +96,9 @@ export default class GetPublicKey extends AbstractMethod<'getPublicKey', Params[
                 label: 'Export multiple public keys',
             };
         }
+        const { params } = this;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const first: (typeof this.params)[number] = this.params[0];
+        const first: (typeof params)[number] = params[0];
 
         return {
             view: 'export-xpub' as const,
@@ -109,8 +110,9 @@ export default class GetPublicKey extends AbstractMethod<'getPublicKey', Params[
         const responses: MethodReturnType<typeof this.name> = [];
         const cmd = this.getDevice().getCommands();
         for (let i = 0; i < this.params.length; i++) {
+            const { params } = this;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const batch: (typeof this.params)[number] = this.params[i];
+            const batch: (typeof params)[number] = params[i];
             const { coinInfo, unlockPath, proto } = batch;
             // if coinInfo is not provided, use fallback (see above in init method)
             const coinInfoFallback = coinInfo ?? getBitcoinNetwork('btc')!;

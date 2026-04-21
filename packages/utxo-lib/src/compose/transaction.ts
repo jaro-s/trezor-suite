@@ -23,8 +23,9 @@ export function createTransaction<Input extends ComposeInput, Change extends Com
     result: CoinSelectSuccess,
 ): ComposedTransaction<Input, ComposeFinalOutput, Change> {
     const convertedInputs = result.inputs.map(input => {
+        const { utxos } = request;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const utxo: Input = request.utxos[input.i];
+        const utxo: Input = utxos[input.i];
 
         return utxo;
     });

@@ -53,8 +53,9 @@ export default class CipherKeyValue extends AbstractMethod<
         const responses: PROTO.CipheredKeyValue[] = [];
         const cmd = this.getDevice().getCommands();
         for (let i = 0; i < this.params.length; i++) {
+            const { params } = this;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const batch: (typeof this.params)[number] = this.params[i];
+            const batch: (typeof params)[number] = params[i];
             const response = await cmd.typedCall('CipherKeyValue', 'CipheredKeyValue', batch);
             responses.push(response.message);
 

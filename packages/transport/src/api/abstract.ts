@@ -196,8 +196,9 @@ export abstract class AbstractApi extends TypedEmitter<{
 
             return this.unknownError(err);
         } finally {
+            const { lock } = this;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const currentLock: AccessLock = this.lock[path];
+            const currentLock: AccessLock = lock[path];
             this.lock[path] = {
                 read: lock.read ? false : currentLock.read,
                 write: lock.write ? false : currentLock.write,

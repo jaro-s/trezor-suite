@@ -58,8 +58,9 @@ export class MockBackendClient extends CoinjoinBackendClient {
     private getBlockbookProxyHandler(method: string | symbol, ...params: any[]) {
         switch (method) {
             case 'getServerInfo': {
+                const { blocks } = this;
                 // @ts-expect-error: indexing with noUncheckedIndexedAccess
-                const lastBlock: BlockFixture = this.blocks[this.blocks.length - 1];
+                const lastBlock: BlockFixture = blocks[this.blocks.length - 1];
 
                 return Promise.resolve({ bestHeight: lastBlock.height });
             }
@@ -84,8 +85,9 @@ export class MockBackendClient extends CoinjoinBackendClient {
                 const bestKnownBlockHash = params[0];
                 const count = params[1];
 
+                const { blocks } = this;
                 // @ts-expect-error: indexing with noUncheckedIndexedAccess
-                const lastBlock2: BlockFixture = this.blocks[this.blocks.length - 1];
+                const lastBlock2: BlockFixture = blocks[this.blocks.length - 1];
                 if (lastBlock2.hash === bestKnownBlockHash)
                     return Promise.resolve({ blockFiltersBatch: [] });
                 const from = this.blocks.findIndex(

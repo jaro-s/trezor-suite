@@ -75,8 +75,9 @@ export default class CardanoGetAddress extends AbstractMethod<'cardanoGetAddress
 
     get info() {
         if (this.params.length === 1) {
+            const { params } = this;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const first: (typeof this.params)[number] = this.params[0];
+            const first: (typeof params)[number] = params[0];
 
             const addressN = first.proto.address_parameters.address_n;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
@@ -90,8 +91,9 @@ export default class CardanoGetAddress extends AbstractMethod<'cardanoGetAddress
 
     getButtonRequestData(code: string) {
         if (code === 'ButtonRequest_Address') {
+            const { params } = this;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const current: (typeof this.params)[number] = this.params[this.progress];
+            const current: (typeof params)[number] = params[this.progress];
 
             return {
                 type: 'address' as const,
@@ -121,8 +123,9 @@ export default class CardanoGetAddress extends AbstractMethod<'cardanoGetAddress
         const responses: MethodReturnType<typeof this.name> = [];
 
         for (let i = 0; i < this.params.length; i++) {
+            const { params } = this;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const batch: (typeof this.params)[number] = this.params[i];
+            const batch: (typeof params)[number] = params[i];
 
             batch.proto.address_parameters = modifyAddressParametersForBackwardsCompatibility(
                 batch.proto.address_parameters,

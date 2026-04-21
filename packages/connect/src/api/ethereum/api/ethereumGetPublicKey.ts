@@ -61,8 +61,9 @@ export default class EthereumGetPublicKey extends AbstractMethod<'ethereumGetPub
     get info() {
         // set info
         if (this.params.length === 1) {
+            const { params } = this;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const first: (typeof this.params)[number] = this.params[0];
+            const first: (typeof params)[number] = params[0];
 
             return getNetworkLabel('Export #NETWORK public key', first.network);
         }
@@ -87,8 +88,9 @@ export default class EthereumGetPublicKey extends AbstractMethod<'ethereumGetPub
         const cmd = this.getDevice().getCommands();
 
         for (let i = 0; i < this.params.length; i++) {
+            const { params } = this;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const batch: (typeof this.params)[number] = this.params[i];
+            const batch: (typeof params)[number] = params[i];
             const { address_n, show_display } = batch.proto;
 
             const publicKey = await cmd.ethereumGetPublicKey({ address_n, show_display });

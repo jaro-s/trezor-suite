@@ -142,10 +142,12 @@ export class BackendManager {
     }
 
     private patchCoinInfo(coinInfo: CoinInfo): CoinInfo {
+        const thisCustom = this.custom;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const custom: BlockchainLink = this.custom[coinInfo.shortcut];
+        const custom: BlockchainLink = thisCustom[coinInfo.shortcut];
+        const thisPreferred = this.preferred;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const preferred: string = this.preferred[coinInfo.shortcut];
+        const preferred: string = thisPreferred[coinInfo.shortcut];
 
         const url = preferred ? [preferred] : (custom?.url ?? coinInfo.blockchainLink?.url ?? []);
 

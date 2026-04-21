@@ -121,8 +121,9 @@ export const verifyTx = (
     }
 
     outputs.forEach((output, i) => {
+        const { outs } = bitcoinTx;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const txOut: (typeof bitcoinTx.outs)[number] = bitcoinTx.outs[i];
+        const txOut: (typeof outs)[number] = outs[i];
         if (output.amount) {
             if (output.amount.toString() !== txOut.value) {
                 throw ERRORS.TypedError(
@@ -135,8 +136,9 @@ export const verifyTx = (
 
     // check outputs scripts
     for (let i = 0; i < outputs.length; i++) {
+        const { outs } = bitcoinTx;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const out: (typeof bitcoinTx.outs)[number] = bitcoinTx.outs[i];
+        const out: (typeof outs)[number] = outs[i];
         const scriptB = out.script;
 
         const scriptA = outputScripts[i];

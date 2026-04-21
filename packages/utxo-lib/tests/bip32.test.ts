@@ -110,8 +110,9 @@ describe('fromBase58 throws', () => {
 });
 
 it('works for Private -> public (neutered)', () => {
+    const { valid } = fixtures;
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const f: (typeof fixtures.valid)[number] = fixtures.valid[1];
+    const f: (typeof valid)[number] = valid[1];
     const c = f.children[0] as any;
     const master = BIP32.fromBase58(f.base58Priv);
     const child = master.derive(c.m).neutered();
@@ -120,8 +121,9 @@ it('works for Private -> public (neutered)', () => {
 });
 
 it('works for Private -> public (neutered, hardened)', () => {
+    const { valid } = fixtures;
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const f: (typeof fixtures.valid)[number] = fixtures.valid[0];
+    const f: (typeof valid)[number] = valid[0];
     const c = f.children[0] as any;
     const master = BIP32.fromBase58(f.base58Priv);
     const child = master.deriveHardened(c.m).neutered();
@@ -130,8 +132,9 @@ it('works for Private -> public (neutered, hardened)', () => {
 });
 
 it('works for Public -> public', () => {
+    const { valid } = fixtures;
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const f: (typeof fixtures.valid)[number] = fixtures.valid[1];
+    const f: (typeof valid)[number] = valid[1];
     const c = f.children[0] as any;
     const master = BIP32.fromBase58(f.base58);
     const child = master.derive(c.m);
@@ -140,8 +143,9 @@ it('works for Public -> public', () => {
 });
 
 it('throws on Public -> public (hardened)', () => {
+    const { valid } = fixtures;
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const f: (typeof fixtures.valid)[number] = fixtures.valid[1];
+    const f: (typeof valid)[number] = valid[1];
     const c = f.children[0] as any;
     const master = BIP32.fromBase58(f.base58);
     expect(() => {
@@ -150,8 +154,9 @@ it('throws on Public -> public (hardened)', () => {
 });
 
 it('throws on wrong types', () => {
+    const { valid } = fixtures;
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const f: (typeof fixtures.valid)[number] = fixtures.valid[0];
+    const f: (typeof valid)[number] = valid[0];
     const master = BIP32.fromBase58(f.base58);
 
     fixtures.invalid.derive.forEach(fx => {

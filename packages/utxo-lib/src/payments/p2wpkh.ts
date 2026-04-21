@@ -137,10 +137,12 @@ export function p2wpkh(a: Payment, opts?: PaymentOpts): Payment {
 
         if (a.witness) {
             if (a.witness.length !== 2) throw new TypeError('Witness is invalid');
+            const { witness } = a;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const witnessSig: Buffer = a.witness[0];
+            const witnessSig: Buffer = witness[0];
+            const { witness } = a;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const witnessPubkey: Buffer = a.witness[1];
+            const witnessPubkey: Buffer = witness[1];
             if (!bscript.isCanonicalScriptSignature(witnessSig))
                 throw new TypeError('Witness has invalid signature');
             if (!ecc.isPoint(witnessPubkey) || witnessPubkey.length !== 33)

@@ -72,8 +72,9 @@ export default class EthereumGetAddress extends AbstractMethod<'ethereumGetAddre
 
     async initAsync(): Promise<void> {
         for (let i = 0; i < this.params.length; i++) {
+            const { params } = this;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const param: (typeof this.params)[number] = this.params[i];
+            const param: (typeof params)[number] = params[i];
             // network was maybe already set from 'well-known' definition in init method.
             if (!param.network) {
                 const slip44 = getSlip44ByPath(param.proto.address_n);
@@ -93,8 +94,9 @@ export default class EthereumGetAddress extends AbstractMethod<'ethereumGetAddre
 
     get info() {
         if (this.params.length === 1) {
+            const { params } = this;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const first: (typeof this.params)[number] = this.params[0];
+            const first: (typeof params)[number] = params[0];
 
             return getNetworkLabel('Export #NETWORK address', first.network);
         }
@@ -109,8 +111,9 @@ export default class EthereumGetAddress extends AbstractMethod<'ethereumGetAddre
 
     getButtonRequestData(code: string) {
         if (code === 'ButtonRequest_Address') {
+            const { params } = this;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const current: (typeof this.params)[number] = this.params[this.progress];
+            const current: (typeof params)[number] = params[this.progress];
 
             return {
                 type: 'address' as const,
@@ -142,8 +145,9 @@ export default class EthereumGetAddress extends AbstractMethod<'ethereumGetAddre
         const responses: MethodReturnType<typeof this.name> = [];
 
         for (let i = 0; i < this.params.length; i++) {
+            const { params } = this;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const batch: (typeof this.params)[number] = this.params[i];
+            const batch: (typeof params)[number] = params[i];
 
             // silently get address and compare with requested address
             // or display as default inside popup

@@ -132,8 +132,9 @@ export default class GetAccountDescriptor extends AbstractMethod<
         };
 
         for (let i = 0; i < this.params.length; i++) {
+            const { params } = this;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const request: (typeof this.params)[number] = this.params[i];
+            const request: (typeof params)[number] = params[i];
 
             if (this.disposed) break;
 

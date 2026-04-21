@@ -49,8 +49,9 @@ describe('outputRegistration', () => {
             [],
             server?.requestOptions,
         );
+        const { inputs } = response;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const firstInput: (typeof response.inputs)[number] = response.inputs[0];
+        const firstInput: (typeof inputs)[number] = inputs[0];
         expect(firstInput.error?.message).toMatch(/Missing confirmed credentials/);
     });
 
@@ -117,8 +118,9 @@ describe('outputRegistration', () => {
             server?.requestOptions,
         );
 
+        const { inputs } = response;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const firstInput2: (typeof response.inputs)[number] = response.inputs[0];
+        const firstInput2: (typeof inputs)[number] = inputs[0];
         expect(firstInput2.error?.message).toMatch(/No change address available/);
     });
 });

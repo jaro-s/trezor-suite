@@ -508,8 +508,9 @@ export const composeTransaction = async (api: TrezorConnect) => {
     });
 
     if (precompose.success) {
+        const { payload } = precompose;
         // @ts-expect-error noUncheckedIndexedAccess: test fixture always has one element
-        const tx: PrecomposedResult = precompose.payload[0];
+        const tx: PrecomposedResult = payload[0];
         if (tx.type === 'error') {
             tx.error.toLowerCase();
         }

@@ -203,8 +203,9 @@ export class CoinjoinBackendClient implements CoinjoinBackendClientShape {
         return scheduleAction(
             async () => {
                 const urlIndex = this.blockbookRequestId++ % this.blockbookUrls.length;
+                const { blockbookUrls } = this;
                 // @ts-expect-error: indexing with noUncheckedIndexedAccess
-                const clearnet: string = this.blockbookUrls[urlIndex];
+                const clearnet: string = blockbookUrls[urlIndex];
                 const url = (preferOnion && urlToOnion(clearnet, this.onionDomains)) || clearnet;
                 const api = await this.websockets
                     .getOrCreate({ identity, ...options, url })

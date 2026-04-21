@@ -149,8 +149,9 @@ export class SessionsBackground
                 this.pathInternalPathPublicMap[d.path] = PathPublic(`${(this.lastPathId += 1)}`);
             }
             if (!this.descriptors[d.path]) {
+                const { pathInternalPathPublicMap } = this;
                 // @ts-expect-error: indexing with noUncheckedIndexedAccess
-                const publicPath: PathPublic = this.pathInternalPathPublicMap[d.path];
+                const publicPath: PathPublic = pathInternalPathPublicMap[d.path];
                 this.descriptors[d.path] = {
                     ...d,
                     path: publicPath,
@@ -231,8 +232,9 @@ export class SessionsBackground
     }
 
     private releaseDone(payload: ReleaseDoneRequest) {
+        const { descriptors } = this;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const descriptor: Descriptor = this.descriptors[payload.path];
+        const descriptor: Descriptor = descriptors[payload.path];
         descriptor.session = null;
         descriptor.sessionOwner = undefined;
 

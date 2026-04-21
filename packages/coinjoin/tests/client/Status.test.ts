@@ -86,8 +86,9 @@ describe('Status', () => {
         await status.start();
         expect(setTimeoutSpy).toHaveBeenLastCalledWith(expect.any(Function), STATUS_TIMEOUT.idle);
 
+        const { calls } = setTimeoutSpy.mock;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const firstCall: (typeof setTimeoutSpy.mock.calls)[number] = setTimeoutSpy.mock.calls[0];
+        const firstCall: (typeof calls)[number] = calls[0];
         expect(firstCall[1]).toEqual(STATUS_TIMEOUT.idle);
 
         status.setMode('enabled');
@@ -156,23 +157,26 @@ describe('Status', () => {
         });
 
         expect(coordinatorRequestSpy).toHaveBeenCalledTimes(1); // status fetched once on start
+        const { calls } = setTimeoutSpy.mock;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const call0: (typeof setTimeoutSpy.mock.calls)[number] = setTimeoutSpy.mock.calls[0];
+        const call0: (typeof calls)[number] = calls[0];
         expect(call0[1]).toEqual(half); // setTimeout is set to ~1500ms (half of defaultTimeout > coinjoinRound.phaseDeadline)
 
         await fastForward(half);
 
         expect(coordinatorRequestSpy).toHaveBeenCalledTimes(2);
+        const { calls } = setTimeoutSpy.mock;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const call1: (typeof setTimeoutSpy.mock.calls)[number] = setTimeoutSpy.mock.calls[1];
+        const call1: (typeof calls)[number] = calls[1];
         expect(call1[1]).toBeGreaterThan(half); // setTimeout is set to ~2500ms (half of defaultTimeout < coinjoinRound.phaseDeadline < defaultTimeout)
         expect(call1[1]).toBeLessThanOrEqual(half + 2500);
 
         await fastForward(half + 2500);
 
         expect(coordinatorRequestSpy).toHaveBeenCalledTimes(3);
+        const { calls } = setTimeoutSpy.mock;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const call2: (typeof setTimeoutSpy.mock.calls)[number] = setTimeoutSpy.mock.calls[2];
+        const call2: (typeof calls)[number] = calls[2];
         expect(call2[1]).toEqual(STATUS_TIMEOUT.enabled); // setTimeout is set to 3000ms (coinjoinRound.phaseDeadline > defaultTimeout)
     });
 

@@ -625,8 +625,9 @@ describe('http', () => {
             // ... but api.write is still processing
             expect(writeSpy).toHaveBeenCalledTimes(1);
             // wait for api.write result and check if it was resolved with failure
+            const { results } = writeSpy.mock;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const writeSpyResult: (typeof writeSpy.mock.results)[number] = writeSpy.mock.results[0];
+            const writeSpyResult: (typeof results)[number] = results[0];
             const enumerateResult = await writeSpyResult.value;
             expect(enumerateResult.success).toBe(false);
             expect(enumerateResult.error).toContain('Aborted');

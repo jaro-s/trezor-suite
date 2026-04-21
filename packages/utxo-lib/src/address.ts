@@ -34,14 +34,16 @@ export function fromBech32(address: string): Bech32Result {
     }
 
     if (result) {
+        const { words } = result;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const v: number = result.words[0];
+        const v: number = words[0];
         version = v;
         if (version !== 0) throw new TypeError(`${address} uses wrong encoding`);
     } else {
         result = bech32m.decode(address as `${string}1${string}`);
+        const { words } = result;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const v: number = result.words[0];
+        const v: number = words[0];
         version = v;
         if (version === 0) throw new TypeError(`${address} uses wrong encoding`);
     }

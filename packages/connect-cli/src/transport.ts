@@ -98,8 +98,9 @@ export const debugLinkDecision = async () => {
     if (!enumerate.success) {
         throw new Error(enumerate.error.code);
     }
+    const { payload } = enumerate;
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const descriptor: (typeof enumerate.payload)[number] = enumerate.payload[0];
+    const descriptor: (typeof payload)[number] = payload[0];
     const input = { ...descriptor, previous: descriptor.session };
 
     const acquire = await debugTransport.acquire({ input });
@@ -114,8 +115,9 @@ export const debugLinkDecision = async () => {
         session,
     });
 
+    const { payload } = enumerate;
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const releaseDescriptor: (typeof enumerate.payload)[number] = enumerate.payload[0];
+    const releaseDescriptor: (typeof payload)[number] = payload[0];
     await debugTransport.release({ ...releaseDescriptor, session });
     await debugTransport.enumerate();
 };

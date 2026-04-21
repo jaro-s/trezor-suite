@@ -101,8 +101,9 @@ export const transformTransaction = (
         return baseTx;
     }
 
+    const { operations } = parsedTx;
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const rawOp: (typeof parsedTx.operations)[number] = parsedTx.operations[0];
+    const rawOp: (typeof operations)[number] = operations[0];
     const opSource = rawOp.source || rawTx.source_account;
     const fromAddress = extractBaseAddress(opSource);
 

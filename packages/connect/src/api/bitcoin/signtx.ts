@@ -52,8 +52,9 @@ const requestPrevTxInfo = ({
                 `requestPrevTxInfo: Requested unknown TXINPUT: ${tx_hash}`,
             );
 
+        const { inputs } = tx;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const prevInput: (typeof tx.inputs)[number] = tx.inputs[details.request_index];
+        const prevInput: (typeof inputs)[number] = inputs[details.request_index];
 
         return typedCall('TxAckPrevInput', 'TxRequest', {
             tx: { input: prevInput },
@@ -67,8 +68,9 @@ const requestPrevTxInfo = ({
                 `requestPrevTxInfo: Requested unknown TXOUTPUT: ${tx_hash}`,
             );
 
+        const { bin_outputs } = tx;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const prevOutput: (typeof tx.bin_outputs)[number] = tx.bin_outputs[details.request_index];
+        const prevOutput: (typeof bin_outputs)[number] = bin_outputs[details.request_index];
 
         return typedCall('TxAckPrevOutput', 'TxRequest', {
             tx: { output: prevOutput },
@@ -82,8 +84,9 @@ const requestPrevTxInfo = ({
                 `requestPrevTxInfo: Requested unknown TXORIGINPUT: ${tx_hash}`,
             );
 
+        const { inputs } = tx;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const origInput: (typeof tx.inputs)[number] = tx.inputs[details.request_index];
+        const origInput: (typeof inputs)[number] = inputs[details.request_index];
 
         return typedCall('TxAckInput', 'TxRequest', {
             tx: { input: origInput },
@@ -97,8 +100,9 @@ const requestPrevTxInfo = ({
                 `requestPrevTxInfo: Requested unknown TXORIGOUTPUT: ${tx_hash}`,
             );
 
+        const { outputs } = tx;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const origOutput: (typeof tx.outputs)[number] = tx.outputs[details.request_index];
+        const origOutput: (typeof outputs)[number] = outputs[details.request_index];
 
         return typedCall('TxAckOutput', 'TxRequest', {
             tx: { output: origOutput },

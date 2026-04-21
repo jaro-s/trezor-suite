@@ -7,8 +7,9 @@ type AddressPaths = {
 };
 
 const isCoinbaseUtxo = (tx: Transaction) => {
+    const { vin } = tx.details;
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const firstVin: (typeof tx.details.vin)[number] = tx.details.vin[0];
+    const firstVin: (typeof vin)[number] = vin[0];
 
     return tx.details.vin.length === 1 && !firstVin.isAddress && !firstVin.txid;
 };

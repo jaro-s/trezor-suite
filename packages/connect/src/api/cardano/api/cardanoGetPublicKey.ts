@@ -72,8 +72,9 @@ export default class CardanoGetPublicKey extends AbstractMethod<'cardanoGetPubli
                 label: 'Export multiple Cardano public keys',
             };
         }
+        const { params } = this;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const first: (typeof this.params)[number] = this.params[0];
+        const first: (typeof params)[number] = params[0];
         const addressN = first.proto.address_n;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
         const accountIndex: number = addressN[2];
@@ -88,8 +89,9 @@ export default class CardanoGetPublicKey extends AbstractMethod<'cardanoGetPubli
         const responses: MethodReturnType<typeof this.name> = [];
         const cmd = this.getDevice().getCommands();
         for (let i = 0; i < this.params.length; i++) {
+            const { params } = this;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const param: (typeof this.params)[number] = this.params[i];
+            const param: (typeof params)[number] = params[i];
             const batch = param.proto;
             const { message } = await cmd.typedCall(
                 'CardanoGetPublicKey',

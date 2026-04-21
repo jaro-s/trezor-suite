@@ -20,14 +20,16 @@ const requestPrevTxInfo = ({
         throw ERRORS.TypedError('Runtime', `requestPrevTxInfo: bin_outputs not set tx: ${tx_hash}`);
     }
     if (request_type === 'TXINPUT') {
+        const { inputs } = tx;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const input: (typeof tx.inputs)[number] = tx.inputs[details.request_index];
+        const input: (typeof inputs)[number] = inputs[details.request_index];
 
         return { inputs: [input] };
     }
     if (request_type === 'TXOUTPUT') {
+        const { bin_outputs } = tx;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const binOutput: (typeof tx.bin_outputs)[number] = tx.bin_outputs[details.request_index];
+        const binOutput: (typeof bin_outputs)[number] = bin_outputs[details.request_index];
 
         return { bin_outputs: [binOutput] };
     }

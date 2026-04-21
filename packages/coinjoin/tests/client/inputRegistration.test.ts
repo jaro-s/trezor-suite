@@ -252,8 +252,9 @@ describe('inputRegistration', () => {
             server?.requestOptions,
         );
         // input have registrationData but also have an error and should be excluded
+        const { inputs } = response;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const firstInput: (typeof response.inputs)[number] = response.inputs[0];
+        const firstInput: (typeof inputs)[number] = inputs[0];
         expect(firstInput.registrationData).toMatchObject({ AliceId: expect.any(String) });
         expect(firstInput.error?.message).toMatch(/ExpectedRuntimeError/);
     });
@@ -309,8 +310,9 @@ describe('inputRegistration', () => {
         await Promise.all(response.inputs.map(input => input.getConfirmationInterval()?.promise));
 
         expect(spy).toHaveBeenCalledTimes(1); // connection-confirmation was called 1 time and responded with real realCredentials (default response of MockedServer)
+        const { inputs } = response;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const firstInput2: (typeof response.inputs)[number] = response.inputs[0];
+        const firstInput2: (typeof inputs)[number] = inputs[0];
         expect(firstInput2.confirmationData).toMatchObject({
             RealAmountCredentials: expect.any(Object),
         });
@@ -337,8 +339,9 @@ describe('inputRegistration', () => {
             server?.requestOptions,
         );
 
+        const { inputs } = response;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const firstInput3: (typeof response.inputs)[number] = response.inputs[0];
+        const firstInput3: (typeof inputs)[number] = inputs[0];
         expect(firstInput3.registrationData).toMatchObject({ AliceId: expect.any(String) });
         expect(firstInput3.getConfirmationInterval()).not.toBeUndefined();
         expect(firstInput3.error).toBeUndefined(); // input without error even if request failed

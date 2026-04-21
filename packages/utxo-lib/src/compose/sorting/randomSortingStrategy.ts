@@ -8,8 +8,9 @@ export const randomSortingStrategy: SortingStrategy = ({ result, request, conver
     const changeOutputPermutation: number[] = [];
 
     const convertedOutputs = result.outputs.map((output, index) => {
+        const { outputs } = request;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const reqOutput: (typeof request.outputs)[number] = request.outputs[index];
+        const reqOutput: (typeof outputs)[number] = outputs[index];
         if (reqOutput) {
             nonChangeOutputPermutation.push(index);
 

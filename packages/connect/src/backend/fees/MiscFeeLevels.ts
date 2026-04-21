@@ -35,8 +35,9 @@ export class MiscFeeLevels {
             ).toString();
 
             // misc coins should have only one FeeLevel (normal)
+            const { levels } = this;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const currentLevel: (typeof this.levels)[number] = this.levels[0];
+            const currentLevel: (typeof levels)[number] = levels[0];
             this.levels[0] = {
                 ...currentLevel,
                 ...response,

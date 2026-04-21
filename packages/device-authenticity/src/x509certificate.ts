@@ -179,8 +179,9 @@ export const fixSignature = (byteArray: Uint8Array) => {
         const chunkLength = data.length + offset;
         const newChunk = new Uint8Array(chunkLength + 2);
         // set first two bytes: original value and new length of the chunk
+        const { raw } = chunk;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const chunkRaw0: number = chunk.raw[0];
+        const chunkRaw0: number = raw[0];
         newChunk.set([chunkRaw0, chunkLength]);
         // optionally add 0
         if (offset > 0) {
@@ -372,8 +373,9 @@ const parseExtensions = (data: Asn1) => {
         if (value.cls !== 0 || value.tag !== 1 || value.contents.length !== 1 || value.structured) {
             throw new Error("This can't be a boolean. Wrong data type.");
         }
+        const { contents } = value;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const boolByte: number = value.contents[0];
+        const boolByte: number = contents[0];
         if (![0x00, 0xff].includes(boolByte)) {
             throw new Error('Invalid boolean value.');
         }

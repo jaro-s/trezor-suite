@@ -115,8 +115,9 @@ export default class GetAccountInfo extends AbstractMethod<'getAccountInfo', Req
     }
 
     get confirmation() {
+        const { params } = this;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const firstParam: (typeof this.params)[number] = this.params[0];
+        const firstParam: (typeof params)[number] = params[0];
         if (this.params.length === 1 && !firstParam.path && !firstParam.descriptor) {
             return {
                 view: 'export-account-info' as const,
@@ -169,8 +170,9 @@ export default class GetAccountInfo extends AbstractMethod<'getAccountInfo', Req
 
     async run(context: MethodContext) {
         // address_n and descriptor are not set. use discovery
+        const { params } = this;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const firstRequest: (typeof this.params)[number] = this.params[0];
+        const firstRequest: (typeof params)[number] = params[0];
         if (this.params.length === 1 && !firstRequest.path && !firstRequest.descriptor) {
             return this.discover(firstRequest, context);
         }
@@ -191,8 +193,9 @@ export default class GetAccountInfo extends AbstractMethod<'getAccountInfo', Req
         };
 
         for (let i = 0; i < this.params.length; i++) {
+            const allParams = this.params;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const request: (typeof this.params)[number] = this.params[i];
+            const request: (typeof allParams)[number] = allParams[i];
             const { address_n } = request;
             let { descriptor } = request;
             let legacyXpub: string | undefined;
@@ -424,8 +427,9 @@ export default class GetAccountInfo extends AbstractMethod<'getAccountInfo', Req
         const uiResp = await dfd.promise;
         discovery.stop();
 
+        const { accounts } = discovery;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const account: (typeof discovery.accounts)[number] = discovery.accounts[uiResp.payload];
+        const account: (typeof accounts)[number] = accounts[uiResp.payload];
 
         if (!discovery.completed) {
             await resolveAfter(501); // temporary solution, TODO: immediately resolve will cause "device call in progress"

@@ -104,8 +104,9 @@ export default class TronSignTransaction extends AbstractMethod<'tronSignTransac
 
         const path = validatePath(payload.path, 3);
 
+        const { contract } = payload;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const firstContract: (typeof payload.contract)[number] = payload.contract[0];
+        const firstContract: (typeof contract)[number] = contract[0];
         const contract = transformContract(firstContract);
 
         const params = {

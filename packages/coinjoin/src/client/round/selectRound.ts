@@ -412,8 +412,9 @@ export const selectInputsForRound = async ({
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
         const utxoIndexes: (typeof roundSelection)[number] = roundSelection[accountIndex];
         const selectedUtxos = utxoIndexes.map(utxoIndex => {
+            const { utxos } = account;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const utxo: (typeof account.utxos)[number] = account.utxos[utxoIndex];
+            const utxo: (typeof utxos)[number] = utxos[utxoIndex];
 
             return utxo;
         });

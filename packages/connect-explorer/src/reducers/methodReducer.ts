@@ -43,8 +43,9 @@ const findFieldsNested = (
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
     const nextPathSegment: string | number = remainingPath[1];
     if (nextField?.type === 'array' && typeof nextPathSegment === 'number') {
+        const { items } = nextField;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const nestedItems: (typeof nextField.items)[number] = nextField.items[nextPathSegment];
+        const nestedItems: (typeof items)[number] = items[nextPathSegment];
 
         return findFieldsNested(nestedItems, field, currentDepth + 2);
     } else if (nextField?.type === 'union') {

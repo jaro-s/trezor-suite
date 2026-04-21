@@ -63,8 +63,9 @@ const getArray = (field: FieldWithBundle<any>, props: Props) => (
         key={field.name}
         field={field}
         onAdd={() => {
+            const { batch } = field;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const firstBatch: (typeof field.batch)[number] = field.batch[0];
+            const firstBatch: (typeof batch)[number] = batch[0];
             props.actions.onBatchAdd(field, firstBatch.fields);
         }}
     >
