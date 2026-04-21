@@ -196,7 +196,7 @@ describe('Status', () => {
         const randomSequence = [0, 0.25, 0.5, 0.75];
         let randomIdx = 0;
         jest.spyOn(Math, 'random').mockImplementation(
-            () => randomSequence[randomIdx++ % randomSequence.length],
+            () => randomSequence[randomIdx++ % randomSequence.length] ?? 0,
         );
 
         jest.useFakeTimers();
