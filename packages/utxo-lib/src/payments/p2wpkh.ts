@@ -140,7 +140,6 @@ export function p2wpkh(a: Payment, opts?: PaymentOpts): Payment {
             const { witness } = a;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
             const witnessSig: Buffer = witness[0];
-            const { witness } = a;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
             const witnessPubkey: Buffer = witness[1];
             if (!bscript.isCanonicalScriptSignature(witnessSig))
