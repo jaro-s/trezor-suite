@@ -821,15 +821,13 @@ const getBitcoinRbfParams = (
                 });
             }
         } else {
-            const address = output.addresses?.[0];
-            if (!address || !output.value) return;
-
+            const address = output.addresses?.[0] ?? '';
             const changeOutput = changeAddresses.find(a => output.addresses?.includes(a.address));
             outputs.push({
                 type: changeOutput ? 'change' : 'payment',
                 address,
-                amount: output.value,
-                formattedAmount: formatNetworkAmount(output.value, account.symbol),
+                amount: output.value ?? '0',
+                formattedAmount: formatNetworkAmount(output.value ?? '0', account.symbol),
             });
             if (changeOutput) {
                 changeAddress = changeOutput;
