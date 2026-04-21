@@ -115,7 +115,6 @@ export const debugLinkDecision = async () => {
         session,
     });
 
-    const { payload } = enumerate;
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
     const releaseDescriptor: (typeof payload)[number] = payload[0];
     await debugTransport.release({ ...releaseDescriptor, session });
