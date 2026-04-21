@@ -102,7 +102,7 @@ describe('useBuyFlow', () => {
                     result.current.selectQuote();
                 });
 
-                const dispatchCall = dispatchSpy.mock.calls[0][0] as any;
+                const dispatchCall = dispatchSpy.mock.calls?.[0]?.[0] as any;
                 const { nextStep } = dispatchCall.payload;
 
                 act(() => {

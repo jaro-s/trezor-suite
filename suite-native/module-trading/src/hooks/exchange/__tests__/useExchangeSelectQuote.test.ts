@@ -344,7 +344,7 @@ describe('useExchangeSelectQuote', () => {
                 result.current.selectQuote();
             });
 
-            const dispatchCall = dispatchSpy.mock.calls[0][0];
+            const dispatchCall = dispatchSpy.mock.calls?.[0]?.[0];
             const { nextStep } = (dispatchCall as any).payload;
 
             act(() => {
@@ -438,7 +438,7 @@ describe('useExchangeSelectQuote', () => {
                 result.current.selectQuote();
             });
 
-            const dispatchCall = dispatchSpy.mock.calls[0][0];
+            const dispatchCall = dispatchSpy.mock.calls?.[0]?.[0];
             const { nextStep } = (dispatchCall as any).payload;
 
             act(() => {
@@ -467,7 +467,7 @@ describe('useExchangeSelectQuote', () => {
                 result.current.selectQuote();
             });
 
-            const dispatchCall = dispatchSpy.mock.calls[0][0];
+            const dispatchCall = dispatchSpy.mock.calls?.[0]?.[0];
             const { nextStep } = (dispatchCall as any).payload;
 
             act(() => {
@@ -492,7 +492,7 @@ describe('useExchangeSelectQuote', () => {
                 result.current.selectQuote();
             });
 
-            const dispatchCall = dispatchSpy.mock.calls[0][0];
+            const dispatchCall = dispatchSpy.mock.calls?.[0]?.[0];
             const { nextStep } = (dispatchCall as any).payload;
 
             act(() => {
@@ -522,7 +522,7 @@ describe('useExchangeSelectQuote', () => {
                 result.current.selectQuote();
             });
 
-            const dispatchCall = dispatchSpy.mock.calls[0][0];
+            const dispatchCall = dispatchSpy.mock.calls?.[0]?.[0];
             const { nextStep } = (dispatchCall as any).payload;
 
             act(() => {
@@ -553,7 +553,7 @@ describe('useExchangeSelectQuote', () => {
                 result.current.selectQuote();
             });
 
-            const dispatchCall = dispatchSpy.mock.calls[0][0];
+            const dispatchCall = dispatchSpy.mock.calls?.[0]?.[0];
             const { nextStep } = (dispatchCall as any).payload;
 
             act(() => {
