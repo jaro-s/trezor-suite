@@ -778,9 +778,7 @@ export const initCoinjoinService =
                     .addresses!.change.filter(a => a.transfers > 0)
                     .map(a => a.address);
 
-                return Object.keys(account.prison!).flatMap(id => {
-                    const inmate = account.prison?.[id];
-                    if (!inmate) return [];
+                return Object.entries(account.prison ?? {}).flatMap(([id, inmate]) => {
                     // clear outdated info with Infinity sentence
                     if (inmate.sentenceEnd === Infinity) {
                         // utxos which are no longer in account (spent utxos)
