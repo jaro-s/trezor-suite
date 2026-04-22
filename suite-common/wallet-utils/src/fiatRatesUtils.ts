@@ -38,7 +38,7 @@ export const getFiatRateKeyFromTicker = (
 };
 
 export function getTickerFromFiatRateKey(fiatRateKey: CryptoBaseCurrencyPair): TickerId | null {
-    const [symbol, tokenAddress] = fiatRateKey.split('-');
+    const [symbol = '', tokenAddress] = fiatRateKey.split('-');
 
     if (!isNetworkSymbol(symbol)) {
         console.error(`Failed to get ticker from fiat rate key: ${fiatRateKey}`);
