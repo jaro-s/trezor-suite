@@ -12,9 +12,7 @@ const descsumsPolymod = (symbols: bigint[]): bigint => {
         const top = chk >> 35n;
         chk = ((chk & 0x7ffffffffn) << 5n) ^ value;
         for (let i = 0; i < 5; i++) {
-            // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const gen: bigint = GENERATOR[i];
-            chk ^= (top >> BigInt(i)) & 1n ? gen : 0n;
+            chk ^= (top >> BigInt(i)) & 1n ? GENERATOR[i] : 0n;
         }
     }
 
@@ -31,12 +29,12 @@ const descsumsExpand = (s: string): bigint[] | null => {
         symbols.push(BigInt(v & 31));
         groups.push(v >> 5);
         if (groups.length === 3) {
-            symbols.push(BigInt((groups[0] ?? 0) * 9 + (groups[1] ?? 0) * 3 + (groups[2] ?? 0)));
+            symbols.push(BigInt(groups[0] * 9 + groups[1] * 3 + groups[2]));
             groups.length = 0;
         }
     }
-    if (groups.length === 1) symbols.push(BigInt(groups[0] ?? 0));
-    else if (groups.length === 2) symbols.push(BigInt((groups[0] ?? 0) * 3 + (groups[1] ?? 0)));
+    if (groups.length === 1) symbols.push(BigInt(groups[0]));
+    else if (groups.length === 2) symbols.push(BigInt(groups[0] * 3 + groups[1]));
 
     return symbols;
 };
@@ -53,7 +51,7 @@ export const getDescriptorChecksum = (desc: string): string => {
 
     return Array.from(
         { length: 8 },
-        (_, i) => CHECKSUM_CHARSET[Number((checksum >> BigInt(5 * (7 - i))) & 31n)] ?? '',
+        (_, i) => CHECKSUM_CHARSET[Number((checksum >> BigInt(5 * (7 - i))) & 31n)],
     ).join('');
 };
 

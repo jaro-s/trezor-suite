@@ -559,9 +559,9 @@ describe('http', () => {
             // ... but api.enumerate is still processing
             expect(enumerateSpy).toHaveBeenCalledTimes(1);
             // wait for api.enumerate result and check if it was resolved with failure
+            const { results } = enumerateSpy.mock;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const enumerateSpyResult: (typeof enumerateSpy.mock.results)[number] =
-                enumerateSpy.mock.results[0];
+            const enumerateSpyResult: (typeof results)[number] = results[0];
             const enumerateResult = await enumerateSpyResult.value;
             expect(enumerateResult.success).toBe(false);
             expect(enumerateResult.error).toContain('Aborted');
