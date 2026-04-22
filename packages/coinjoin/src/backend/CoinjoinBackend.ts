@@ -141,8 +141,9 @@ export class CoinjoinBackend extends TypedEmitter<Events> {
                 : addressFirstPage;
 
         const transactions = latestPage.transactions!;
+        const lastIndex = transactions.length - 1;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const oldestTx: (typeof transactions)[number] = transactions[transactions.length - 1];
+        const oldestTx: (typeof transactions)[number] = transactions[lastIndex];
         const blockHeight = oldestTx.blockHeight - 1;
         const blockHash = await this.client.fetchBlockHash(blockHeight);
 
