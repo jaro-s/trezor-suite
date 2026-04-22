@@ -51,8 +51,9 @@ function getMerkleRewardsQueryEntries(yieldAccountOpportunities: YieldAccountOpp
             ),
         );
 
-    return unique(candidatesForMerkleRewards).map(candidate => {
+    return unique(candidatesForMerkleRewards).flatMap(candidate => {
         const { chainId, address } = ChainAddressKey.parse(candidate);
+        if (!address) return [];
 
         return { chainId: Number(chainId), address };
     });
