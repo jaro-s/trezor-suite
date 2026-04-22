@@ -128,8 +128,10 @@ export function useGetMerkleRewards<Address extends string>(
             const usersChainRewards = await Promise.all(requests);
 
             // Link the response with the query entries, flatten the rewards, select needed fields
-            const rewardsResult = usersChainRewards.map((userChainRewards, index) => {
-                const { address, chainId } = queryEntries[index];
+            const rewardsResult = usersChainRewards.flatMap((userChainRewards, index) => {
+                const entry = queryEntries[index];
+                if (!entry) return [];
+                const { address, chainId } = entry;
 
                 return {
                     address,
