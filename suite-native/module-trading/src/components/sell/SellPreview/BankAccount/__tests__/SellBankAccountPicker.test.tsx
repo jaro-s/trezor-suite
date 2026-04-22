@@ -4,7 +4,7 @@ import { type TradingTransaction } from '@suite-common/trading';
 import {
     bankAccounts,
     eth1NormalAccount,
-    verifiedBankAccountEntry,
+    verifiedBankAccount,
 } from '@suite-native/trading-fixtures';
 
 import {
@@ -93,7 +93,7 @@ describe('SellBankAccountPicker', () => {
             const { queryByTestId } = renderPicker(
                 {
                     orderId: undefined,
-                    selectedBankAccountIban: verifiedBankAccountEntry.bankAccount,
+                    selectedBankAccountIban: verifiedBankAccount.bankAccount,
                     onBankAccountSelect: mockOnBankAccountSelect,
                 },
                 {
