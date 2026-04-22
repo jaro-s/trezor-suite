@@ -92,7 +92,7 @@ export const waitToHaveText = async (
                 `waitForText(): target text "${actualText}" did not equal expected "${expectedText}" after ${timeout}ms`,
             );
         }
-    }, RETRY_CONF);
+    }, { ...RETRY_CONF, attempts: Math.ceil(timeout / RETRY_CONF.gap) });
 };
 
 export const waitToHaveRegex = async (

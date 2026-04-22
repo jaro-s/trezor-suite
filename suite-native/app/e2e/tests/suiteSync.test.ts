@@ -36,15 +36,15 @@ import {
 type TableName = Parameters<BaseEvoluClient['readFrom']>[0];
 
 class NativeEvoluClient extends BaseEvoluClient {
-    async expectInTable<T extends TableName>(
-        table: T,
+    async expectInTable(
+        table: TableName,
         expectedData: Record<string, unknown>[],
         options?: { omit?: string[]; timeout?: number },
     ) {
         const omitFields = options?.omit ?? ['createdAt'];
         const timeout = options?.timeout ?? 10_000;
 
-        const ownerId = (await this.evolu.appOwner).id;
+        const ownerId = this.evolu.appOwner.id;
         const query = createQuery(db =>
             db.selectFrom(table).where('ownerId', '=', ownerId).selectAll(),
         );
@@ -52,7 +52,7 @@ class NativeEvoluClient extends BaseEvoluClient {
         return new Promise<void>((resolve, reject) => {
             const timer = setTimeout(() => {
                 unsubscribe();
-                const rows = this.evolu.getQueryRows(query) as Record<string, unknown>[];
+                const rows = this.evolu.getQueryRows(query);
                 const actualOmitted = rows.map(item => omit(item, omitFields));
                 reject(
                     new Error(
@@ -62,7 +62,7 @@ class NativeEvoluClient extends BaseEvoluClient {
             }, timeout);
 
             const check = () => {
-                const rows = this.evolu.getQueryRows(query) as Record<string, unknown>[];
+                const rows = this.evolu.getQueryRows(query);
                 const actualOmitted = rows.map(item => omit(item, omitFields));
                 console.log(
                     `[EvoluClient] expectInTable table=${table}: ${rows.length} rows`,
@@ -171,12 +171,31 @@ describe('Suite Sync - Labelling [@androidOnly @T3T1 @smoke]', () => {
         await element(by.id('@label-edit-form/input')).replaceText(OUTPUT_LABEL);
         await element(by.id('@label-edit-form/confirm-button')).tap();
 
+        //Restart app (keep relay intact so labels can sync back)
+        await device.terminateApp();
+        await openApp({ args: { preloadedState } });
+        logToRelayDocker(`APP RESTARTED: ${jestExpect.getState().currentTestName!}`);
+        await prepareTrezorEmulator({ seed: 'mnemonic_immune' });
+        await onDeviceManager.assertDeviceSwitcherState({ title: 'Connected' });
+
+        //Setup sync again
+        await onTabBar.navigateToSettings();
+        await onSettings.enableSuiteSync();
+        await onTabBar.tapBackButton();
+
+        // Wait for account label to sync and appear in the account list
+        await onTabBar.navigateToMyAssets();
+        const firstAccountTitle = element(by.id('@accountList/item/title')).atIndex(0);
+        await waitToHaveText(firstAccountTitle, expectedAccountData.label, {
+            timeout: 30_000,
+        });
+
         // Verify labels were synced to the relay
         await evoluClient.init({ ownerSecret: immuneFixtures.ownerSecret });
         await evoluClient.expectInTable('account', [expectedAccountData], { timeout: 30_000 });
         await evoluClient.expectInTable('address', [expectedAddressData]);
         await evoluClient.expectInTable('output', [expectedOutputData]);
-    });
+    }, 360_000);
 
     test('Sync labels from relay', async () => {
         // Seed the relay before enabling SuiteSync so the labels are ready to sync on connect.
