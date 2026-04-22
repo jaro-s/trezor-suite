@@ -144,9 +144,11 @@ export const getTransactions = async (
     const getSpent = () => false;
     const getTx = (txid: string) => {
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const tx: (typeof origTxs)[string] = origTxs[txid] || prevTxs[txid];
+        const origTx: (typeof origTxs)[string] = origTxs[txid];
+        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        const prevTx: (typeof prevTxs)[string] = prevTxs[txid];
 
-        return tx;
+        return origTx || prevTx;
     };
     const getVout = (txid: string, vout: number) => {
         const tx = getTx(txid);
