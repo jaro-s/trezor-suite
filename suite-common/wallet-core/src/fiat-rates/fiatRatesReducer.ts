@@ -91,6 +91,7 @@ export const prepareFiatRatesReducer = createReducerWithExtraDeps(
                     state[rateType][fiatRateKey] = {
                         ...currentRate,
                         ...rate,
+                        ticker,
                         rate: rate.rate,
                         lastTickerTimestamp: (rate.lastTickerTimestamp * 1000) as Timestamp,
                         lastSuccessfulFetchTimestamp: fetchAttemptTimestamp,
