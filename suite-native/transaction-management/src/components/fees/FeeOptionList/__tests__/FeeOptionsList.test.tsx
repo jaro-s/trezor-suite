@@ -155,11 +155,7 @@ describe('FeeOptionsList', () => {
         });
 
         it('should work with economy if there is no normal', () => {
-            const all = createMockFeeLevels();
-            const feeLevels = {
-                economy: all.economy,
-                high: all.high,
-            };
+            const { normal: _, ...feeLevels } = createMockFeeLevels();
 
             const { getByText, queryByText } = renderFeeOptionsList({
                 props: { feeLevels },
