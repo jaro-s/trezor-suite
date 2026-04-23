@@ -16,6 +16,7 @@ type MenuItem = Omit<MenuItemConstructorOptions, 'submenu'> & {
 
 // for those wondering why is this a function, it is because otherwise app.name used in the template has incorrect value @trezor/suite-desktop instead of "Trezor Suite"
 export const buildMainMenu = (mainWindowProxy: MainWindowProxy) => {
+    // { role: 'fileMenu' }
     const fileMenu: MenuItem = {
         label: 'File',
         submenu: [
@@ -23,6 +24,7 @@ export const buildMainMenu = (mainWindowProxy: MainWindowProxy) => {
             isMac ? { role: 'close' } : { role: 'quit' },
         ],
     };
+    // { role: 'editMenu' }
     const editMenu: MenuItem = {
         label: 'Edit',
         submenu: [
@@ -42,6 +44,7 @@ export const buildMainMenu = (mainWindowProxy: MainWindowProxy) => {
             // extended below
         ],
     };
+    // { role: 'viewMenu' }
     const viewMenu: MenuItem = {
         label: 'View',
         submenu: [
@@ -56,6 +59,7 @@ export const buildMainMenu = (mainWindowProxy: MainWindowProxy) => {
             { role: 'togglefullscreen' },
         ],
     };
+    // { role: 'windowMenu' }
     const windowMenu: MenuItem = {
         label: 'Window',
         submenu: [{ role: 'minimize' }, { role: 'zoom' }],
@@ -71,6 +75,7 @@ export const buildMainMenu = (mainWindowProxy: MainWindowProxy) => {
         ],
     };
 
+    // { role: 'appMenu' } — macOS "App menu" conditionally prepended below
     const mainMenuTemplate: MenuItem[] = [fileMenu, editMenu, viewMenu, windowMenu, helpMenu];
 
     if (!isDevEnv) {
