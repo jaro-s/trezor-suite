@@ -2,12 +2,12 @@
 set -euo pipefail
 
 COMPOSE_FILE="../../docker/docker-compose.suite-ci-e2e.yml"
-IMAGE="ghcr.io/trezor/suite-sync:main"
+IMAGE="ghcr.io/trezor/suite-sync:debug-verbose-relay-logging"
 SERVICES=(quota-db suite-sync)
 
 LOCAL_ID=$(docker images -q "$IMAGE" 2>/dev/null || echo "")
 
-docker pull "$IMAGE"
+# docker pull "$IMAGE"
 
 NEW_ID=$(docker images -q "$IMAGE")
 echo "📦 Local image ID:  ${LOCAL_ID:-none}"

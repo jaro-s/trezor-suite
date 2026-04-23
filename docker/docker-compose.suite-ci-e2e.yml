@@ -28,13 +28,13 @@ services:
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U suite-sync -d suite-sync-gate"]
+      test: [ "CMD-SHELL", "pg_isready -U suite-sync -d suite-sync-gate" ]
       interval: 5s
       timeout: 5s
       retries: 5
 
   suite-sync:
-    image: ghcr.io/trezor/suite-sync:main
+    image: ghcr.io/trezor/suite-sync:debug-verbose-relay-logging
     environment:
       POSTGRES_GATE_USER: suite-sync
       POSTGRES_GATE_PASSWORD: password
