@@ -54,12 +54,12 @@ export type Account = {
     networkType: NetworkType;
 };
 
-const paymentTypeToAccountType: Record<string, AccountType> = {
+const paymentTypeToAccountType = {
     p2wpkh: 'normal',
     p2pkh: 'legacy',
     p2sh: 'segwit',
     p2tr: 'taproot',
-};
+} as const satisfies Record<string, AccountType>;
 
 /**
  * Fixes account type based on payment type. Necessary for accounts created in suite-native version < 24.1.1 which were configuring wrong account type.

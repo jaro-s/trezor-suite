@@ -18,6 +18,7 @@ import {
 import { type ExtraDependencies } from '@suite-common/redux-utils';
 import { type TrezorDevice } from '@suite-common/suite-types';
 import { type Account } from '@suite-common/wallet-types';
+import { parseDeviceStaticSessionId } from '@suite-common/wallet-utils';
 import TrezorConnect, { type StaticSessionId } from '@trezor/connect';
 import { cloneObject } from '@trezor/utils';
 
@@ -492,8 +493,8 @@ export const setDeviceMetadataKey =
                 });
             }
 
-            const [stateAddress = ''] = device.state.staticSessionId.split('@'); // address@device_id:instance
-            const metaKey = metadataUtils.deriveMetadataKey(result.payload.value, stateAddress);
+            const { walletDescriptor } = parseDeviceStaticSessionId(device.state.staticSessionId);
+            const metaKey = metadataUtils.deriveMetadataKey(result.payload.value, walletDescriptor);
             const fileName = metadataUtils.deriveFilenameForLabeling(metaKey, encryptionVersion);
             const aesKey = metadataUtils.deriveAesKey(metaKey);
 
