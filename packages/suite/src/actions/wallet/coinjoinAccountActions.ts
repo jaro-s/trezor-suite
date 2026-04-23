@@ -357,13 +357,13 @@ export const updatePendingAccountInfo =
         if (!api) return;
 
         const { backend, client } = api;
-        const transactions = state.wallet.transactions.transactions[account.key];
+        const transactions = state.wallet.transactions.transactions[account.key] ?? [];
         const checkpoint = coinjoinAccount.checkpoints[0];
         if (!checkpoint) return;
 
         const accountInfo = await backend.getAccountInfo(
             account.descriptor,
-            transactions ?? [],
+            transactions,
             checkpoint,
             getAccountCache(account),
         );
