@@ -51,6 +51,9 @@
         {
             "path": "../../suite-common/wallet-types"
         },
+        {
+            "path": "../../suite-common/wallet-utils"
+        },
         { "path": "../analytics" },
         { "path": "../intl" },
         { "path": "../settings" },

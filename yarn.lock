@@ -14999,6 +14999,7 @@ __metadata:
     "@suite-common/wallet-config": "workspace:*"
     "@suite-common/wallet-core": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
+    "@suite-common/wallet-utils": "workspace:*"
     "@suite/analytics": "workspace:*"
     "@suite/intl": "workspace:*"
     "@suite/settings": "workspace:*"
