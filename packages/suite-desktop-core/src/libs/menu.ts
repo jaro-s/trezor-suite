@@ -16,72 +16,62 @@ type MenuItem = Omit<MenuItemConstructorOptions, 'submenu'> & {
 
 // for those wondering why is this a function, it is because otherwise app.name used in the template has incorrect value @trezor/suite-desktop instead of "Trezor Suite"
 export const buildMainMenu = (mainWindowProxy: MainWindowProxy) => {
-    const mainMenuTemplate: [MenuItem, MenuItem, MenuItem, MenuItem, MenuItem] = [
-        // { role: 'appMenu' }
-        // "App menu" for macOS conditionally added below
-        // { role: 'fileMenu' }
-        {
-            label: 'File',
-            submenu: [
-                { label: 'Restart', click: restartApp },
-                isMac ? { role: 'close' } : { role: 'quit' },
-            ],
-        },
-        // { role: 'editMenu' }
-        {
-            label: 'Edit',
-            submenu: [
-                { role: 'undo' },
-                { role: 'redo' },
-                { type: 'separator' },
-                { role: 'cut' },
-                { role: 'copy' },
-                { role: 'paste' },
-                {
-                    label: 'Find',
-                    accelerator: 'CmdOrCtrl+F',
-                    click: () => {
-                        mainWindowProxy.getInstance()?.webContents.send('find:show');
-                    },
+    const fileMenu: MenuItem = {
+        label: 'File',
+        submenu: [
+            { label: 'Restart', click: restartApp },
+            isMac ? { role: 'close' } : { role: 'quit' },
+        ],
+    };
+    const editMenu: MenuItem = {
+        label: 'Edit',
+        submenu: [
+            { role: 'undo' },
+            { role: 'redo' },
+            { type: 'separator' },
+            { role: 'cut' },
+            { role: 'copy' },
+            { role: 'paste' },
+            {
+                label: 'Find',
+                accelerator: 'CmdOrCtrl+F',
+                click: () => {
+                    mainWindowProxy.getInstance()?.webContents.send('find:show');
                 },
-                // extended below
-            ],
-        },
-        // { role: 'viewMenu' }
-        {
-            label: 'View',
-            submenu: [
-                { role: 'reload' },
-                { role: 'forceReload' },
-                { role: 'toggleDevTools' },
-                { type: 'separator' },
-                { role: 'resetZoom' },
-                { role: 'zoomIn' },
-                { role: 'zoomOut' },
-                { type: 'separator' },
-                { role: 'togglefullscreen' },
-            ],
-        },
-        // { role: 'windowMenu' }
-        {
-            label: 'Window',
-            submenu: [{ role: 'minimize' }, { role: 'zoom' }],
+            },
             // extended below
-        },
-        {
-            role: 'help',
-            submenu: [
-                {
-                    label: 'Learn More',
-                    click: () => shell.openExternal('https://trezor.io/'),
-                },
-            ],
-        },
-    ];
+        ],
+    };
+    const viewMenu: MenuItem = {
+        label: 'View',
+        submenu: [
+            { role: 'reload' },
+            { role: 'forceReload' },
+            { role: 'toggleDevTools' },
+            { type: 'separator' },
+            { role: 'resetZoom' },
+            { role: 'zoomIn' },
+            { role: 'zoomOut' },
+            { type: 'separator' },
+            { role: 'togglefullscreen' },
+        ],
+    };
+    const windowMenu: MenuItem = {
+        label: 'Window',
+        submenu: [{ role: 'minimize' }, { role: 'zoom' }],
+        // extended below
+    };
+    const helpMenu: MenuItem = {
+        role: 'help',
+        submenu: [
+            {
+                label: 'Learn More',
+                click: () => shell.openExternal('https://trezor.io/'),
+            },
+        ],
+    };
 
-    const editMenu = mainMenuTemplate[1];
-    const viewMenu = mainMenuTemplate[2];
-    const windowMenu = mainMenuTemplate[3];
+    const mainMenuTemplate: MenuItem[] = [fileMenu, editMenu, viewMenu, windowMenu, helpMenu];
 
     if (!isDevEnv) {
         // remove toggleDevTools from "View"
