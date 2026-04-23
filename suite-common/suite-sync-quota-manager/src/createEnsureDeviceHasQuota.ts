@@ -4,14 +4,17 @@ import {
     getProofOfDelegatedIdentity,
     getPublicIdentityKeyFromDelegatedKey,
 } from '@suite-common/delegated-identity-key';
-import { type QuotaManagerCommunicationFailedErrType } from '@suite-common/suite-sync-types';
+import {
+    type QuotaManagerCommunicationFailedErrType,
+    type QuotaManagerNoQuotaErrType,
+} from '@suite-common/suite-sync-types';
 import { type DelegatedIdentityKey, type TrezorDeviceWithState } from '@suite-common/suite-types';
 import { type TrezorConnect } from '@trezor/connect';
 import { type Result, err, ok } from '@trezor/type-utils';
 
 import { type PrepareChallengeSessionDep } from './challenge/prepareChallengeSession';
 import { DEFAULT_DEVICE_SIZE_QUOTA } from './constants';
-import { quotaManagerCommunicationFailed } from './errors';
+import { quotaManagerCommunicationFailed, quotaManagerNoQuota } from './errors';
 import { quotaManagerDeviceFetched } from './quotaManagerActions';
 import { type CheckStorageByPublicKeyDep } from './storage/checkStorage';
 import { type RegisterStorageDep } from './storage/createRegisterStorage';
@@ -26,7 +29,7 @@ export type EnsureDeviceHasQuotaParams = {
 
 export type EnsureDeviceHasQuota = (
     params: EnsureDeviceHasQuotaParams,
-) => Promise<Result<void, QuotaManagerCommunicationFailedErrType>>;
+) => Promise<Result<void, QuotaManagerCommunicationFailedErrType | QuotaManagerNoQuotaErrType>>;
 
 type GetQuotaManagerBaseUrl = () => string | null;
 
@@ -53,6 +56,10 @@ export const createEnsureDeviceHasQuota =
         });
 
         if (hasPublicKeyStorage.success) {
+            if (hasPublicKeyStorage.payload.status === 'NoQuota') {
+                return err(quotaManagerNoQuota());
+            }
+
             deps.dispatch(
                 quotaManagerDeviceFetched({
                     deviceId: device.id,
