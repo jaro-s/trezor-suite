@@ -49,11 +49,7 @@ export const verifyAuthenticityProof = async ({
     });
 
     // 1. parse all x509 certificates received from AuthenticityProof
-    // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const [deviceCert, caCert]: [
-        ReturnType<typeof parseCertificate>,
-        ReturnType<typeof parseCertificate>,
-    ] = certificates.map((c, i) => {
+    const parsedCertificates = certificates.map((c, i) => {
         const cert = parseCertificate(new Uint8Array(Buffer.from(c, 'hex')));
         if (i === 0) {
             // deviceCert is always at index 0
@@ -63,6 +59,10 @@ export const verifyAuthenticityProof = async ({
 
         return cert;
     });
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const deviceCert: (typeof parsedCertificates)[number] = parsedCertificates[0];
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const caCert: (typeof parsedCertificates)[number] = parsedCertificates[1];
     const deviceCertAlgName = deviceCert.signatureAlgorithm.algorithmName;
     const caCertAlgName = caCert.signatureAlgorithm.algorithmName;
     if (deviceCertAlgName !== caCertAlgName) {
