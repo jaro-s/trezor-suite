@@ -8,6 +8,9 @@ import {
 } from '@suite-common/suite-sync-storage';
 import {
     type EnsureSuiteSyncKeysDep,
+    type QuotaManagerCommunicationFailedErrType,
+    type QuotaManagerNoQuotaErrType,
+    type QuotaManagerNoQuotaLeftToAllocateErrType,
     type SuiteSyncStorageRepositoryDep,
     type SuiteSyncUnavailableOnDeviceErrorType,
     type WriteModeRequiredForAllocationErrType,
@@ -45,6 +48,9 @@ export type CreateEnsureStorage = (
         | DeviceErrorType
         | DeviceCancelledErrType
         | WriteModeRequiredForAllocationErrType
+        | QuotaManagerNoQuotaErrType
+        | QuotaManagerNoQuotaLeftToAllocateErrType
+        | QuotaManagerCommunicationFailedErrType
     >
 >;
 
