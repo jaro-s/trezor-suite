@@ -441,13 +441,15 @@ describe('handleSellRequestThunk', () => {
     it('should not proceed when requestData is null', async () => {
         const { input, store } = getMocks();
 
+        const firstOutput = input.formValues.outputs[0];
+        if (!firstOutput) throw new Error('Missing test fixture output');
         const modifiedInput = {
             ...input,
             formValues: {
                 ...input.formValues,
                 outputs: [
                     {
-                        ...input.formValues.outputs[0],
+                        ...firstOutput,
                         amount: undefined as unknown as string,
                         fiat: undefined as unknown as string,
                     },
