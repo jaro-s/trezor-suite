@@ -41,7 +41,7 @@ const getAccountTypeFromDescriptor = (descriptor: string, symbol: NetworkSymbol)
     if (symbol !== 'btc' && symbol !== 'ltc' && symbol !== 'test') return 'imported';
     const { paymentType } = getXpubOrDescriptorInfo(descriptor);
 
-    return paymentTypeToAccountType[paymentType] ?? 'imported';
+    return paymentTypeToAccountType[paymentType];
 };
 
 export const importAccountThunk = createThunk(
