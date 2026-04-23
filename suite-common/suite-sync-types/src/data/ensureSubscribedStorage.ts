@@ -5,8 +5,10 @@ import { type StaticSessionId } from '@trezor/connect-common';
 import { type Result } from '@trezor/type-utils';
 
 import { type SuiteSyncUnavailableOnDeviceErrorType } from '../ensureSuiteSyncKeys';
+import { type QuotaManagerNoQuotaLeftToAllocateErrType } from '../quotaManager/ensureOwnerHasAllocatedQuotaThunk';
 import {
     type QuotaManagerCommunicationFailedErrType,
+    type QuotaManagerNoQuotaErrType,
     type WriteModeRequiredForAllocationErrType,
 } from '../quotaManager/quotaManagerTypes';
 
@@ -41,6 +43,8 @@ export type EnsureSubscribedStorage = (
         | DeviceCancelledErrType
         | WriteModeRequiredForAllocationErrType
         | QuotaManagerCommunicationFailedErrType
+        | QuotaManagerNoQuotaErrType
+        | QuotaManagerNoQuotaLeftToAllocateErrType
     >
 >;
 

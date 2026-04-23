@@ -4,8 +4,10 @@ import { type StaticSessionId } from '@trezor/connect-common';
 import { type Result } from '@trezor/type-utils';
 
 import { type SuiteSyncUnavailableOnDeviceErrorType } from '../ensureSuiteSyncKeys';
+import { type NoQuotaLeftToAllocateErrType } from '../quotaManager/ensureOwnerHasAllocatedQuotaThunk';
 import {
     type QuotaManagerCommunicationFailedErrType,
+    type QuotaManagerNoQuotaErrType,
     type WriteModeRequiredForAllocationErrType,
 } from '../quotaManager/quotaManagerTypes';
 
@@ -29,7 +31,9 @@ export type EnsureWalletSuiteSyncOnErrors =
     | DeviceErrorType
     | DeviceCancelledErrType
     | WriteModeRequiredForAllocationErrType
-    | QuotaManagerCommunicationFailedErrType;
+    | QuotaManagerCommunicationFailedErrType
+    | QuotaManagerNoQuotaErrType
+    | NoQuotaLeftToAllocateErrType;
 
 export type EnsureWalletSuiteSyncOn = (
     params: EnsureWalletSuiteSyncOnParams,
