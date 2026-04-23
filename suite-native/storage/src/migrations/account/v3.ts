@@ -71,7 +71,7 @@ export const deriveAccountTypeFromPaymentType = (oldAccounts: Account[]): Accoun
         if (networkType !== 'bitcoin') return oldAccount;
 
         const paymentType = getPaymentTypeFromXpub(descriptor);
-        const migratedAccountType = paymentType ? paymentTypeToAccountType[paymentType] : undefined;
+        const migratedAccountType = paymentTypeToAccountType[paymentType];
 
         return {
             ...oldAccount,
