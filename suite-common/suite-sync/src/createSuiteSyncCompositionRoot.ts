@@ -6,6 +6,7 @@ import { toGetter } from '@suite-common/dependency-injection';
 import { selectAllDeviceStaticIds, selectDeviceByStaticSessionId } from '@suite-common/device';
 import { type PlatformEncryptionDep } from '@suite-common/platform-encryption';
 import {
+    type IncreaseOwnerQuotaDep,
     createSuiteSyncQuotaManagerCompositionRoot,
     quotaManagerFetch,
 } from '@suite-common/suite-sync-quota-manager';
@@ -68,9 +69,11 @@ type CreateSuiteSyncCompositionRootDeps = {
     CreateSuiteSyncOwnerDep &
     PlatformEncryptionDep;
 
+type SuiteSyncCompositionRoot = SuiteSync & IncreaseOwnerQuotaDep;
+
 export const createSuiteSyncCompositionRoot = (
     deps: CreateSuiteSyncCompositionRootDeps,
-): SuiteSync => {
+): SuiteSyncCompositionRoot => {
     const suiteSyncStorageRepository = createSuiteSyncStorageRepository();
 
     const subscriptionStorage = createSubscriptionStorage();
@@ -103,15 +106,17 @@ export const createSuiteSyncCompositionRoot = (
         getDeviceForStaticSessionId,
     });
 
-    const { ensureQuota, getOwnerHasAllowance } = createSuiteSyncQuotaManagerCompositionRoot({
-        dispatch: deps.dispatch,
-        getState: deps.getState,
-        getDeviceForStaticSessionId,
-        ensureDelegatedIdentityKey: deps.ensureDelegatedIdentityKey,
-        getIsUsingTrezorRelay: () => isUsingTrezorServer(selectSuiteSyncRelayUrl(deps.getState())),
-        quotaManagerFetch,
-        trezorConnect: deps.trezorConnect,
-    });
+    const { ensureQuota, increaseOwnerQuota, getOwnerHasAllowance } =
+        createSuiteSyncQuotaManagerCompositionRoot({
+            dispatch: deps.dispatch,
+            getState: deps.getState,
+            getDeviceForStaticSessionId,
+            ensureDelegatedIdentityKey: deps.ensureDelegatedIdentityKey,
+            getIsUsingTrezorRelay: () =>
+                isUsingTrezorServer(selectSuiteSyncRelayUrl(deps.getState())),
+            quotaManagerFetch,
+            trezorConnect: deps.trezorConnect,
+        });
 
     const ensureStorage = createEnsureStorage({
         ensureSuiteSyncKeys,
@@ -202,5 +207,6 @@ export const createSuiteSyncCompositionRoot = (
             updateOutputLabel,
             updateAddressLabel,
         },
+        increaseOwnerQuota,
     };
 };

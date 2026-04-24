@@ -40,12 +40,6 @@ export const createSuiteSyncDesktopCompositionRoot = (
     const evoluDeps = createEvoluDepsFixed({ console });
 
     const run = createRun(evoluDeps);
-
-    const suiteSyncErrorHandler = createSuiteSyncErrorHandler({ dispatch: deps.dispatch });
-    evoluDeps.evoluError.subscribe(
-        createEvoluErrorHandler(evoluDeps.evoluError, suiteSyncErrorHandler),
-    );
-
     // This sets up Evolu as a SuiteSync Storage. We provide a factory that
     // accepts `suiteSyncErrorHandler` and creates the evolu instance accordingly.
     const suiteSync = createSuiteSyncCompositionRoot({
@@ -56,6 +50,15 @@ export const createSuiteSyncDesktopCompositionRoot = (
         createSuiteSyncOwner: evoluCreateSuiteSyncOwner,
         analytics: deps.analytics,
     });
+
+    const suiteSyncErrorHandler = createSuiteSyncErrorHandler({
+        dispatch: deps.dispatch,
+        increaseOwnerQuota: suiteSync.increaseOwnerQuota,
+    });
+
+    evoluDeps.evoluError.subscribe(
+        createEvoluErrorHandler(evoluDeps.evoluError, suiteSyncErrorHandler),
+    );
 
     return {
         ...suiteSync,

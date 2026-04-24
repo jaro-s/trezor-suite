@@ -38,16 +38,21 @@ export const createSuiteSyncNativeCompositionRoot = (
     const evoluDeps = createEvoluDeps({ console });
     const run = createRun(evoluDeps);
 
-    const suiteSyncErrorHandler = createSuiteSyncErrorHandler({ dispatch: deps.dispatch });
-    evoluDeps.evoluError.subscribe(
-        createEvoluErrorHandler(evoluDeps.evoluError, suiteSyncErrorHandler),
-    );
-
-    return createSuiteSyncCompositionRoot({
+    const suiteSync = createSuiteSyncCompositionRoot({
         ...deps,
         createSuiteStorage: createEvoluStorageFactory({
             createEvoluInstance: createEvoluInstanceFactory({ run }),
         }),
         createSuiteSyncOwner: evoluCreateSuiteSyncOwner,
     });
+
+    const suiteSyncErrorHandler = createSuiteSyncErrorHandler({
+        dispatch: deps.dispatch,
+        increaseOwnerQuota: suiteSync.increaseOwnerQuota,
+    });
+    evoluDeps.evoluError.subscribe(
+        createEvoluErrorHandler(evoluDeps.evoluError, suiteSyncErrorHandler),
+    );
+
+    return suiteSync;
 };
