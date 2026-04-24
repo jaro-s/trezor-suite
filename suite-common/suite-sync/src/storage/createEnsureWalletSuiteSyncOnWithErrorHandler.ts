@@ -49,6 +49,12 @@ export const createEnsureWalletSuiteSyncOnWithErrorHandler =
                     // Do nothing, this is expected control flow error when we want allocate on-demand.
                     break;
 
+                case 'QuotaManagerCommunicationFailed':
+                case 'QuotaManagerNoQuota':
+                case 'NoQuotaLeftToAllocate':
+                    // Do nothing, these are expected control flow errors when we want allocate on-demand.
+                    break;
+
                 default:
                     exhaustive(type);
             }

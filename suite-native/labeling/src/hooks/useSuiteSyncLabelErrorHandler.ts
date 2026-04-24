@@ -21,6 +21,9 @@ export const useSuiteSyncErrorHandler = () => {
             case 'SuiteSyncFirmwareUpgradeNeededDeviceErrorType':
             case 'DeviceCancelled':
             case 'SuiteSyncUpdateError':
+            case 'QuotaManagerCommunicationFailed':
+            case 'QuotaManagerNoQuota':
+            case 'NoQuotaLeftToAllocate':
                 showToast({
                     variant: 'error',
                     icon: 'warning',
