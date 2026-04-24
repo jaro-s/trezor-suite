@@ -106,10 +106,27 @@ describe(createEnsureDeviceHasQuota.name, () => {
         expect(prepareChallengeSessionMock).not.toHaveBeenCalled();
     });
 
-    it('requests registration when storage is missing', async () => {
+    it('returns QuotaManagerNoQuota when server reports NoQuota status', async () => {
         const deps = createDeps();
 
         checkStorageByPublicKeyMock.mockResolvedValue(ok({ status: 'NoQuota' }));
+
+        const result = await createEnsureDeviceHasQuota(deps)({
+            delegatedKey: DELEGATED_IDENTITY_KEY,
+            device,
+        });
+
+        expect(result).toEqual(err({ type: 'QuotaManagerNoQuota' }));
+        expect(prepareChallengeSessionMock).not.toHaveBeenCalled();
+        expect(deps.registerStorage).not.toHaveBeenCalled();
+    });
+
+    it('requests registration when device is unknown (HTTP 404)', async () => {
+        const deps = createDeps();
+
+        checkStorageByPublicKeyMock.mockResolvedValue(
+            err({ type: 'HttpError', code: 404, message: 'Not found' }),
+        );
         prepareChallengeSessionMock.mockResolvedValue(
             ok({ sessionId: 'session-123', challenge: 'aa55' }),
         );
