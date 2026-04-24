@@ -1,4 +1,4 @@
-import { getRandomValues as cryptoGetRandomValues } from 'crypto';
+import { getRandomValues } from './getRandomValues';
 
 /**
  * Before changing anything here, see the Modulo Bias problem!
@@ -34,11 +34,6 @@ export const getRandomInt = (min: number, max: number) => {
             `This function only provide 32 bits of entropy, therefore range cannot be more then 2^32.`,
         );
     }
-
-    const getRandomValues =
-        typeof window !== 'undefined'
-            ? (array: ArrayBufferView<ArrayBuffer>) => window.crypto.getRandomValues(array)
-            : (array: ArrayBufferView<ArrayBuffer>) => cryptoGetRandomValues(array);
 
     const array = new Uint32Array(1); // This provides 32 bits of entropy.
 
