@@ -24,5 +24,6 @@
     "devDependencies": {
         "orval": "8.5.0",
         "prettier": "^3.8.1"
-    }
+    },
+    "types": "./libDev/src/index.d.ts"
 }

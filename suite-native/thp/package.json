@@ -24,5 +24,6 @@
         "react-native": "0.83.2",
         "react-native-keyboard-controller": "1.20.7",
         "react-redux": "9.2.0"
-    }
+    },
+    "types": "./libDev/src/index.d.ts"
 }

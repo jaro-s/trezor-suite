@@ -23,5 +23,6 @@
         "sort-package-json": "^3.6.1",
         "tsx": "^4.21.0",
         "yargs": "^18.0.0"
-    }
+    },
+    "types": "./libDev/src/index.d.ts"
 }

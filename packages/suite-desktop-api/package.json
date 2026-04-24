@@ -23,5 +23,6 @@
         "@suite-common/platform-encryption": "workspace:*",
         "@trezor/type-utils": "workspace:*",
         "electron": "41.0.4"
-    }
+    },
+    "types": "./libDev/src/index.d.ts"
 }

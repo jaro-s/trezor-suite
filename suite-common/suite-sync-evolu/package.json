@@ -23,5 +23,6 @@
     "devDependencies": {
         "@evolu/nodejs": "3.0.0-next.2",
         "@trezor/eslint": "workspace:*"
-    }
+    },
+    "types": "./libDev/src/index.d.ts"
 }

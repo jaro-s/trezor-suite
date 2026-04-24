@@ -3,6 +3,7 @@ import { requireAgentsSkills } from './agents-skills/requireAgentsSkills';
 import { requireUnifiedDependencyVersions } from './dependency-versions/requireUnifiedDependencyVersions';
 import { requireDocsSummary } from './docs-summary/requireDocsSummary';
 import { requirePackageJsonScripts } from './package-json/requirePackageJsonScripts';
+import { requirePackageJsonTypes } from './package-json/requirePackageJsonTypes';
 import { requirePublishConfig } from './package-json/requirePublishConfig';
 import { requireConnectPublicDependencies } from './public-package-dependencies/requireConnectPublicDependencies';
 import { requireTypecheckTsconfig } from './tsconfig/requireTypecheckTsconfig';
@@ -13,6 +14,7 @@ export const requirements: ReadonlyArray<Requirement<RequirementScope>> = [
     requireConnectPublicDependencies,
     requireDocsSummary,
     requirePackageJsonScripts,
+    requirePackageJsonTypes,
     requireTypecheckTsconfig,
     requirePublishConfig,
 ];

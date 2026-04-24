@@ -33,5 +33,6 @@
         "jest-extended": "^4.0.2",
         "ts-node": "^10.9.2",
         "usb": "^2.15.0"
-    }
+    },
+    "types": "./libDev/src/index.d.ts"
 }

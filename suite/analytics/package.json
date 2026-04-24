@@ -17,5 +17,6 @@
         "@suite-common/wallet-config": "workspace:*",
         "@trezor/analytics-uploader": "workspace:*",
         "@trezor/device-utils": "workspace:*"
-    }
+    },
+    "types": "./libDev/src/index.d.ts"
 }

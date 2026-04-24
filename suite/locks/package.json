@@ -14,5 +14,6 @@
     "dependencies": {
         "@reduxjs/toolkit": "2.11.2",
         "@suite-common/test-utils": "workspace:*"
-    }
+    },
+    "types": "./libDev/src/index.d.ts"
 }

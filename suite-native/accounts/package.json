@@ -51,5 +51,6 @@
     },
     "devDependencies": {
         "@suite-native/test-utils": "workspace:*"
-    }
+    },
+    "types": "./libDev/src/index.d.ts"
 }

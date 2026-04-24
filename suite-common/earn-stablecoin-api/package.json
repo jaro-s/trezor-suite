@@ -26,5 +26,6 @@
         "@trezor/env-utils": "workspace:*",
         "@trezor/utils": "workspace:^",
         "zod": "4.3.6"
-    }
+    },
+    "types": "./libDev/src/index.d.ts"
 }

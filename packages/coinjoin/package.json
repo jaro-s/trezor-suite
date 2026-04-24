@@ -43,5 +43,6 @@
         "node-fetch": "2.6.7",
         "socks-proxy-agent": "8.0.5",
         "ws": "^8.20.0"
-    }
+    },
+    "types": "./libDev/src/index.d.ts"
 }

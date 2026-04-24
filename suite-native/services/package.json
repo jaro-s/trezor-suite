@@ -15,5 +15,6 @@
         "@suite-native/analytics": "workspace:*",
         "react": "19.2.4",
         "react-native-mmkv": "~4.3.0"
-    }
+    },
+    "types": "./libDev/src/index.d.ts"
 }

@@ -59,5 +59,6 @@
         "rimraf": "^6.1.2",
         "terser-webpack-plugin": "^5.4.0",
         "webpack": "5.105.4"
-    }
+    },
+    "types": "./libDev/src/index.d.ts"
 }

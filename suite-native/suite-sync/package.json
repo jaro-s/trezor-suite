@@ -24,5 +24,6 @@
         "expo": "~55.0.3",
         "expo-sqlite": "~55.0.11",
         "react-redux": "9.2.0"
-    }
+    },
+    "types": "./libDev/src/index.d.ts"
 }

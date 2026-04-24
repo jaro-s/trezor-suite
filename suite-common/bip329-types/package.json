@@ -16,5 +16,6 @@
         "@suite-common/wallet-types": "workspace:*",
         "@trezor/type-utils": "workspace:*",
         "yup": "1.7.1"
-    }
+    },
+    "types": "./libDev/src/index.d.ts"
 }

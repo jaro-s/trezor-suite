@@ -25,5 +25,6 @@
         "@suite-common/test-utils": "workspace:*",
         "@trezor/device-utils": "workspace:*",
         "@trezor/protobuf": "workspace:*"
-    }
+    },
+    "types": "./libDev/src/index.d.ts"
 }

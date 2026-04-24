@@ -36,5 +36,6 @@
     "devDependencies": {
         "@suite-common/wallet-types": "workspace:*",
         "@suite-native/test-utils-store": "workspace:*"
-    }
+    },
+    "types": "./libDev/src/index.d.ts"
 }

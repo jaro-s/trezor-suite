@@ -37,5 +37,6 @@
         "react-hook-form": "^7.71.2",
         "web3-eth-abi": "^4.4.1",
         "web3-utils": "^4.3.3"
-    }
+    },
+    "types": "./libDev/src/index.d.ts"
 }

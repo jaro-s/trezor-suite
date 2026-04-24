@@ -59,5 +59,6 @@
         "react-native": {
             "optional": true
         }
-    }
+    },
+    "types": "./libDev/src/index.d.ts"
 }

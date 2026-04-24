@@ -70,5 +70,6 @@
         "react-redux": "9.2.0",
         "semver": "^7.7.1",
         "type-fest": "5.5.0"
-    }
+    },
+    "types": "./libDev/src/index.d.ts"
 }

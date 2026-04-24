@@ -32,5 +32,6 @@
         "ajv": "^8.18.0",
         "jws": "^4.0.1",
         "toml": "^3.0.0"
-    }
+    },
+    "types": "./libDev/src/index.d.ts"
 }
