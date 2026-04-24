@@ -72,7 +72,7 @@
         "build:workers-module": "webpack --config ./webpack/workers.module.js",
         "test:unit": "yarn g:jest -c jest.config.unit.js",
         "test:integration": "yarn g:jest -c jest.config.integration.js",
-        "type-check": "yarn g:tsc --build tsconfig.json",
+        "type-check": "yarn g:tsc --build tsconfig.typecheck.json",
         "depcheck": "yarn g:depcheck",
         "lint:js": "yarn g:eslint '**/*.{ts,tsx,js}'"
     },

@@ -35,7 +35,7 @@
     ],
     "scripts": {
         "depcheck": "yarn g:depcheck",
-        "type-check": "yarn g:tsc --build",
+        "type-check": "yarn g:tsc --build tsconfig.typecheck.json",
         "test:unit": "yarn g:jest",
         "test-unit:watch": "yarn g:jest -o --watch",
         "build:lib": "yarn build:lib:cjs && yarn build:lib:esm",
