@@ -4,6 +4,7 @@ import { createEvoluDeps } from '@evolu/react-native/expo-sqlite';
 import { type Dispatch } from '@reduxjs/toolkit';
 
 import { type EnsureDelegatedIdentityKeyDep } from '@suite-common/delegated-identity-key-types';
+import { isTrezorDeviceWithState, selectSelectedDevice } from '@suite-common/device';
 import { type PlatformEncryptionDep } from '@suite-common/platform-encryption';
 import {
     type SuiteSyncAnalyticsDep,
@@ -17,7 +18,9 @@ import {
     evoluCreateSuiteSyncOwner,
 } from '@suite-common/suite-sync-evolu';
 import { type SuiteSync } from '@suite-common/suite-sync-types';
+import { parseDeviceStaticSessionId } from '@suite-common/wallet-utils';
 import { type TrezorConnect } from '@trezor/connect';
+import { err } from '@trezor/type-utils';
 
 type SuiteSyncNativeCompositionRootDeps = {
     getState: () => any;
@@ -48,7 +51,21 @@ export const createSuiteSyncNativeCompositionRoot = (
 
     const suiteSyncErrorHandler = createSuiteSyncErrorHandler({
         dispatch: deps.dispatch,
-        increaseOwnerQuota: suiteSync.increaseOwnerQuota,
+        increaseOwnerQuota: ({ ownerId }) => {
+            const device = selectSelectedDevice(deps.getState());
+            if (!device || !isTrezorDeviceWithState(device)) {
+                return Promise.resolve(err({ type: 'OwnerDeviceNotAvailable' }));
+            }
+
+            const { walletDescriptor } = parseDeviceStaticSessionId(device.state.staticSessionId);
+
+            return suiteSync.increaseOwnerQuota({
+                ownerId,
+                device,
+                deviceId: device.id,
+                walletDescriptor,
+            });
+        },
     });
     evoluDeps.evoluError.subscribe(
         createEvoluErrorHandler(evoluDeps.evoluError, suiteSyncErrorHandler),

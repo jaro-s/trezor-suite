@@ -1,7 +1,6 @@
 import { type Dispatch } from '@reduxjs/toolkit';
 
 import { type EnsureDelegatedIdentityKeyDep } from '@suite-common/delegated-identity-key-types';
-import { selectSelectedDevice } from '@suite-common/device';
 import { type TrezorConnect } from '@trezor/connect';
 
 import { createPrepareChallengeSession } from './challenge/prepareChallengeSession';
@@ -30,7 +29,7 @@ import { generateSessionId } from './util/generateSessionId';
 
 type CreateSuiteSyncQuotaManagerCompositionRootDeps = {
     dispatch: Dispatch;
-    getState: () => WithSuiteSyncQuotaManagerState & Parameters<typeof selectSelectedDevice>[0];
+    getState: () => WithSuiteSyncQuotaManagerState;
 } & GetDeviceForStaticSessionIdDep &
     GetIsUsingTrezorRelayDep &
     EnsureDelegatedIdentityKeyDep & {
@@ -53,7 +52,6 @@ export const createSuiteSyncQuotaManagerCompositionRoot = (
         !getIsQuotaManagerEnabled() || selectHasOwnerAllowance(deps.getState(), walletDescriptor);
 
     const getQuotaManagerBaseUrl = () => selectQuotaManagerBaseUrl(deps.getState());
-    const getSelectedDevice = () => selectSelectedDevice(deps.getState());
     const getLeftDeviceQuota = (deviceId: string) =>
         selectLeftDeviceQuota(deps.getState(), deviceId);
     const prepareChallengeSession = createPrepareChallengeSession({
@@ -70,7 +68,6 @@ export const createSuiteSyncQuotaManagerCompositionRoot = (
     const registerStorage = createRegisterStorage({
         dispatch: deps.dispatch,
         getQuotaManagerBaseUrl,
-        getSelectedDevice,
         quotaManagerFetch: deps.quotaManagerFetch,
     });
 
@@ -109,7 +106,6 @@ export const createSuiteSyncQuotaManagerCompositionRoot = (
         ensureDelegatedIdentityKey: deps.ensureDelegatedIdentityKey,
         getLeftDeviceQuota,
         getQuotaManagerBaseUrl,
-        getSelectedDevice,
         prepareChallengeSession,
         transferStorage,
     });

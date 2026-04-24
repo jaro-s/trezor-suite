@@ -9,6 +9,7 @@ import {
 } from '../quotaManagerFetch';
 
 export type RegisterStorageParams = {
+    deviceId: string;
     publicKey: string;
     size: number;
     proof: string;
@@ -26,22 +27,18 @@ type RegisterStorageResponse = {
     unspentStorageSize: number;
 };
 
-export type RegisterStorage = (
-    params: RegisterStorageParams,
-) => Promise<Result<RegisterStorageResponse, QuotaManagerFetchCommunicationError>>;
+export type RegisterStorageResult = Result<
+    RegisterStorageResponse,
+    QuotaManagerFetchCommunicationError
+>;
+
+export type RegisterStorage = (params: RegisterStorageParams) => Promise<RegisterStorageResult>;
 
 type GetQuotaManagerBaseUrl = () => string | null;
-
-type GetSelectedDevice = () =>
-    | {
-          id?: string | null;
-      }
-    | undefined;
 
 export type RegisterStorageDeps = {
     dispatch: Dispatch;
     getQuotaManagerBaseUrl: GetQuotaManagerBaseUrl;
-    getSelectedDevice: GetSelectedDevice;
 } & QuotaManagerFetchDep;
 
 export type RegisterStorageDep = {
@@ -50,7 +47,7 @@ export type RegisterStorageDep = {
 
 export const createRegisterStorage =
     (deps: RegisterStorageDeps): RegisterStorage =>
-    async params => {
+    async ({ deviceId, ...params }) => {
         const result = await deps.quotaManagerFetch({
             baseUrl: deps.getQuotaManagerBaseUrl(),
             path: '/storage/register',
@@ -63,17 +60,14 @@ export const createRegisterStorage =
         }
 
         const response = result.payload as RegisterStorageResponse;
-        const device = deps.getSelectedDevice();
 
-        if (device?.id !== undefined && device.id !== null) {
-            deps.dispatch(
-                quotaManagerDeviceFetched({
-                    deviceId: device.id,
-                    totalStorageSize: response.totalStorageSize,
-                    unspentStorageSize: response.unspentStorageSize,
-                }),
-            );
-        }
+        deps.dispatch(
+            quotaManagerDeviceFetched({
+                deviceId,
+                totalStorageSize: response.totalStorageSize,
+                unspentStorageSize: response.unspentStorageSize,
+            }),
+        );
 
         return ok(response);
     };

@@ -111,6 +111,7 @@ export const createEnsureDeviceHasQuota =
         }
 
         const registerStorageResult = await deps.registerStorage({
+            deviceId: device.id,
             size: DEFAULT_DEVICE_SIZE_QUOTA,
             certificateChain: {
                 deviceCert: registrationRequestResult.payload.certificate_chain[0],

@@ -1,15 +1,12 @@
-import { type Result, err, ok } from '@trezor/type-utils';
+import { err, ok } from '@trezor/type-utils';
 
+import { createQuotaManagerFetchMock } from '../../../mocks/createQuotaManagerFetchMock';
+import { createRegisterStorageDepsMock } from '../../../mocks/createRegisterStorageDepsMock';
 import { quotaManagerDeviceFetched } from '../../quotaManagerActions';
 import { createRegisterStorage } from '../createRegisterStorage';
 
-const mockDispatch = jest.fn();
-const mockQuotaManagerFetch = jest.fn();
-
-const mockedQuotaManagerUrl = 'https://trezor.io/quota-manager';
-
 describe(createRegisterStorage.name, () => {
-    const params = {
+    const bodyParams = {
         publicKey: 'pubkey',
         size: 123,
         proof: 'proof',
@@ -21,35 +18,31 @@ describe(createRegisterStorage.name, () => {
         sessionId: 'sessionId',
         challenge: 'challenge',
     };
+    const params = { deviceId: 'device-id', ...bodyParams };
 
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
     it('dispatches quotaManagerDeviceFetched on success', async () => {
-        mockQuotaManagerFetch.mockResolvedValue(
-            ok({
-                totalStorageSize: 1000,
-                unspentStorageSize: 800,
-            }) as Result<unknown, never>,
-        );
-
-        const registerStorage = createRegisterStorage({
-            dispatch: mockDispatch,
-            getQuotaManagerBaseUrl: () => mockedQuotaManagerUrl,
-            getSelectedDevice: () => ({ id: 'device-id' }),
-            quotaManagerFetch: mockQuotaManagerFetch,
+        const deps = createRegisterStorageDepsMock({
+            quotaManagerFetch: createQuotaManagerFetchMock([
+                ok({
+                    totalStorageSize: 1000,
+                    unspentStorageSize: 800,
+                }),
+            ]),
         });
-        const result = await registerStorage(params);
 
-        expect(mockQuotaManagerFetch).toHaveBeenCalledWith({
-            baseUrl: mockedQuotaManagerUrl,
+        const result = await createRegisterStorage(deps)(params);
+
+        expect(deps.quotaManagerFetch).toHaveBeenCalledWith({
+            baseUrl: 'https://quota-manager.test',
             path: '/storage/register',
             method: 'POST',
-            body: params,
+            body: bodyParams,
         });
-
-        expect(mockDispatch).toHaveBeenCalledWith(
+        expect(deps.dispatch).toHaveBeenCalledWith(
             quotaManagerDeviceFetched({
                 deviceId: 'device-id',
                 totalStorageSize: 1000,
@@ -65,41 +58,15 @@ describe(createRegisterStorage.name, () => {
     });
 
     it('returns fetch errors without dispatching any failure action', async () => {
-        mockQuotaManagerFetch.mockResolvedValue(
-            err({ type: 'FetchError', message: 'Network error' }),
-        );
-
-        const registerStorage = createRegisterStorage({
-            dispatch: mockDispatch,
-            getQuotaManagerBaseUrl: () => mockedQuotaManagerUrl,
-            getSelectedDevice: () => ({ id: 'device-id' }),
-            quotaManagerFetch: mockQuotaManagerFetch,
+        const deps = createRegisterStorageDepsMock({
+            quotaManagerFetch: createQuotaManagerFetchMock([
+                err({ type: 'FetchError', message: 'Network error' }),
+            ]),
         });
-        const result = await registerStorage(params);
 
-        expect(mockDispatch).not.toHaveBeenCalled();
+        const result = await createRegisterStorage(deps)(params);
+
+        expect(deps.dispatch).not.toHaveBeenCalled();
         expect(result).toEqual(err({ type: 'FetchError', message: 'Network error' }));
-    });
-
-    it('does not dispatch quotaManagerDeviceFetched if selected device is missing', async () => {
-        mockQuotaManagerFetch.mockResolvedValue(
-            ok({
-                totalStorageSize: 1000,
-                unspentStorageSize: 800,
-            }) as Result<unknown, never>,
-        );
-
-        const registerStorage = createRegisterStorage({
-            dispatch: mockDispatch,
-            getQuotaManagerBaseUrl: () => mockedQuotaManagerUrl,
-            getSelectedDevice: () => undefined,
-            quotaManagerFetch: mockQuotaManagerFetch,
-        });
-
-        await registerStorage(params);
-
-        expect(mockDispatch).not.toHaveBeenCalledWith(
-            expect.objectContaining(quotaManagerDeviceFetched),
-        );
     });
 });

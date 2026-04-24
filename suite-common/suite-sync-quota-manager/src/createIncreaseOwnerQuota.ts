@@ -3,14 +3,13 @@ import {
     getPublicIdentityKeyFromDelegatedKey,
 } from '@suite-common/delegated-identity-key';
 import { type EnsureDelegatedIdentityKeyDep } from '@suite-common/delegated-identity-key-types';
-import { isTrezorDeviceWithState } from '@suite-common/device';
 import { type SuiteSyncOwnerId } from '@suite-common/suite-sync-storage';
 import {
-    type NoQuotaLeftToAllocateErrType,
     type QuotaManagerCommunicationFailedErrType,
+    type QuotaManagerNoQuotaLeftToAllocateErrType,
 } from '@suite-common/suite-sync-types';
-import { type TrezorDevice, asDelegatedIdentityKey } from '@suite-common/suite-types';
-import { parseDeviceStaticSessionId } from '@suite-common/wallet-utils';
+import { type TrezorDeviceWithState, asDelegatedIdentityKey } from '@suite-common/suite-types';
+import { type WalletDescriptor } from '@suite-common/wallet-types';
 import { type Result, err, ok } from '@trezor/type-utils';
 
 import { type PrepareChallengeSessionDep } from './challenge/prepareChallengeSession';
@@ -25,20 +24,23 @@ import { prepareMessageBufferEvoluAddSpaceToOwner } from './util/prepareMessageB
 
 export type IncreaseOwnerQuotaParams = {
     ownerId: SuiteSyncOwnerId;
+    device: TrezorDeviceWithState;
+    deviceId: string;
+    walletDescriptor: WalletDescriptor;
 };
 
 export type IncreaseOwnerQuota = (
     params: IncreaseOwnerQuotaParams,
-) => Promise<Result<void, NoQuotaLeftToAllocateErrType | QuotaManagerCommunicationFailedErrType>>;
+) => Promise<
+    Result<void, QuotaManagerNoQuotaLeftToAllocateErrType | QuotaManagerCommunicationFailedErrType>
+>;
 
 type GetQuotaManagerBaseUrl = () => string | null;
 type GetLeftDeviceQuota = (deviceId: string) => number | undefined;
-type GetSelectedDevice = () => TrezorDevice | undefined;
 
 export type IncreaseOwnerQuotaDeps = {
     getQuotaManagerBaseUrl: GetQuotaManagerBaseUrl;
     getLeftDeviceQuota: GetLeftDeviceQuota;
-    getSelectedDevice: GetSelectedDevice;
 } & EnsureDelegatedIdentityKeyDep &
     TransferStorageDep &
     PrepareChallengeSessionDep;
@@ -49,15 +51,8 @@ export type IncreaseOwnerQuotaDep = {
 
 export const createIncreaseOwnerQuota =
     (deps: IncreaseOwnerQuotaDeps): IncreaseOwnerQuota =>
-    async ({ ownerId }) => {
-        const device = deps.getSelectedDevice();
-
-        if (!device || !isTrezorDeviceWithState(device)) {
-            return ok();
-        }
-
-        const { walletDescriptor } = parseDeviceStaticSessionId(device.state.staticSessionId);
-        const leftDeviceQuota = deps.getLeftDeviceQuota(device.id);
+    async ({ ownerId, device, deviceId, walletDescriptor }) => {
+        const leftDeviceQuota = deps.getLeftDeviceQuota(deviceId);
         const sizeToAllocate = getAccountIncrementSizeQuota({
             unspentStorage: leftDeviceQuota ?? DEFAULT_DEVICE_SIZE_QUOTA,
         });
