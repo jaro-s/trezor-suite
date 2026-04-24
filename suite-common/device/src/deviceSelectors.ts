@@ -668,14 +668,14 @@ export const selectSupportChatDeviceUtmParams = createMemoizedSelector(
         selectDeviceInternalModel,
         selectDeviceFirmwareVersion,
         selectDeviceFirmwareRevision,
-        selectIsDeviceUsingPassphrase,
+        selectIsDeviceProtectedByPassphrase,
         selectIsPortfolioTrackerDevice,
     ],
     (
         deviceModel,
         firmwareVersion,
         firmwareRevision,
-        isDeviceUsingPassphrase,
+        isDeviceProtectedByPassphrase,
         isPortfolioTrackerDevice,
     ) => {
         const result: DeviceUtmParams = {};
@@ -696,7 +696,7 @@ export const selectSupportChatDeviceUtmParams = createMemoizedSelector(
             result.utm_rev = firmwareRevision;
         }
 
-        result.utm_passphrase = isDeviceUsingPassphrase ? 'true' : 'false';
+        result.utm_passphrase = isDeviceProtectedByPassphrase ? 'true' : 'false';
 
         return result;
     },
