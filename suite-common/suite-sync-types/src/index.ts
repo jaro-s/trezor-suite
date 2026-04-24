@@ -88,6 +88,9 @@ export type {
     RelayQuotaExceededError,
     Errors,
     CreateSuiteSyncErrorHandlerDep,
+    IncreaseOwnerQuota,
+    IncreaseOwnerQuotaErr,
+    OwnerDeviceNotAvailableErrType,
 } from './SuiteSyncErrorHandler';
 
 export type {
@@ -96,5 +99,5 @@ export type {
     ChallengeFailedErrType,
     HttpErrType,
     ProofOfDelegatedIdentityFailedErrType,
-    NoQuotaLeftToAllocateErrType,
+    QuotaManagerNoQuotaLeftToAllocateErrType,
 } from './quotaManager/ensureOwnerHasAllocatedQuotaThunk';

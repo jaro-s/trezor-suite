@@ -1,8 +1,21 @@
 import { type Dispatch } from '@reduxjs/toolkit';
 
 import { type SuiteSyncOwnerId } from '@suite-common/suite-sync-storage';
+import { type Result } from '@trezor/type-utils';
 
-export type IncreaseOwnerQuota = (params: { ownerId: SuiteSyncOwnerId }) => Promise<unknown>;
+import { type QuotaManagerNoQuotaLeftToAllocateErrType } from './quotaManager/ensureOwnerHasAllocatedQuotaThunk';
+import { type QuotaManagerCommunicationFailedErrType } from './quotaManager/quotaManagerTypes';
+
+export type OwnerDeviceNotAvailableErrType = { type: 'OwnerDeviceNotAvailable' };
+
+export type IncreaseOwnerQuotaErr =
+    | OwnerDeviceNotAvailableErrType
+    | QuotaManagerNoQuotaLeftToAllocateErrType
+    | QuotaManagerCommunicationFailedErrType;
+
+export type IncreaseOwnerQuota = (params: {
+    ownerId: SuiteSyncOwnerId;
+}) => Promise<Result<void, IncreaseOwnerQuotaErr>>;
 
 export type CreateSuiteSyncErrorHandlerDep = {
     dispatch?: Dispatch;
