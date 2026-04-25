@@ -1,0 +1,65 @@
+name: "[Check] Bundle size"
+# Draft — detects unexpected growth in built bundle sizes to catch accidentally
+# bundled heavy dependencies or tree-shake regressions. See issue #8771.
+#
+# Baseline + max values are passed inline below. The first CI run will expose
+# real numbers; update the values after measuring on develop.
+
+on:
+  pull_request:
+    paths:
+      - "packages/suite-web/**"
+      - "packages/connect/**"
+      - "packages/connect-web/**"
+      - "packages/transport-bridge/**"
+      - "scripts/check-build-size.sh"
+      - ".github/workflows/check-bundle-size.yml"
+      - "yarn.lock"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  suite-web-size:
+    name: suite-web build size
+    runs-on: ubuntu-latest
+    env:
+      NODE_OPTIONS: --max-old-space-size=6144
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: ./.github/actions/minimal-yarn-install
+      - name: Build
+        run: |
+          yarn message-system-sign-config
+          yarn workspace @trezor/suite-data build:lib
+          yarn workspace @trezor/suite-web build
+      - name: Check bundle size
+        # Baseline measured 2026-04-23 on mroz22/size-check-analysis: 37568 KB.
+        # Max = baseline * 1.10. Refresh both after a legitimate size bump.
+        run: ./scripts/check-build-size.sh suite-web packages/suite-web/build 37568 41325
+
+  transport-bridge-size:
+    name: transport-bridge build size
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: ./.github/actions/minimal-yarn-install
+      - name: Build
+        run: yarn workspace @trezor/transport-bridge build
+      - name: Check bundle size
+        # Baseline measured 2026-04-23: 172 KB. Max = baseline * 1.10.
+        run: ./scripts/check-build-size.sh transport-bridge packages/transport-bridge/dist 172 189
+
+  connect-web-size-limit:
+    name: "@trezor/connect-web size-limit"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: ./.github/actions/minimal-yarn-install
+      - name: Build all workspace libs
+        # size-limit needs sibling workspace packages (e.g. @trezor/connect-common)
+        # built to disk so their lib/ subpath imports resolve.
+        run: yarn build:libs
+      - name: size-limit @trezor/connect-web
+        run: yarn workspace @trezor/connect-web size
