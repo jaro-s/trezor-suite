@@ -4,6 +4,7 @@ import { type Network, type NetworkSymbol, getNetworkType } from '@suite-common/
 import { type PrecomposedLevels, type PrecomposedLevelsCardano } from '@suite-common/wallet-types';
 import { asAmountSubunit, substituteBip43Path, subunitsToUnits } from '@suite-common/wallet-utils';
 import TrezorConnect, { type FeeLevel, type TokenInfo } from '@trezor/connect';
+import { type HttpReceiverAddress } from '@trezor/suite-desktop-api';
 import { BigNumber } from '@trezor/utils';
 
 import { type Route, type TrezorDevice } from 'src/types/suite';
@@ -13,6 +14,22 @@ import {
     type TradingGetProvidersInfoProps,
 } from 'src/types/trading/trading';
 import { type Account } from 'src/types/wallet';
+
+/**
+ * Build a redirect URL for an HTTP-receiver-backed coinmarket flow on desktop.
+ * On platforms where the receiver is bypassed for a `trezorsuite://` deeplink
+ * (`token === ''`), the token query parameter is omitted.
+ */
+export const buildHttpReceiverRedirectUrl = (
+    address: HttpReceiverAddress | undefined,
+    redirectPath: string,
+) => {
+    if (!address) return undefined;
+    const params = new URLSearchParams({ p: redirectPath });
+    if (address.token) params.set('token', address.token);
+
+    return `${address.url}?${params.toString()}`;
+};
 
 export const translationKeys: Record<
     TradingType,

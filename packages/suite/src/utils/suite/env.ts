@@ -22,12 +22,14 @@ export const submitRequestForm = async (
     }
 
     if (isDesktop()) {
-        let params = `a=${encodeURIComponent(formAction)}`;
-        Object.keys(fields).forEach(k => {
-            params += `&${k}=${encodeURIComponent(fields[k])}`;
-        });
-        const serverUrl = await desktopApi.getHttpReceiverAddress('/buy-post');
-        window.open(`${serverUrl}?${params}`, '_blank');
+        const address = await desktopApi.getHttpReceiverAddress('/buy-post');
+        if (!address) return;
+
+        const search = new URLSearchParams();
+        if (address.token) search.set('token', address.token);
+        search.set('a', formAction);
+        Object.keys(fields).forEach(k => search.set(k, fields[k]));
+        window.open(`${address.url}?${search.toString()}`, '_blank');
     } else {
         const form = document.createElement('form');
         form.method = formMethod;
