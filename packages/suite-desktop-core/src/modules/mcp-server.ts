@@ -1183,13 +1183,25 @@ export const init: ModuleInit = ({ mainWindowProxy, store }) => {
         httpServer.post('/mcp', [
             parseBodyJSONWithLimit(MAX_BODY_SIZE),
             (request, response) => {
-                void (async () => {
-                    const jsonRpcRequest = request.body as unknown as {
-                        id?: string | number;
-                        method: string;
-                        params?: Record<string, unknown>;
-                    };
+                const body = request.body as unknown;
+                if (
+                    !body ||
+                    typeof body !== 'object' ||
+                    Array.isArray(body) ||
+                    typeof (body as { method?: unknown }).method !== 'string'
+                ) {
+                    response.writeHead(400, { 'Content-Type': 'application/json' });
+                    response.end(JSON.stringify({ error: 'Invalid JSON-RPC request' }));
 
+                    return;
+                }
+                const jsonRpcRequest = body as {
+                    id?: string | number;
+                    method: string;
+                    params?: Record<string, unknown>;
+                };
+
+                (async () => {
                     // Per MCP spec, clients MUST include Mcp-Session-Id once assigned.
                     // Allow missing session ID only for initialize (new client connecting).
                     const requestSessionId = request.headers['mcp-session-id'] as
@@ -1284,7 +1296,15 @@ export const init: ModuleInit = ({ mainWindowProxy, store }) => {
 
                     response.writeHead(200, headers);
                     response.end(JSON.stringify(jsonRpcResponse));
-                })();
+                })().catch(err => {
+                    logger.error(LOG_PREFIX, `Unhandled error in /mcp handler: ${String(err)}`);
+                    if (!response.headersSent) {
+                        response.writeHead(500, { 'Content-Type': 'application/json' });
+                        response.end(JSON.stringify({ error: 'Internal server error' }));
+                    } else {
+                        response.end();
+                    }
+                });
             },
         ]);
 
@@ -1313,7 +1333,10 @@ export const init: ModuleInit = ({ mainWindowProxy, store }) => {
         }
 
         mcpHttpServer = httpServer;
-        logger.info(LOG_PREFIX, `MCP server listening on http://127.0.0.1:${port}/mcp`);
+        logger.info(
+            LOG_PREFIX,
+            `MCP server listening on http://127.0.0.1:${startResult.payload.port}/mcp`,
+        );
     };
 
     const stopServer = async () => {
@@ -1330,11 +1353,12 @@ export const init: ModuleInit = ({ mainWindowProxy, store }) => {
         validateIpcMessage({ ipcEvent });
 
         const settings = store.getMcpSettings();
+        const listeningPort = mcpHttpServer?.getServerAddress().port;
 
         return {
             ...settings,
             running: mcpHttpServer !== null,
-            url: mcpHttpServer ? `http://127.0.0.1:${settings.port}/mcp` : null,
+            url: listeningPort ? `http://127.0.0.1:${listeningPort}/mcp` : null,
             token: settings.token ?? null,
         };
     });

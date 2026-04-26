@@ -202,24 +202,6 @@ describe('MCP server', () => {
             expect(res.status).toBe(200);
         });
 
-        it('returns 500 when store returns empty token at request time', async () => {
-            const server = await startMcpServer();
-            cleanup = server.cleanup;
-
-            // Override getMcpSettings to return no token after server has started
-            server.store.getMcpSettings.mockReturnValue({
-                enabled: true,
-                port: server.port,
-                token: '',
-            });
-
-            const res = await mcpFetch(server.port, jsonRpc('initialize'), { token: null });
-
-            expect(res.status).toBe(500);
-            const body = await res.json();
-            expect(body.error).toContain('no auth token');
-        });
-
         it('accepts requests with token in query parameter', async () => {
             const server = await startMcpServer();
             cleanup = server.cleanup;
@@ -242,6 +224,24 @@ describe('MCP server', () => {
             });
 
             expect(res.status).toBe(401);
+        });
+
+        it('returns 500 when store returns empty token at request time', async () => {
+            const server = await startMcpServer();
+            cleanup = server.cleanup;
+
+            // Override getMcpSettings to return no token after server has started
+            server.store.getMcpSettings.mockReturnValue({
+                enabled: true,
+                port: server.port,
+                token: '',
+            });
+
+            const res = await mcpFetch(server.port, jsonRpc('initialize'), { token: null });
+
+            expect(res.status).toBe(500);
+            const body = await res.json();
+            expect(body.error).toContain('no auth token');
         });
     });
 
@@ -328,7 +328,7 @@ describe('MCP server', () => {
             expect(body.error).toContain('Invalid json body');
         });
 
-        it('treats empty body as empty object', async () => {
+        it('rejects empty body with 400 (no method)', async () => {
             const server = await startMcpServer();
             cleanup = server.cleanup;
 
@@ -337,8 +337,42 @@ describe('MCP server', () => {
                 headers: { Authorization: `Bearer ${TEST_TOKEN}` },
             });
 
-            // Empty body → {} → method is undefined → 202 (notification, no id)
-            expect(res.status).toBe(202);
+            expect(res.status).toBe(400);
+            const body = await res.json();
+            expect(body.error).toBe('Invalid JSON-RPC request');
+        });
+
+        it('rejects null body with 400', async () => {
+            const server = await startMcpServer();
+            cleanup = server.cleanup;
+
+            const res = await mcpFetch(server.port, 'null');
+
+            expect(res.status).toBe(400);
+            const body = await res.json();
+            expect(body.error).toBe('Invalid JSON-RPC request');
+        });
+
+        it('rejects array body with 400', async () => {
+            const server = await startMcpServer();
+            cleanup = server.cleanup;
+
+            const res = await mcpFetch(server.port, '[]');
+
+            expect(res.status).toBe(400);
+            const body = await res.json();
+            expect(body.error).toBe('Invalid JSON-RPC request');
+        });
+
+        it('rejects body without method with 400', async () => {
+            const server = await startMcpServer();
+            cleanup = server.cleanup;
+
+            const res = await mcpFetch(server.port, JSON.stringify({ jsonrpc: '2.0', id: 1 }));
+
+            expect(res.status).toBe(400);
+            const body = await res.json();
+            expect(body.error).toBe('Invalid JSON-RPC request');
         });
     });
 
