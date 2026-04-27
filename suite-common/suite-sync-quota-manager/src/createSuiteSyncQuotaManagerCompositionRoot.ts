@@ -22,7 +22,8 @@ import {
     selectLeftDeviceQuota,
     selectQuotaManagerBaseUrl,
 } from './quotaManagerSelectors';
-import { createCheckStorageByOwnerId, createCheckStorageByPublicKey } from './storage/checkStorage';
+import { createCheckStorageByOwnerId } from './storage/createCheckStorageByOwnerId';
+import { createCheckStorageByPublicKey } from './storage/createCheckStorageByPublicKey';
 import { createRegisterStorage } from './storage/createRegisterStorage';
 import { createTransferStorage } from './storage/createTransferStorage';
 import { generateSessionId } from './util/generateSessionId';

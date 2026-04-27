@@ -2,7 +2,8 @@
  * QuotaManager API services / functions.
  */
 export { createPrepareChallengeSession } from './challenge/prepareChallengeSession';
-export { createCheckStorageByOwnerId, createCheckStorageByPublicKey } from './storage/checkStorage';
+export { createCheckStorageByOwnerId } from './storage/createCheckStorageByOwnerId';
+export { createCheckStorageByPublicKey } from './storage/createCheckStorageByPublicKey';
 export { createQuotaManagerFetch } from './quotaManagerFetch';
 export { createRegisterStorage } from './storage/createRegisterStorage';
 export type { RegisterStorage, RegisterStorageDep } from './storage/createRegisterStorage';

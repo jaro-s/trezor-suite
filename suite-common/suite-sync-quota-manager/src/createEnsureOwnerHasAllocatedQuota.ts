@@ -8,8 +8,8 @@ import {
     type ChallengeFailedErrType,
     type EnsureOwnerHasAllocatedQuota,
     type HttpErrType,
-    type NoQuotaLeftToAllocateErrType,
     type ProofOfDelegatedIdentityFailedErrType,
+    type QuotaManagerNoQuotaLeftToAllocateErrType,
     type WriteModeRequiredForAllocationErrType,
 } from '@suite-common/suite-sync-types';
 import { parseDeviceStaticSessionId } from '@suite-common/wallet-utils';
@@ -22,7 +22,7 @@ import {
 } from './constants';
 import { quotaManagerCommunicationFailed } from './errors';
 import { quotaManagerOwnerFetched } from './quotaManagerActions';
-import { type CheckStorageByOwnerIdDep } from './storage/checkStorage';
+import { type CheckStorageByOwnerIdDep } from './storage/createCheckStorageByOwnerId';
 import { type TransferStorageDep } from './storage/createTransferStorage';
 import { getAccountIncrementSizeQuota } from './util/getAccountIncrementSizeQuota';
 import { prepareMessageBufferEvoluAddSpaceToOwner } from './util/prepareMessageBufferEvoluAddSpaceToOwner';
@@ -43,7 +43,7 @@ export const ProofOfDelegatedIdentityFailed = (): ProofOfDelegatedIdentityFailed
     type: 'ProofOfDelegatedIdentityFailed',
 });
 
-export const NoQuotaLeftToAllocate = (): NoQuotaLeftToAllocateErrType => ({
+export const NoQuotaLeftToAllocate = (): QuotaManagerNoQuotaLeftToAllocateErrType => ({
     type: 'NoQuotaLeftToAllocate',
 });
 

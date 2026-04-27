@@ -16,7 +16,7 @@ import { type PrepareChallengeSessionDep } from './challenge/prepareChallengeSes
 import { DEFAULT_DEVICE_SIZE_QUOTA } from './constants';
 import { quotaManagerCommunicationFailed, quotaManagerNoQuota } from './errors';
 import { quotaManagerDeviceFetched } from './quotaManagerActions';
-import { type CheckStorageByPublicKeyDep } from './storage/checkStorage';
+import { type CheckStorageByPublicKeyDep } from './storage/createCheckStorageByPublicKey';
 import { type RegisterStorageDep } from './storage/createRegisterStorage';
 import { prepareMessageBufferEvoluSignRegistrationRequest } from './util/prepareMessageBufferEvoluSignRegistrationRequest';
 
