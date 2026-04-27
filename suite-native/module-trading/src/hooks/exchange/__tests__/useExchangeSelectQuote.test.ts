@@ -582,7 +582,10 @@ describe('useExchangeSelectQuote', () => {
                     result.current.selectQuoteForRevoke();
                 });
 
-                const dispatchCall = dispatchSpy.mock.calls[0]?.[0];
+                const { calls } = dispatchSpy.mock;
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                const firstCall: (typeof calls)[number] = calls[0];
+                const [dispatchCall] = firstCall;
                 const { nextStep } = (dispatchCall as any).payload;
 
                 act(() => {
@@ -616,7 +619,10 @@ describe('useExchangeSelectQuote', () => {
                     result.current.selectQuoteForRevoke();
                 });
 
-                const dispatchCall = dispatchSpy.mock.calls[0]?.[0];
+                const { calls } = dispatchSpy.mock;
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                const firstCall: (typeof calls)[number] = calls[0];
+                const [dispatchCall] = firstCall;
                 const { nextStep } = (dispatchCall as any).payload;
 
                 act(() => {

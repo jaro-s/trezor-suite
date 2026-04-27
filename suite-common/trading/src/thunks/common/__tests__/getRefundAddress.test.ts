@@ -333,7 +333,9 @@ describe('getRefundAddress thunk', () => {
 
             // Check if the action is in pending state
             const actions = store.getActions();
-            expect(actions[0]?.type).toBe(getRefundAddress.pending.type);
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            const firstAction: (typeof actions)[number] = actions[0];
+            expect(firstAction.type).toBe(getRefundAddress.pending.type);
 
             const result = await promise;
             expect(result.type).toBe(getRefundAddress.fulfilled.type);

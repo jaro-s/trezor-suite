@@ -90,13 +90,15 @@ export const useTradingFormAccount = (tradingType: TradingType) => {
     );
 
     const pickFallbackAccount = useCallback(
-        (accounts: Account[]) =>
-            accounts.find(acc => isAccountEligibleForTrade(acc)) ?? accounts[0],
+        (accounts: Account[]) => {
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            const first: Account = accounts[0];
+
+            return accounts.find(acc => isAccountEligibleForTrade(acc)) ?? first;
+        },
         [isAccountEligibleForTrade],
     );
 
-    // account is guaranteed to be defined when trading screens are accessible
-    // (requires at least one visible device account), but TS can't verify array[0] is defined
     const account = useMemo(() => {
         if (preferredAccount && isAccountEligibleForTrade(preferredAccount, prefilled.cryptoId)) {
             return preferredAccount;
@@ -112,17 +114,7 @@ export const useTradingFormAccount = (tradingType: TradingType) => {
             return sameSymbolAccount;
         }
 
-        const fallback = pickFallbackAccount(visibileDeviceAccounts);
-        // Trading screens require at least one visible device account,
-        // so pickFallbackAccount always resolves here.
-        if (!fallback) {
-            // This should never happen — trading UI requires accounts to be present.
-            console.error('useTradingFormAccount: no fallback account found');
-
-            return visibileDeviceAccounts[0] ?? ({} as Account);
-        }
-
-        return fallback;
+        return pickFallbackAccount(visibileDeviceAccounts);
     }, [
         visibileDeviceAccounts,
         isAccountEligibleForTrade,
@@ -137,7 +129,7 @@ export const useTradingFormAccount = (tradingType: TradingType) => {
         }
 
         return (getNetwork(account.symbol).tradeCryptoId ?? 'bitcoin') as CryptoId;
-    }, [prefilled.cryptoId, account, preferredAccount?.key]);
+    }, [prefilled.cryptoId, account.key, account.symbol, preferredAccount?.key]);
 
     useEffect(() => {
         if (!accountKey && account.key) {

@@ -441,8 +441,9 @@ describe('handleSellRequestThunk', () => {
     it('should not proceed when requestData is null', async () => {
         const { input, store } = getMocks();
 
-        const firstOutput = input.formValues.outputs[0];
-        if (!firstOutput) throw new Error('Missing test fixture output');
+        const { outputs } = input.formValues;
+        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        const firstOutput: (typeof outputs)[number] = outputs[0];
         const modifiedInput = {
             ...input,
             formValues: {

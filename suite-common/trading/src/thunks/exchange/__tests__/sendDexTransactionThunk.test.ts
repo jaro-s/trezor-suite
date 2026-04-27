@@ -188,14 +188,17 @@ describe('sendDexTransactionThunk', () => {
             }),
         );
 
-        const confirmTradeThunkArgs = confirmExchangeTradeThunkSpy.mock.calls[0]?.[0];
+        const { calls } = confirmExchangeTradeThunkSpy.mock;
+        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        const firstCall: (typeof calls)[number] = calls[0];
+        const [confirmTradeThunkArgs] = firstCall;
 
         expect(result.meta.requestStatus).toEqual('fulfilled');
         expect(tradingThunks.recomposeAndSignTxThunk).toHaveBeenCalledTimes(1);
         expect(store.getState().wallet.trading.trades).toEqual([]);
         expect(confirmExchangeTradeThunkSpy).toHaveBeenCalledTimes(1);
-        expect(confirmTradeThunkArgs?.trade?.approvalSendTxHash).toEqual('txid');
-        expect(confirmTradeThunkArgs?.trade?.status).toEqual('APPROVAL_PENDING');
+        expect(confirmTradeThunkArgs.trade?.approvalSendTxHash).toEqual('txid');
+        expect(confirmTradeThunkArgs.trade?.status).toEqual('APPROVAL_PENDING');
     });
 
     it('should successfully call confirmTradeThunk for making trade', async () => {
@@ -233,8 +236,11 @@ describe('sendDexTransactionThunk', () => {
             }),
         );
 
-        const confirmTradeThunkArgs = confirmExchangeTradeThunkSpy.mock.calls[0]?.[0];
-        const trade = confirmTradeThunkArgs?.trade;
+        const { calls } = confirmExchangeTradeThunkSpy.mock;
+        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        const firstCall: (typeof calls)[number] = calls[0];
+        const [confirmTradeThunkArgs] = firstCall;
+        const { trade } = confirmTradeThunkArgs;
 
         expect(result.meta.requestStatus).toEqual('fulfilled');
         expect(tradingThunks.recomposeAndSignTxThunk).toHaveBeenCalledTimes(1);
