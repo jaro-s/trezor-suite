@@ -3,7 +3,7 @@
     "version": "10.0.0-alpha.1",
     "author": "Trezor <info@trezor.io>",
     "homepage": "https://github.com/trezor/trezor-suite/tree/develop/packages/connect-plugin-ethereum",
-    "description": "@trezor/connect plugin for Ethereum",
+    "description": "DEPRECATED — EIP-712 hash construction is now handled internally by @trezor/connect@10. See README for migration.",
     "license": "SEE LICENSE IN LICENSE.md",
     "repository": {
         "type": "git",
@@ -41,14 +41,9 @@
         "CHANGELOG.md"
     ],
     "peerDependencies": {
-        "@metamask/eth-sig-util": "^8.2.0",
         "tslib": "^2.6.2"
     },
-    "devDependencies": {
-        "@metamask/eth-sig-util": "^8.2.0"
-    },
     "scripts": {
-        "test:unit": "yarn g:jest",
         "type-check": "yarn g:tsc --build tsconfig.json",
         "build:lib": "yarn build:lib:cjs && yarn build:lib:esm",
         "build:lib:cjs": "yarn g:rimraf ./lib && yarn g:tsc --build tsconfig.lib.json && ../../scripts/publish/replace-imports.sh ./lib cjs",

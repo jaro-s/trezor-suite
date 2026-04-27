@@ -72,7 +72,10 @@ jobs:
 
       - name: Set trezor model one matrix
         id: set-matrix-model-one
-        run: echo "matrix=$(node ./scripts/ci/connect-test-matrix-generator.js --model=T1B1 --firmware=1-latest --env=node --groups=api --disable_cache_tx=true --transport=node-bridge)" >> $GITHUB_OUTPUT
+        # `ethereum` group included so the EIP-712 auto-compute path in
+        # ethereumSignTypedData is exercised on real T1B1 firmware nightly —
+        # this is the only firmware that requires the host-side hashing.
+        run: echo "matrix=$(node ./scripts/ci/connect-test-matrix-generator.js --model=T1B1 --firmware=1-latest --env=node --groups=api,ethereum --disable_cache_tx=true --transport=node-bridge)" >> $GITHUB_OUTPUT
 
   PR-check:
     needs: [set-matrix]
@@ -210,7 +213,9 @@ jobs:
 
   model-one-api:
     needs: [set-matrix]
-    name: model-one-api ${{ matrix.key }}
+    # Display name includes `groups.name` so multi-group matrices render as
+    # distinct rows in the GitHub Actions UI (e.g. `model-one api`, `model-one ethereum`).
+    name: model-one ${{ matrix.groups.name }} ${{ matrix.key }}
     if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.repository == 'trezor/trezor-suite'
     uses: ./.github/workflows/template-connect-test-params.yml
     with:
