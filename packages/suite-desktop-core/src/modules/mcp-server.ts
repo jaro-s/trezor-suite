@@ -1353,11 +1353,18 @@ export const init: ModuleInit = ({ mainWindowProxy, store }) => {
         validateIpcMessage({ ipcEvent });
 
         const settings = store.getMcpSettings();
-        const listeningPort = mcpHttpServer?.getServerAddress().port;
+        // getServerAddress() throws if the underlying socket is not listening;
+        // guard so a stale HttpServer reference can't crash the IPC handler.
+        let listeningPort: number | null = null;
+        try {
+            listeningPort = mcpHttpServer?.getServerAddress().port ?? null;
+        } catch {
+            listeningPort = null;
+        }
 
         return {
             ...settings,
-            running: mcpHttpServer !== null,
+            running: listeningPort !== null,
             url: listeningPort ? `http://127.0.0.1:${listeningPort}/mcp` : null,
             token: settings.token ?? null,
         };
