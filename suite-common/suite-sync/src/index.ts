@@ -82,3 +82,4 @@ export {
     getIsSuiteSyncLabelingActionEnabled,
 } from './suiteSyncUtils';
 export { createSuiteSyncErrorHandler } from './createSuiteSyncErrorHandler';
+export { createProvisionalIncreaseOwnerQuota } from './createProvisionalIncreaseOwnerQuota';
