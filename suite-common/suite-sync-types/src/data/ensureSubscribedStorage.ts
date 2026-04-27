@@ -1,3 +1,4 @@
+import { type ProofOfDelegatedSignFailedType } from '@suite-common/delegated-identity-key-types';
 import { type SuiteSyncSchema, type SuiteSyncStorage } from '@suite-common/suite-sync-storage';
 import { type DeviceCancelledErrType, type DeviceErrorType } from '@suite-common/suite-types';
 import { type WalletDescriptor } from '@suite-common/wallet-types';
@@ -41,6 +42,7 @@ export type EnsureSubscribedStorage = (
         | SuiteSyncUnavailableOnDeviceErrorType
         | DeviceErrorType
         | DeviceCancelledErrType
+        | ProofOfDelegatedSignFailedType
         | WriteModeRequiredForAllocationErrType
         | QuotaManagerCommunicationFailedErrType
         | QuotaManagerNoQuotaErrType

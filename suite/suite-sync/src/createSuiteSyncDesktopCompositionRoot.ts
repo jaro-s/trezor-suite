@@ -5,11 +5,7 @@ import { type Dispatch } from '@reduxjs/toolkit';
 import { type DesktopAnalyticsDep } from '@suite/analytics';
 import { type EnsureDelegatedIdentityKeyDep } from '@suite-common/delegated-identity-key-types';
 import { type PlatformEncryptionDep } from '@suite-common/platform-encryption';
-import {
-    createProvisionalIncreaseOwnerQuota,
-    createSuiteSyncCompositionRoot,
-    createSuiteSyncErrorHandler,
-} from '@suite-common/suite-sync';
+import { createSuiteSyncCompositionRoot } from '@suite-common/suite-sync';
 import {
     createEvoluErrorHandler,
     createEvoluInstanceFactory,
@@ -52,21 +48,12 @@ export const createSuiteSyncDesktopCompositionRoot = (
         }),
         createSuiteSyncOwner: evoluCreateSuiteSyncOwner,
         analytics: deps.analytics,
-    });
-
-    const suiteSyncErrorHandler = createSuiteSyncErrorHandler({
-        increaseOwnerQuota: createProvisionalIncreaseOwnerQuota({
-            getState: deps.getState,
-            increaseOwnerQuota: suiteSync.increaseOwnerQuota,
-        }),
-        onError: error => {
-            console.error('SuiteSync error', error);
+        subscribeError: suiteSyncErrorHandler => {
+            evoluDeps.evoluError.subscribe(
+                createEvoluErrorHandler(evoluDeps.evoluError, suiteSyncErrorHandler),
+            );
         },
     });
-
-    evoluDeps.evoluError.subscribe(
-        createEvoluErrorHandler(evoluDeps.evoluError, suiteSyncErrorHandler),
-    );
 
     return {
         ...suiteSync,

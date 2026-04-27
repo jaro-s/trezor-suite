@@ -1,3 +1,4 @@
+import { type ProofOfDelegatedSignFailedType } from '@suite-common/delegated-identity-key-types';
 import { type SuiteSyncStorage, type SuiteSyncUpdateError } from '@suite-common/suite-sync-storage';
 import { type DeviceCancelledErrType, type DeviceErrorType } from '@suite-common/suite-types';
 import { type StaticSessionId } from '@trezor/connect-common';
@@ -30,6 +31,7 @@ export type EnsureWalletSuiteSyncOnErrors =
     | SuiteSyncFirmwareUpgradeNeededDeviceErrorType
     | DeviceErrorType
     | DeviceCancelledErrType
+    | ProofOfDelegatedSignFailedType
     | WriteModeRequiredForAllocationErrType
     | QuotaManagerCommunicationFailedErrType
     | QuotaManagerNoQuotaErrType

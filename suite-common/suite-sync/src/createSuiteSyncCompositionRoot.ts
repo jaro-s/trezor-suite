@@ -7,7 +7,6 @@ import { selectAllDeviceStaticIds, selectDeviceByStaticSessionId } from '@suite-
 import { type PlatformEncryptionDep } from '@suite-common/platform-encryption';
 import {
     type FetchDep,
-    type IncreaseOwnerQuotaDep,
     createQuotaManagerFetch,
     createSuiteSyncQuotaManagerCompositionRoot,
 } from '@suite-common/suite-sync-quota-manager';
@@ -15,12 +14,14 @@ import {
     type CreateSuiteStorageDep,
     type CreateSuiteSyncOwnerDep,
 } from '@suite-common/suite-sync-storage';
-import { type SuiteSync } from '@suite-common/suite-sync-types';
+import { type SuiteSync, type SuiteSyncErrorHandler } from '@suite-common/suite-sync-types';
 import { selectAccounts } from '@suite-common/wallet-core';
 import { type Analytics } from '@trezor/analytics-uploader';
 import type TrezorConnect from '@trezor/connect';
 
 import { createEnsureSuiteSyncKeys } from './createEnsureSuiteSyncKeys';
+import { createProvisionalIncreaseOwnerQuota } from './createProvisionalIncreaseOwnerQuota';
+import { createSuiteSyncErrorHandler } from './createSuiteSyncErrorHandler';
 import { createTurnOffSuiteSync } from './createTurnOffSuiteSync';
 import { createTurnOnSuiteSync } from './createTurnOnSuiteSync';
 import { selectSuiteSyncAccountLabel } from './data/account/selectSuiteSyncAccountLabel';
@@ -60,9 +61,12 @@ export type SuiteSyncAnalyticsDep = {
     analytics?: SuiteSyncAnalytics;
 };
 
+type SubscribeError = (suiteSyncErrorHandler: SuiteSyncErrorHandler) => void;
+
 type CreateSuiteSyncCompositionRootDeps = {
     getState: () => any;
     dispatch: Dispatch;
+    subscribeError: SubscribeError;
     trezorConnect: Pick<typeof TrezorConnect, 'evoluGetNode' | 'evoluSignRegistrationRequest'>;
 } & SuiteSyncAnalyticsDep &
     EnsureDelegatedIdentityKeyDep &
@@ -71,11 +75,9 @@ type CreateSuiteSyncCompositionRootDeps = {
     PlatformEncryptionDep &
     FetchDep;
 
-type SuiteSyncCompositionRoot = SuiteSync & IncreaseOwnerQuotaDep;
-
 export const createSuiteSyncCompositionRoot = (
     deps: CreateSuiteSyncCompositionRootDeps,
-): SuiteSyncCompositionRoot => {
+): SuiteSync => {
     const suiteSyncStorageRepository = createSuiteSyncStorageRepository();
 
     const subscriptionStorage = createSubscriptionStorage();
@@ -121,6 +123,18 @@ export const createSuiteSyncCompositionRoot = (
             quotaManagerFetch,
             trezorConnect: deps.trezorConnect,
         });
+
+    deps.subscribeError(
+        createSuiteSyncErrorHandler({
+            increaseOwnerQuota: createProvisionalIncreaseOwnerQuota({
+                getState: deps.getState,
+                increaseOwnerQuota,
+            }),
+            onError: error => {
+                console.error('SuiteSync error', error);
+            },
+        }),
+    );
 
     const ensureStorage = createEnsureStorage({
         ensureSuiteSyncKeys,
@@ -211,6 +225,5 @@ export const createSuiteSyncCompositionRoot = (
             updateOutputLabel,
             updateAddressLabel,
         },
-        increaseOwnerQuota,
     };
 };

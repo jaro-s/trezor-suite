@@ -7,9 +7,7 @@ import { type EnsureDelegatedIdentityKeyDep } from '@suite-common/delegated-iden
 import { type PlatformEncryptionDep } from '@suite-common/platform-encryption';
 import {
     type SuiteSyncAnalyticsDep,
-    createProvisionalIncreaseOwnerQuota,
     createSuiteSyncCompositionRoot,
-    createSuiteSyncErrorHandler,
 } from '@suite-common/suite-sync';
 import {
     createEvoluErrorHandler,
@@ -47,20 +45,12 @@ export const createSuiteSyncNativeCompositionRoot = (
             createEvoluInstance: createEvoluInstanceFactory({ run }),
         }),
         createSuiteSyncOwner: evoluCreateSuiteSyncOwner,
-    });
-
-    const suiteSyncErrorHandler = createSuiteSyncErrorHandler({
-        increaseOwnerQuota: createProvisionalIncreaseOwnerQuota({
-            getState: deps.getState,
-            increaseOwnerQuota: suiteSync.increaseOwnerQuota,
-        }),
-        onError: error => {
-            console.error('SuiteSync error', error);
+        subscribeError: suiteSyncErrorHandler => {
+            evoluDeps.evoluError.subscribe(
+                createEvoluErrorHandler(evoluDeps.evoluError, suiteSyncErrorHandler),
+            );
         },
     });
-    evoluDeps.evoluError.subscribe(
-        createEvoluErrorHandler(evoluDeps.evoluError, suiteSyncErrorHandler),
-    );
 
     return suiteSync;
 };
