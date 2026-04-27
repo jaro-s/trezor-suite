@@ -58,7 +58,10 @@ export const useTradingComposeTransaction = <T extends TradingSellExchangeFormPr
         [networkType, rawFeeInfo],
     );
     const initState = useMemo(() => ({ account, network, feeInfo }), [account, network, feeInfo]);
-    const outputAddress = values?.outputs?.[0]?.address;
+    const valueOutputs = values?.outputs;
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const firstOutput: NonNullable<typeof valueOutputs>[number] = valueOutputs?.[0];
+    const outputAddress = firstOutput.address;
     const [state, setState] = useState<TradingUseComposeTransactionStateProps>(initState);
 
     // sub-hook, Composing transaction

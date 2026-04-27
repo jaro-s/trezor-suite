@@ -73,7 +73,8 @@ export const TradingFormInputPaymentMethod = ({
         ? paymentMethods.find(item => item.value === (paymentMethod?.value ?? defaultPaymentMethod))
         : undefined;
 
-    const paymentMethodValue =
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const paymentMethodValue: TradingPaymentMethodProps =
         selectedOption?.value ?? paymentMethod?.value ?? paymentMethods[0]?.value;
 
     const displayLabel = hasPaymentMethods
@@ -107,14 +108,12 @@ export const TradingFormInputPaymentMethod = ({
                         >
                             {label && <Translation id={label} />}
                         </Text>
-                        {paymentMethodValue && (
-                            <TradingFormInputPaymentMethodValueContent
-                                isFormLoading={isFormLoading}
-                                hasPaymentMethods={hasPaymentMethods}
-                                displayLabel={displayLabel}
-                                paymentMethod={paymentMethodValue}
-                            />
-                        )}
+                        <TradingFormInputPaymentMethodValueContent
+                            isFormLoading={isFormLoading}
+                            hasPaymentMethods={hasPaymentMethods}
+                            displayLabel={displayLabel}
+                            paymentMethod={paymentMethodValue}
+                        />
                     </Row>
                 </GhostContainer>
             )}
