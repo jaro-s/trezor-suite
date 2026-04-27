@@ -103,9 +103,9 @@ export const verifyAuthenticityProof = async ({
     }
 
     // 3. validate DEVICE certificate subject (Trezor features internal_model)
+    const { subject: subjects } = deviceCert.tbsCertificate;
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const [subject]: [ReturnType<typeof parseCertificate>['tbsCertificate']['subject'][number]] =
-        deviceCert.tbsCertificate.subject;
+    const [subject]: [(typeof subjects)[number]] = subjects;
     // subject algorithm (OID) https://www.alvestrand.no/objectid/2.5.4.3.html
     if (!subject.parameters || subject.algorithmOid !== '2.5.4.3') {
         throw new Error('Missing certificate subject');
