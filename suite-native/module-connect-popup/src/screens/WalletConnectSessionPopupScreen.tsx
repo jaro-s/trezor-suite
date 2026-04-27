@@ -90,7 +90,8 @@ export const WalletConnectSessionPopupScreen = () => {
     const noNetworksActivated = !pendingProposal?.networks.some(
         network => network.status === 'active',
     );
-    const accountToShow = selectedDefaultAccount ?? accounts[0];
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const accountToShow: (typeof accounts)[number] = selectedDefaultAccount ?? accounts[0];
     const [ignoreWarning, setIgnoreWarning] = useState(false);
     const isDisabled =
         !pendingProposal ||
@@ -194,7 +195,7 @@ export const WalletConnectSessionPopupScreen = () => {
                     </Card>
                 </VStack>
 
-                {!noNetworksActivated && accountToShow && (
+                {!noNetworksActivated && (
                     <VStack>
                         <Text variant="body-md-strong">
                             <Translation id="moduleConnectPopup.walletConnect.selectedAccount" />

@@ -41,10 +41,9 @@ export const sessionAuthenticateThunk = createThunk<
     try {
         const accounts = selectAllSuccessfulAccountsToList(getState());
         const supportedNamespaces = getNamespaces(accounts);
-        const eip155Namespace = supportedNamespaces.eip155;
-        if (!eip155Namespace) {
-            throw new Error('No eip155 namespace found');
-        }
+        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        const eip155Namespace: (typeof supportedNamespaces)[keyof typeof supportedNamespaces] =
+            supportedNamespaces.eip155;
         const authPayload = populateAuthPayload({
             authPayload: event.params.authPayload,
             chains: eip155Namespace.chains,
@@ -232,14 +231,19 @@ export const switchSelectedAccountThunk = createThunk<
         if (!adapter) {
             return console.warn(`No adapter found for network type ${account.networkType}`);
         }
-        const namespace = session.namespaces[adapter.namespaceId];
-        const chains = namespace?.chains;
+        const sessionNamespaces = session.namespaces;
+        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        const sessionNamespace: (typeof sessionNamespaces)[string] =
+            sessionNamespaces[adapter.namespaceId];
+        const { chains } = sessionNamespace;
         if (!chains) {
             return console.warn(`No chains found for namespace ${adapter.namespaceId}`);
         }
 
-        const approvedEvents = namespace?.events ?? [];
-        const updatedNamespace = updatedNamespaces[adapter.namespaceId];
+        const approvedEvents = sessionNamespace.events ?? [];
+        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        const updatedNamespace: (typeof updatedNamespaces)[string] =
+            updatedNamespaces[adapter.namespaceId];
         for (const chainId of chains) {
             if (network.chainId && approvedEvents.includes('chainChanged')) {
                 await walletKit.emitSessionEvent({
@@ -251,7 +255,7 @@ export const switchSelectedAccountThunk = createThunk<
                     chainId,
                 });
             }
-            if (updatedNamespace && approvedEvents.includes('accountsChanged')) {
+            if (approvedEvents.includes('accountsChanged')) {
                 await walletKit.emitSessionEvent({
                     topic: sessionTopic,
                     event: {
@@ -409,14 +413,13 @@ export const walletConnectInitThunk = createThunk(
         // Populate active sessions
         const sessions = walletKit.getActiveSessions();
         for (const topic in sessions) {
-            const session = sessions[topic];
-            if (session) {
-                dispatch(
-                    walletConnectActions.saveSession({
-                        ...session,
-                    }),
-                );
-            }
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            const session: (typeof sessions)[string] = sessions[topic];
+            dispatch(
+                walletConnectActions.saveSession({
+                    ...session,
+                }),
+            );
         }
         // Reject stale proposals
         const proposals = walletKit.getPendingSessionProposals();

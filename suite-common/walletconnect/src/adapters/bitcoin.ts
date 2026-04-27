@@ -162,10 +162,14 @@ const bitcoinRequestThunk = createThunk<
                 feeLevels: feeLevels.payload.levels,
                 device,
             });
-            const firstResult = precomposedTransaction.success
-                ? precomposedTransaction.payload[0]
-                : undefined;
-            if (!firstResult || firstResult.type !== 'final') {
+            if (!precomposedTransaction.success) {
+                console.error('composeTransaction error', precomposedTransaction);
+                throw new Error('composeTransaction error');
+            }
+            const { payload: precomposedPayload } = precomposedTransaction;
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            const firstResult: (typeof precomposedPayload)[number] = precomposedPayload[0];
+            if (firstResult.type !== 'final') {
                 console.error('composeTransaction error', precomposedTransaction);
                 throw new Error('composeTransaction error');
             }
