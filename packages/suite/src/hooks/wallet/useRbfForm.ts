@@ -75,24 +75,27 @@ const getEthereumFeeInfo = (info: FeeInfo, rbfParams: RbfTransactionParamsEthere
     });
 
     const feeLevel = feeInfo.levels[0];
-    if (feeLevel && isEip1559(rbfParams) && isEip1559(feeLevel)) {
+    if (isEip1559(rbfParams) && isEip1559(feeLevel)) {
         // to bump fee, both maxFeePerGas and maxPriorityFeePerGas have to be higher
         const currentMaxFee = new BigNumber(rbfParams.maxFeePerGas);
         const currentMaxPriorityFee = new BigNumber(rbfParams.maxPriorityFeePerGas);
 
-        const highLevel = feeInfo.levels.find(level => level.label === 'high') ?? feeLevel;
+        const highLevel = feeInfo.levels.find(level => level.label === 'high') || feeInfo.levels[0];
 
         return {
             ...feeInfo,
             levels: [
+                // @ts-expect-error: highLevel widened via noUncheckedIndexedAccess
                 {
                     ...highLevel,
                     label: 'normal' as const,
+                    // @ts-expect-error: indexing with noUncheckedIndexedAccess
                     maxFeePerGas: BigNumber.maximum(currentMaxFee, highLevel.maxFeePerGas ?? 0)
                         .multipliedBy(ETH_SPEED_UP_TX_MULTIPLIER)
                         .toString(),
                     maxPriorityFeePerGas: BigNumber.maximum(
                         currentMaxPriorityFee,
+                        // @ts-expect-error: indexing with noUncheckedIndexedAccess
                         highLevel.maxPriorityFeePerGas ?? 0,
                     )
                         .multipliedBy(ETH_SPEED_UP_TX_MULTIPLIER)
@@ -102,10 +105,8 @@ const getEthereumFeeInfo = (info: FeeInfo, rbfParams: RbfTransactionParamsEthere
         };
     }
 
-    const { levels: feeLevels } = feeInfo;
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const firstLevel: (typeof feeLevels)[number] = feeLevels[0];
-    const minFeeFromNetwork = new BigNumber(firstLevel.feePerUnit);
+    const minFeeFromNetwork = new BigNumber(feeInfo.levels[0].feePerUnit);
     const fee = BigNumber.maximum(minFeeFromNetwork, currentGasPrice.plus(feeInfo.minFee));
 
     // increase FeeLevel only if it's lower than predefined
