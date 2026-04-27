@@ -1,14 +1,17 @@
 import { createMockDeps } from '@suite-common/dependency-injection';
 
 import { createPrepareChallengeSessionMock } from '../challenge/mocks/createPrepareChallengeSessionMock';
+import { type PrepareChallengeSessionResult } from '../challenge/prepareChallengeSession';
 import { type EnsureDeviceHasQuotaDeps } from '../createEnsureDeviceHasQuota';
+import { type CheckStorageByPublicKeyResult } from '../storage/createCheckStorageByPublicKey';
+import { type RegisterStorageResult } from '../storage/createRegisterStorage';
 import { createCheckStorageByPublicKeyMock } from '../storage/mocks/createCheckStorageByPublicKeyMock';
 import { createRegisterStorageMock } from '../storage/mocks/createRegisterStorageMock';
 
 type CreateEnsureDeviceHasQuotaDepsMockParams = {
-    checkStorageByPublicKeyResponses: Parameters<typeof createCheckStorageByPublicKeyMock>[0];
-    prepareChallengeSessionResponses: Parameters<typeof createPrepareChallengeSessionMock>[0];
-    registerStorageResponses: Parameters<typeof createRegisterStorageMock>[0];
+    checkStorageByPublicKeyResponses: CheckStorageByPublicKeyResult[];
+    prepareChallengeSessionResponses: PrepareChallengeSessionResult[];
+    registerStorageResponses: RegisterStorageResult[];
     patch?: Partial<EnsureDeviceHasQuotaDeps>;
 };
 

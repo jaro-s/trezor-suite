@@ -1,14 +1,17 @@
 import { createMockDeps } from '@suite-common/dependency-injection';
+import { type EnsureOwnerHasAllocatedQuota } from '@suite-common/suite-sync-types';
 
 import { createEnsureDeviceHasQuotaMock } from './createEnsureDeviceHasQuotaMock';
 import { createEnsureOwnerHasAllocatedQuotaMock } from './createEnsureOwnerHasAllocatedQuotaMock';
+import { type EnsureDeviceHasQuota } from '../createEnsureDeviceHasQuota';
 import { type EnsureQuotaDeps } from '../createEnsureQuota';
 
+type EnsureDeviceHasQuotaResult = Awaited<ReturnType<EnsureDeviceHasQuota>>;
+type EnsureOwnerHasAllocatedQuotaResult = Awaited<ReturnType<EnsureOwnerHasAllocatedQuota>>;
+
 type CreateEnsureQuotaDepsMockParams = {
-    ensureDeviceHasQuotaResponses: Parameters<typeof createEnsureDeviceHasQuotaMock>[0];
-    ensureOwnerHasAllocatedQuotaResponses: Parameters<
-        typeof createEnsureOwnerHasAllocatedQuotaMock
-    >[0];
+    ensureDeviceHasQuotaResponses: EnsureDeviceHasQuotaResult[];
+    ensureOwnerHasAllocatedQuotaResponses: EnsureOwnerHasAllocatedQuotaResult[];
     patch?: Partial<EnsureQuotaDeps>;
 };
 
