@@ -44,9 +44,10 @@ export const useCoinjoinSessionPhase = (accountKey: AccountKey) => {
         // Queue is cleared on Round Phase change
         const { isExpired, currentTimestamp } = checkExpiration(lastChangeTimestamp);
 
+        const firstPhase = sessionPhaseQueue?.[0];
         if (isExpired && sessionPhaseQueue) {
             setPhaseIndex(0);
-            setSessionPhase(sessionPhaseQueue[0] ?? sessionPhase);
+            setSessionPhase(firstPhase ?? sessionPhase);
             setLastChangeTimestamp(currentTimestamp);
         } else {
             /**
