@@ -7,10 +7,6 @@ import {
     type ProofOfDelegatedSignFailedType,
 } from '@suite-common/delegated-identity-key-types';
 import { type SuiteSyncOwnerId } from '@suite-common/suite-sync-storage';
-import {
-    type QuotaManagerCommunicationFailedErrType,
-    type QuotaManagerNoQuotaLeftToAllocateErrType,
-} from '@suite-common/suite-sync-types';
 import { type TrezorDeviceWithState, asDelegatedIdentityKey } from '@suite-common/suite-types';
 import { type WalletDescriptor } from '@suite-common/wallet-types';
 import { type Result, err, ok } from '@trezor/type-utils';
@@ -20,7 +16,9 @@ import {
     DEFAULT_DEVICE_SIZE_QUOTA,
     EVOLU_SIGN_ADD_SPACE_TO_OWNER_REQUEST_HEADER,
 } from './constants';
+import { type QuotaManagerNoQuotaLeftToAllocateErrType } from './createEnsureOwnerHasAllocatedQuota';
 import { quotaManagerCommunicationFailed } from './errors';
+import { type QuotaManagerCommunicationFailedErrType } from './quotaManagerTypes';
 import { type TransferStorageDep } from './storage/createTransferStorage';
 import { getAccountIncrementSizeQuota } from './util/getAccountIncrementSizeQuota';
 import { prepareMessageBufferEvoluAddSpaceToOwner } from './util/prepareMessageBufferEvoluAddSpaceToOwner';
@@ -66,9 +64,7 @@ export const createIncreaseOwnerQuota =
         });
 
         if (sizeToAllocate === 0) {
-            return err({
-                type: 'NoQuotaLeftToAllocate',
-            });
+            return err({ type: 'NoQuotaLeftToAllocate' });
         }
 
         const delegatedKey = await deps.ensureDelegatedIdentityKey({ device });

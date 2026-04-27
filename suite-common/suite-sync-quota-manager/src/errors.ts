@@ -1,7 +1,15 @@
-import {
-    type QuotaManagerCommunicationFailedErrType,
-    type QuotaManagerNoQuotaErrType,
-} from '@suite-common/suite-sync-types';
+export type WriteModeRequiredForAllocationErrType = {
+    type: 'WriteModeRequiredForAllocation';
+};
+
+export type QuotaManagerCommunicationFailedErrType = {
+    type: 'QuotaManagerCommunicationFailed';
+    caused: unknown;
+};
+
+export type QuotaManagerNoQuotaErrType = {
+    type: 'QuotaManagerNoQuota';
+};
 
 export const quotaManagerCommunicationFailed = (
     caused: unknown,

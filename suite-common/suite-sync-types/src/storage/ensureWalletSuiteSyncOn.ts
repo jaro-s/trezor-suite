@@ -1,15 +1,15 @@
+import {
+    type QuotaManagerCommunicationFailedErrType,
+    type QuotaManagerNoQuotaErrType,
+    type QuotaManagerNoQuotaLeftToAllocateErrType,
+    type WriteModeRequiredForAllocationErrType,
+} from '@suite-common/suite-sync-quota-manager';
 import { type SuiteSyncStorage, type SuiteSyncUpdateError } from '@suite-common/suite-sync-storage';
 import { type DeviceCancelledErrType, type DeviceErrorType } from '@suite-common/suite-types';
 import { type StaticSessionId } from '@trezor/connect-common';
 import { type Result } from '@trezor/type-utils';
 
 import { type SuiteSyncUnavailableOnDeviceErrorType } from '../ensureSuiteSyncKeys';
-import { type QuotaManagerNoQuotaLeftToAllocateErrType } from '../quotaManager/ensureOwnerHasAllocatedQuotaThunk';
-import {
-    type QuotaManagerCommunicationFailedErrType,
-    type QuotaManagerNoQuotaErrType,
-    type WriteModeRequiredForAllocationErrType,
-} from '../quotaManager/quotaManagerTypes';
 
 export type SuiteSyncFirmwareUpgradeNeededDeviceErrorType = {
     type: 'SuiteSyncFirmwareUpgradeNeededDeviceErrorType';

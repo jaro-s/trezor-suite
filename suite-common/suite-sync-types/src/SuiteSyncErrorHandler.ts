@@ -1,8 +1,9 @@
+import {
+    type QuotaManagerCommunicationFailedErrType,
+    type QuotaManagerNoQuotaLeftToAllocateErrType,
+} from '@suite-common/suite-sync-quota-manager';
 import { type SuiteSyncOwnerId } from '@suite-common/suite-sync-storage';
 import { type Result } from '@trezor/type-utils';
-
-import { type QuotaManagerNoQuotaLeftToAllocateErrType } from './quotaManager/ensureOwnerHasAllocatedQuotaThunk';
-import { type QuotaManagerCommunicationFailedErrType } from './quotaManager/quotaManagerTypes';
 
 export type OwnerDeviceNotAvailableErrType = { type: 'OwnerDeviceNotAvailable' };
 
@@ -15,9 +16,8 @@ export type IncreaseOwnerQuota = (params: {
     ownerId: SuiteSyncOwnerId;
 }) => Promise<Result<void, IncreaseOwnerQuotaErr>>;
 
-export type CreateSuiteSyncErrorHandlerDep = {
+export type IncreaseOwnerQuotaDep = {
     increaseOwnerQuota: IncreaseOwnerQuota;
-    onError: (error: IncreaseOwnerQuotaErr | SuiteSyncOtherError) => void;
 };
 
 export type RelayQuotaExceededError = { type: 'RelayQuotaExceeded'; ownerId: SuiteSyncOwnerId };

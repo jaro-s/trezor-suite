@@ -17,12 +17,26 @@ export {
     NoQuotaLeftToAllocate,
     WriteModeRequiredForAllocation,
 } from './createEnsureOwnerHasAllocatedQuota';
-export type { EnsureOwnerHasAllocatedQuotaDep } from './createEnsureOwnerHasAllocatedQuota';
+export type {
+    ChallengeFailedErrType,
+    EnsureOwnerHasAllocatedQuota,
+    EnsureOwnerHasAllocatedQuotaDep,
+    EnsureOwnerHasAllocatedQuotaParams,
+    HttpErrType,
+    ProofOfDelegatedIdentityFailedErrType,
+    QuotaManagerNoQuotaLeftToAllocateErrType,
+} from './createEnsureOwnerHasAllocatedQuota';
 export { createIncreaseOwnerQuota } from './createIncreaseOwnerQuota';
 export type { IncreaseOwnerQuota, IncreaseOwnerQuotaDep } from './createIncreaseOwnerQuota';
+export { createProvisionalIncreaseOwnerQuota } from './createProvisionalIncreaseOwnerQuota';
 export type { EnsureQuotaDep } from './createEnsureQuota';
 export { createSuiteSyncQuotaManagerCompositionRoot } from './createSuiteSyncQuotaManagerCompositionRoot';
 export type { GetOwnerHasAllowanceDep } from './getOwnerHasAllowance';
+export type {
+    QuotaManagerCommunicationFailedErrType,
+    QuotaManagerNoQuotaErrType,
+    WriteModeRequiredForAllocationErrType,
+} from './quotaManagerTypes';
 
 /**
  * Actions.

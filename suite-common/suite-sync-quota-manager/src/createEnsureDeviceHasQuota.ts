@@ -5,10 +5,6 @@ import {
     getPublicIdentityKeyFromDelegatedKey,
 } from '@suite-common/delegated-identity-key';
 import { type ProofOfDelegatedSignFailedType } from '@suite-common/delegated-identity-key-types';
-import {
-    type QuotaManagerCommunicationFailedErrType,
-    type QuotaManagerNoQuotaErrType,
-} from '@suite-common/suite-sync-types';
 import { type DelegatedIdentityKey, type TrezorDeviceWithState } from '@suite-common/suite-types';
 import { type TrezorConnect } from '@trezor/connect';
 import { type Result, err, ok } from '@trezor/type-utils';
@@ -17,6 +13,10 @@ import { type PrepareChallengeSessionDep } from './challenge/prepareChallengeSes
 import { DEFAULT_DEVICE_SIZE_QUOTA } from './constants';
 import { quotaManagerCommunicationFailed, quotaManagerNoQuota } from './errors';
 import { quotaManagerDeviceFetched } from './quotaManagerActions';
+import {
+    type QuotaManagerCommunicationFailedErrType,
+    type QuotaManagerNoQuotaErrType,
+} from './quotaManagerTypes';
 import { type CheckStorageByPublicKeyDep } from './storage/createCheckStorageByPublicKey';
 import { type RegisterStorageDep } from './storage/createRegisterStorage';
 import { prepareMessageBufferEvoluSignRegistrationRequest } from './util/prepareMessageBufferEvoluSignRegistrationRequest';

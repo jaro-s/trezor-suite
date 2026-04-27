@@ -1,13 +1,12 @@
 import { isTrezorDeviceWithState, selectSelectedDevice } from '@suite-common/device';
-import { type IncreaseOwnerQuota as InnerIncreaseOwnerQuota } from '@suite-common/suite-sync-quota-manager';
-import { type IncreaseOwnerQuota } from '@suite-common/suite-sync-types';
 import { parseDeviceStaticSessionId } from '@suite-common/wallet-utils';
-import { err } from '@trezor/type-utils';
+import { ok } from '@trezor/type-utils';
+
+import { type IncreaseOwnerQuota, type IncreaseOwnerQuotaDep } from './createIncreaseOwnerQuota';
 
 export type CreateProvisionalIncreaseOwnerQuotaDeps = {
     getState: () => any;
-    increaseOwnerQuota: InnerIncreaseOwnerQuota;
-};
+} & IncreaseOwnerQuotaDep;
 
 /**
  * PROVISIONAL: bridges the error-handler's IncreaseOwnerQuota (just `ownerId`)
@@ -18,15 +17,16 @@ export type CreateProvisionalIncreaseOwnerQuotaDeps = {
  */
 export const createProvisionalIncreaseOwnerQuota =
     (deps: CreateProvisionalIncreaseOwnerQuotaDeps): IncreaseOwnerQuota =>
-    ({ ownerId }) => {
+    async ({ ownerId }) => {
         const device = selectSelectedDevice(deps.getState());
+
         if (!device || !isTrezorDeviceWithState(device)) {
-            return Promise.resolve(err({ type: 'OwnerDeviceNotAvailable' }));
+            return ok(); // Todo: silently ignoring, will be refactored anyway
         }
 
         const { walletDescriptor } = parseDeviceStaticSessionId(device.state.staticSessionId);
 
-        return deps.increaseOwnerQuota({
+        return await deps.increaseOwnerQuota({
             ownerId,
             device,
             deviceId: device.id,

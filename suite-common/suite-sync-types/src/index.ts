@@ -12,16 +12,10 @@ export type {
     EnsureSuiteSyncKeysDep,
     EnsureSuiteSyncKeysResult,
 } from './ensureSuiteSyncKeys';
-export type {
-    WriteModeRequiredForAllocationErrType,
-    QuotaManagerNoQuotaErrType,
-    QuotaManagerCommunicationFailedErrType,
-} from './quotaManager/quotaManagerTypes';
 export type { TurnOffSuiteSyncDep, TurnOffSuiteSync } from './turnOffSuiteSync';
 export type { TurnOnSuiteSyncDep, TurnOnSuiteSync } from './turnOnSuiteSync';
 export type { SuiteSyncUnavailableOnDeviceErrorType } from './ensureSuiteSyncKeys';
 export type { ChangeRelayUrl, ChangeRelayUrlDep } from './relay/changeRelayUrl';
-export type { ProofOfDelegatedSignFailed } from './getProofOfDelegatedIdentity';
 
 export type {
     EnsureSuiteSyncOwnerDep,
@@ -87,17 +81,8 @@ export type {
     SuiteSyncOtherError,
     RelayQuotaExceededError,
     Errors,
-    CreateSuiteSyncErrorHandlerDep,
+    CreateSuiteSyncErrorHandlerDeps as CreateSuiteSyncErrorHandlerDep,
     IncreaseOwnerQuota,
     IncreaseOwnerQuotaErr,
     OwnerDeviceNotAvailableErrType,
 } from './SuiteSyncErrorHandler';
-
-export type {
-    EnsureOwnerHasAllocatedQuotaParams,
-    EnsureOwnerHasAllocatedQuota,
-    ChallengeFailedErrType,
-    HttpErrType,
-    ProofOfDelegatedIdentityFailedErrType,
-    QuotaManagerNoQuotaLeftToAllocateErrType,
-} from './quotaManager/ensureOwnerHasAllocatedQuotaThunk';

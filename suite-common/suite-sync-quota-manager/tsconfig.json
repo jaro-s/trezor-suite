@@ -1,6 +1,7 @@
 {
     "extends": "../../tsconfig.base.json",
     "compilerOptions": { "outDir": "libDev" },
+    "include": ["src/**/*.ts", "redux.d.ts"],
     "references": [
         { "path": "../delegated-identity-key" },
         {
@@ -10,7 +11,6 @@
         { "path": "../device" },
         { "path": "../redux-utils" },
         { "path": "../suite-sync-storage" },
-        { "path": "../suite-sync-types" },
         { "path": "../suite-types" },
         { "path": "../wallet-types" },
         { "path": "../wallet-utils" },

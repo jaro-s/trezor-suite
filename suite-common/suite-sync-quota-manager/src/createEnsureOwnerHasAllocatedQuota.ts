@@ -4,16 +4,12 @@ import {
     getProofOfDelegatedIdentity,
     getPublicIdentityKeyFromDelegatedKey,
 } from '@suite-common/delegated-identity-key';
-import {
-    type ChallengeFailedErrType,
-    type EnsureOwnerHasAllocatedQuota,
-    type HttpErrType,
-    type ProofOfDelegatedIdentityFailedErrType,
-    type QuotaManagerNoQuotaLeftToAllocateErrType,
-    type WriteModeRequiredForAllocationErrType,
-} from '@suite-common/suite-sync-types';
+import { type ProofOfDelegatedSignFailedType } from '@suite-common/delegated-identity-key-types';
+import { type SuiteSyncOwnerId } from '@suite-common/suite-sync-storage';
+import { type DelegatedIdentityKey } from '@suite-common/suite-types';
 import { parseDeviceStaticSessionId } from '@suite-common/wallet-utils';
-import { err, ok } from '@trezor/type-utils';
+import { type StaticSessionId } from '@trezor/connect';
+import { type Result, err, ok } from '@trezor/type-utils';
 
 import { type PrepareChallengeSessionDep } from './challenge/prepareChallengeSession';
 import {
@@ -22,10 +18,41 @@ import {
 } from './constants';
 import { quotaManagerCommunicationFailed } from './errors';
 import { quotaManagerOwnerFetched } from './quotaManagerActions';
+import {
+    type QuotaManagerCommunicationFailedErrType,
+    type WriteModeRequiredForAllocationErrType,
+} from './quotaManagerTypes';
 import { type CheckStorageByOwnerIdDep } from './storage/createCheckStorageByOwnerId';
 import { type TransferStorageDep } from './storage/createTransferStorage';
 import { getAccountIncrementSizeQuota } from './util/getAccountIncrementSizeQuota';
 import { prepareMessageBufferEvoluAddSpaceToOwner } from './util/prepareMessageBufferEvoluAddSpaceToOwner';
+
+export type HttpErrType = { type: 'HttpError' };
+
+export type ChallengeFailedErrType = { type: 'ChallengeFailed' };
+
+export type ProofOfDelegatedIdentityFailedErrType = { type: 'ProofOfDelegatedIdentityFailed' };
+
+export type QuotaManagerNoQuotaLeftToAllocateErrType = { type: 'NoQuotaLeftToAllocate' };
+
+export type EnsureOwnerHasAllocatedQuotaParams = {
+    ownerId: SuiteSyncOwnerId;
+    deviceStaticSessionId: StaticSessionId;
+    delegatedKey: DelegatedIdentityKey;
+    isWriteMode: boolean;
+};
+
+export type EnsureOwnerHasAllocatedQuota = (
+    params: EnsureOwnerHasAllocatedQuotaParams,
+) => Promise<
+    Result<
+        void,
+        | ProofOfDelegatedSignFailedType
+        | WriteModeRequiredForAllocationErrType
+        | QuotaManagerNoQuotaLeftToAllocateErrType
+        | QuotaManagerCommunicationFailedErrType
+    >
+>;
 
 export const WriteModeRequiredForAllocation = (): WriteModeRequiredForAllocationErrType => ({
     type: 'WriteModeRequiredForAllocation',

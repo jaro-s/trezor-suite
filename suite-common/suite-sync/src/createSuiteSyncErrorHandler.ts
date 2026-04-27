@@ -1,12 +1,18 @@
 import {
-    type CreateSuiteSyncErrorHandlerDep,
     type Errors,
+    type IncreaseOwnerQuotaDep,
+    type IncreaseOwnerQuotaErr,
     type SuiteSyncErrorHandler,
+    type SuiteSyncOtherError,
 } from '@suite-common/suite-sync-types';
 import { exhaustive } from '@trezor/type-utils';
 
+export type CreateSuiteSyncErrorHandlerDeps = IncreaseOwnerQuotaDep & {
+    onError: (error: IncreaseOwnerQuotaErr | SuiteSyncOtherError) => void;
+};
+
 export const createSuiteSyncErrorHandler =
-    (deps: CreateSuiteSyncErrorHandlerDep): SuiteSyncErrorHandler =>
+    (deps: CreateSuiteSyncErrorHandlerDeps): SuiteSyncErrorHandler =>
     async (error: Errors) => {
         switch (error.type) {
             case 'RelayQuotaExceeded': {

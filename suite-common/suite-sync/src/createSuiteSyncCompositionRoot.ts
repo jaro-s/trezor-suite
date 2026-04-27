@@ -6,10 +6,11 @@ import { toGetter } from '@suite-common/dependency-injection';
 import { selectAllDeviceStaticIds, selectDeviceByStaticSessionId } from '@suite-common/device';
 import { type PlatformEncryptionDep } from '@suite-common/platform-encryption';
 import {
-    type FetchDep,
+    createProvisionalIncreaseOwnerQuota,
     createQuotaManagerFetch,
     createSuiteSyncQuotaManagerCompositionRoot,
 } from '@suite-common/suite-sync-quota-manager';
+import type { FetchDep } from '@suite-common/suite-sync-quota-manager';
 import {
     type CreateSuiteStorageDep,
     type CreateSuiteSyncOwnerDep,
@@ -20,7 +21,6 @@ import { type Analytics } from '@trezor/analytics-uploader';
 import type TrezorConnect from '@trezor/connect';
 
 import { createEnsureSuiteSyncKeys } from './createEnsureSuiteSyncKeys';
-import { createProvisionalIncreaseOwnerQuota } from './createProvisionalIncreaseOwnerQuota';
 import { createSuiteSyncErrorHandler } from './createSuiteSyncErrorHandler';
 import { createTurnOffSuiteSync } from './createTurnOffSuiteSync';
 import { createTurnOnSuiteSync } from './createTurnOnSuiteSync';
@@ -124,12 +124,14 @@ export const createSuiteSyncCompositionRoot = (
             trezorConnect: deps.trezorConnect,
         });
 
+    const provisionalIncreaseOwnerQuota = createProvisionalIncreaseOwnerQuota({
+        getState: deps.getState,
+        increaseOwnerQuota,
+    });
+
     deps.subscribeError(
         createSuiteSyncErrorHandler({
-            increaseOwnerQuota: createProvisionalIncreaseOwnerQuota({
-                getState: deps.getState,
-                increaseOwnerQuota,
-            }),
+            increaseOwnerQuota: provisionalIncreaseOwnerQuota,
             onError: error => {
                 console.error('SuiteSync error', error);
             },

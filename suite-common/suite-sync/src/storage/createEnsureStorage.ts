@@ -1,6 +1,10 @@
 import {
     type EnsureQuotaDep,
     type GetOwnerHasAllowanceDep,
+    type QuotaManagerCommunicationFailedErrType,
+    type QuotaManagerNoQuotaErrType,
+    type QuotaManagerNoQuotaLeftToAllocateErrType,
+    type WriteModeRequiredForAllocationErrType,
 } from '@suite-common/suite-sync-quota-manager';
 import {
     type CreateSuiteStorageDep,
@@ -8,12 +12,8 @@ import {
 } from '@suite-common/suite-sync-storage';
 import {
     type EnsureSuiteSyncKeysDep,
-    type QuotaManagerCommunicationFailedErrType,
-    type QuotaManagerNoQuotaErrType,
-    type QuotaManagerNoQuotaLeftToAllocateErrType,
     type SuiteSyncStorageRepositoryDep,
     type SuiteSyncUnavailableOnDeviceErrorType,
-    type WriteModeRequiredForAllocationErrType,
 } from '@suite-common/suite-sync-types';
 import { type DeviceCancelledErrType, type DeviceErrorType } from '@suite-common/suite-types';
 import { parseDeviceStaticSessionId } from '@suite-common/wallet-utils';

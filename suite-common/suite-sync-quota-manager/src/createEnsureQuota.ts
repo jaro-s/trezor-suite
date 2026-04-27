@@ -1,12 +1,6 @@
 import { type ProofOfDelegatedSignFailedType } from '@suite-common/delegated-identity-key-types';
 import { isTrezorDeviceWithState } from '@suite-common/device';
 import { type SuiteSyncOwner } from '@suite-common/suite-sync-storage';
-import type {
-    QuotaManagerCommunicationFailedErrType,
-    QuotaManagerNoQuotaErrType,
-    QuotaManagerNoQuotaLeftToAllocateErrType,
-    WriteModeRequiredForAllocationErrType,
-} from '@suite-common/suite-sync-types';
 import { type DelegatedIdentityKey } from '@suite-common/suite-types';
 import { parseDeviceStaticSessionId } from '@suite-common/wallet-utils';
 import { type StaticSessionId } from '@trezor/connect';
@@ -14,10 +8,18 @@ import { type Result, err, ok } from '@trezor/type-utils';
 import { isNotNull, isNotNullOrUndefined } from '@trezor/utils';
 
 import { type EnsureDeviceHasQuotaDep } from './createEnsureDeviceHasQuota';
-import { type EnsureOwnerHasAllocatedQuotaDep } from './createEnsureOwnerHasAllocatedQuota';
-import { WriteModeRequiredForAllocation } from './createEnsureOwnerHasAllocatedQuota';
+import {
+    type EnsureOwnerHasAllocatedQuotaDep,
+    type QuotaManagerNoQuotaLeftToAllocateErrType,
+    WriteModeRequiredForAllocation,
+} from './createEnsureOwnerHasAllocatedQuota';
 import { type GetDeviceForStaticSessionIdDep } from './getDeviceForStaticSessionId';
 import { type GetDeviceHasAllowanceDep } from './getDeviceHasAllowance';
+import type {
+    QuotaManagerCommunicationFailedErrType,
+    QuotaManagerNoQuotaErrType,
+    WriteModeRequiredForAllocationErrType,
+} from './quotaManagerTypes';
 
 export type EnsureQuotaDeps = GetDeviceForStaticSessionIdDep &
     EnsureDeviceHasQuotaDep &
