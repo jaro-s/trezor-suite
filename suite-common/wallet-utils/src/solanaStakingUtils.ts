@@ -113,21 +113,29 @@ export const getSolStakingAccountTotalBalanceByStatus = (account: Account, statu
 type StakeStateType = (typeof StakeState)[keyof typeof StakeState];
 
 export const getSolStakingAccountsInfo = (account: Account) => {
-    const balances = Object.values(StakeState).reduce(
-        (acc, status) => {
-            acc[status] = getSolStakingAccountTotalBalanceByStatus(account, status);
+    const balanceResults = Object.values(StakeState).map(status => {
+        const balance = getSolStakingAccountTotalBalanceByStatus(account, status);
 
-            return acc;
-        },
-        {} as Record<StakeStateType, string>,
+        return [status, balance];
+    });
+
+    const balances: Record<StakeStateType, string> = balanceResults.reduce(
+        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        (acc, [status, balance]) => ({ ...acc, [status]: balance }),
+        {},
     );
+
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const deactivatedBalance: string = balances[StakeState.Deactivated];
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const activeBalance: string = balances[StakeState.Active];
 
     return {
         solStakedBalance: balances[StakeState.Active],
         solClaimableBalance: balances[StakeState.Deactivated],
         solPendingStakeBalance: balances[StakeState.Activating],
         solPendingUnstakeBalance: balances[StakeState.Deactivating],
-        canClaimSol: new BigNumber(balances[StakeState.Deactivated] ?? '0').gt(0),
-        canUnstakeSol: new BigNumber(balances[StakeState.Active] ?? '0').gt(0),
+        canClaimSol: new BigNumber(deactivatedBalance).gt(0),
+        canUnstakeSol: new BigNumber(activeBalance).gt(0),
     };
 };

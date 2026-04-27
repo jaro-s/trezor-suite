@@ -145,15 +145,20 @@ export const getStakingDataForNetwork = (
             } = getSolStakingAccountsInfo(account) ?? {};
 
             return {
-                autocompoundBalance: solStakedBalance ?? '',
-                claimableAmount: solClaimableBalance ?? '',
-                depositedBalance: solStakedBalance ?? '',
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                autocompoundBalance: solStakedBalance,
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                claimableAmount: solClaimableBalance,
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                depositedBalance: solStakedBalance,
                 pendingBalance: '',
                 pendingDepositedBalance: '',
-                totalPendingStakeBalance: solPendingStakeBalance ?? '',
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                totalPendingStakeBalance: solPendingStakeBalance,
                 restakedReward: '',
-                withdrawTotalAmount: solPendingUnstakeBalance ?? '',
-                canClaim: canClaimSol ?? false,
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                withdrawTotalAmount: solPendingUnstakeBalance,
+                canClaim: canClaimSol,
             };
         }
 
@@ -218,7 +223,11 @@ export const getOutputTxAmount = (composedLevels?: PrecomposedLevels) => {
     const precomposedTx = composedLevels['normal'];
     if (precomposedTx?.type !== 'final') return null;
 
-    return precomposedTx.outputs[0]?.amount ?? null;
+    const { outputs } = precomposedTx;
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const firstOutput: (typeof outputs)[number] = outputs[0];
+
+    return firstOutput.amount;
 };
 
 export const calculateRewards = (amount: string, apyPercent: number | null, days = 365) => {

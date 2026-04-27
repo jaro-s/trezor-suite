@@ -25,7 +25,10 @@ const detectDelimiter = (text: string, delimiters: string[]) => {
             }
         });
 
-    return delimiters[index];
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const result: string = delimiters[index];
+
+    return result;
 };
 
 const parseLine = (line: string, delimiter: string, columns: string[]) => {
@@ -54,7 +57,7 @@ const parseLine = (line: string, delimiter: string, columns: string[]) => {
 
 export const parseCSV = (text: string, columns: string[] = [], delimiter?: string) => {
     // detect delimiter
-    const d = delimiter ?? detectDelimiter(text, CELL_DELIMITERS) ?? ',';
+    const d = delimiter || detectDelimiter(text, CELL_DELIMITERS);
     // normalize new line delimiter and split into lines
     const lines = text.replace(/(?:\r|\r\n|\n\n)/g, '\n').split('\n');
 

@@ -3,10 +3,11 @@ import { asWalletDescriptor } from '@suite-common/wallet-types';
 import type { StaticSessionId } from '@trezor/connect';
 
 export const parseDeviceStaticSessionId = (deviceStaticSessionId: StaticSessionId) => {
-    const [walletDescriptor, deviceId] = deviceStaticSessionId.split('@');
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const [walletDescriptor, deviceId]: [string, string] = deviceStaticSessionId.split('@');
 
     return {
-        walletDescriptor: asWalletDescriptor(walletDescriptor ?? ''),
+        walletDescriptor: asWalletDescriptor(walletDescriptor),
         deviceId,
     };
 };

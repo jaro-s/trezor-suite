@@ -914,13 +914,10 @@ export const getRbfParams = [
                 },
             ],
             changeAddress: undefined,
-            locktime: undefined,
             outputs: [
                 {
                     type: 'payment',
                     address: 'xyz0',
-                    amount: '0',
-                    formattedAmount: '0',
                 },
             ],
         },
@@ -982,19 +979,14 @@ export const getRbfParams = [
                 address: '1234',
                 path: 'm/44/1',
             },
-            locktime: undefined,
             outputs: [
                 {
                     type: 'payment',
                     address: 'xyz0',
-                    amount: '0',
-                    formattedAmount: '0',
                 },
                 {
                     type: 'change',
                     address: '1234',
-                    amount: '0',
-                    formattedAmount: '0',
                 },
             ],
         },
@@ -1060,13 +1052,10 @@ export const getRbfParams = [
                 address: '1234',
                 path: 'm/44/1',
             },
-            locktime: undefined,
             outputs: [
                 {
                     type: 'payment',
                     address: 'xyz0',
-                    amount: '0',
-                    formattedAmount: '0',
                 },
                 {
                     type: 'opreturn',
@@ -1076,8 +1065,6 @@ export const getRbfParams = [
                 {
                     type: 'change',
                     address: '1234',
-                    amount: '0',
-                    formattedAmount: '0',
                 },
             ],
         },
