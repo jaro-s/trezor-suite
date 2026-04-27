@@ -51,10 +51,12 @@ export const getDescriptorChecksum = (desc: string): string => {
 
     const checksum = descsumsPolymod([...symbols, 0n, 0n, 0n, 0n, 0n, 0n, 0n, 0n]) ^ 1n;
 
-    return Array.from(
-        { length: 8 },
-        (_, i) => CHECKSUM_CHARSET[Number((checksum >> BigInt(5 * (7 - i))) & 31n)] ?? '',
-    ).join('');
+    return Array.from({ length: 8 }, (_, i) => {
+        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        const char: string = CHECKSUM_CHARSET[Number((checksum >> BigInt(5 * (7 - i))) & 31n)];
+
+        return char;
+    }).join('');
 };
 
 /**
