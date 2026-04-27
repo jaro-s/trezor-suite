@@ -10,8 +10,7 @@ const bestBuyProvider = capitalizeFirstLetter(buyQuotesBTC[0].exchange);
 const bestBuyCryptoAmount = `${buyQuotesBTC[0].receiveStringAmount} BTC`;
 const formattedFiatAmount = `CZK ${localizeNumber(fiatAmount, 'en-US', 2)}`;
 const { receiveAddress } = buyTradeBTC.trade;
-// second offer via Credit Card that matches input criteria has index 1
-const secondOfferQuote = buyQuotesBTC[1];
+const secondOfferQuote = buyQuotesBTC[5];
 
 test.describe('Trading - Buy BTC', { tag: ['@webOnly', '@T3W1', '@T3T1'] }, () => {
     test.beforeEach(async ({ page, tradingMock, onboardingPage, walletPage, settingsPage }) => {
@@ -39,7 +38,9 @@ test.describe('Trading - Buy BTC', { tag: ['@webOnly', '@T3W1', '@T3T1'] }, () =
 
         await test.step('Select second offer from modal', async () => {
             const tradeRequestPromise = page.waitForRequest(invityEndpoint.buyTrade);
-            await tradingPage.quotes.selectQuoteByIndex(1);
+            await tradingPage.quotes.selectQuoteByProvider(
+                capitalizeFirstLetter(secondOfferQuote.exchange),
+            );
             await tradingPage.buyBestOfferButton.click();
             await expect(tradeRequestPromise).toHavePayload(
                 { trade: { ...secondOfferQuote, receiveAddress } },

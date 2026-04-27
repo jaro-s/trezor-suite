@@ -11644,6 +11644,7 @@ __metadata:
   dependencies:
     "@reduxjs/toolkit": "npm:2.11.2"
     "@suite-common/device": "workspace:*"
+    "@suite-common/formatters": "workspace:*"
     "@suite-common/geolocation": "workspace:*"
     "@suite-common/react-query": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
@@ -11668,6 +11669,7 @@ __metadata:
     "@trezor/utils": "workspace:*"
     "@types/invity-api": "npm:^1.1.15"
     react: "npm:19.2.4"
+    react-intl: "npm:^8.1.3"
     react-redux: "npm:9.2.0"
   languageName: unknown
   linkType: soft

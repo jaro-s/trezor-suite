@@ -28,7 +28,7 @@ export class TradingQuotesSection {
     }
 
     @step()
-    async selectQuoteByIndex(index: number) {
-        await this.list.nth(index).click();
+    async selectQuoteByProvider(provider: string) {
+        await this.provider.filter({ hasText: provider }).click();
     }
 }

@@ -15,6 +15,15 @@ import { expect, test } from '../../support/fixtures';
 const fiatAmount = localizeNumber(sellQuotesSolana[0].fiatStringAmount, 'en-US', 2, 2);
 const cryptoAmount = sellQuotesSolana[0].cryptoStringAmount;
 const provider = getCompanyNameFromList(sellQuotesSolana[0].exchange, 'sellList');
+const selectedPaymentMethod = sellQuotesSolana[0].paymentMethod;
+const comparedSellQuotes = [
+    ...new Map(
+        sellQuotesSolana
+            .filter(quote => quote.paymentMethod === selectedPaymentMethod)
+            .map(quote => [quote.exchange, quote]),
+    ).values(),
+];
+const secondComparedOfferQuote = comparedSellQuotes[1];
 // This address belongs to second account in this wallet.
 // So if me make mistake in updating the test case, and actually send crypto.
 // It will be sent to this address and we will not lose it.
@@ -144,12 +153,13 @@ test.describe('Trading - Sell Solana', { tag: ['@webOnly', '@T3W1', '@T3T1'] }, 
 
         await test.step('Select second offer from modal and check correct values are sent in trade request', async () => {
             const sellTradePromise = page.waitForRequest(invityEndpoint.sellTrade);
-            // second offer that matches input criteria has index 1
-            await tradingPage.quotes.selectQuoteByIndex(1);
+            await tradingPage.quotes.selectQuoteByProvider(
+                getCompanyNameFromList(secondComparedOfferQuote.exchange, 'sellList'),
+            );
             await tradingPage.sellBestOfferButton.click();
             await expect.soft(sellTradePromise).toHavePayload(
                 {
-                    trade: sellQuotesSolana[1],
+                    trade: secondComparedOfferQuote,
                 },
                 {
                     omit: ['returnUrl', 'trade.orderId', 'trade.paymentId', 'trade.refundAddress'],

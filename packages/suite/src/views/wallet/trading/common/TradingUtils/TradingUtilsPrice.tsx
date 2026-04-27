@@ -1,4 +1,4 @@
-import { type CryptoId } from 'invity-api';
+import { type CryptoId, type ExchangeTrade } from 'invity-api';
 import styled from 'styled-components';
 
 import { Translation } from '@suite/intl';
@@ -57,6 +57,13 @@ export const TradingUtilsPrice = ({
         !new BigNumber(receiveAmount).isEqualTo(
             new BigNumber(context.quotesRequest?.cryptoStringAmount),
         );
+    const exchangeComparatorProps = isTradingExchangeContext(context)
+        ? {
+              exchange: (quote as ExchangeTrade).exchange,
+              isDex: (quote as ExchangeTrade).isDex,
+              providers: context.exchangeInfo?.providerInfos,
+          }
+        : undefined;
 
     const { symbol, contractAddress } = receiveCurrency
         ? cryptoIdToNetworkSymbolAndContractAddress(receiveCurrency)
@@ -148,12 +155,13 @@ export const TradingUtilsPrice = ({
                                 </Column>
                             )}
                         </PriceValue>
-                        {isTradingExchangeContext(context) && (
+                        {exchangeComparatorProps && (
                             <Row margin={{ top: spacings.xs }}>
                                 <TradingUtilsKyc
-                                    exchange={quote.exchange}
-                                    providers={context.exchangeInfo?.providerInfos}
+                                    exchange={exchangeComparatorProps.exchange}
+                                    providers={exchangeComparatorProps.providers}
                                     isForComparator
+                                    isDex={exchangeComparatorProps.isDex}
                                 />
                             </Row>
                         )}

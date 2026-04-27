@@ -1,10 +1,57 @@
-import { type ExchangeTradeQuoteRequest } from 'invity-api';
+import { type ExchangeTrade, type ExchangeTradeQuoteRequest } from 'invity-api';
 
-import { type TradingComposedTransactionInfo } from '@suite-common/trading';
+import {
+    TRADING_EXCHANGE_COMPARATOR_KYC_FILTER_NO_KYC,
+    type TradingComposedTransactionInfo,
+    type TradingExchangeInfoSelector,
+    type TradingExchangeKycFilter,
+} from '@suite-common/trading';
 import { getLocationOrigin, isDesktop } from '@trezor/env-utils';
 import { desktopApi } from '@trezor/suite-desktop-api';
 
+import { KYC_DEX, KYC_NO_KYC } from 'src/constants/wallet/trading/kyc';
 import { type Account } from 'src/types/wallet';
+
+export type ExchangeQuotesByType = {
+    fixed: ExchangeTrade[];
+    float: ExchangeTrade[];
+    dex: ExchangeTrade[];
+};
+
+export const groupExchangeQuotesByType = ({
+    quotes,
+    exchangeInfo,
+    kycFilter,
+}: {
+    quotes: ExchangeTrade[] | undefined;
+    exchangeInfo: TradingExchangeInfoSelector | undefined;
+    kycFilter: TradingExchangeKycFilter;
+}): ExchangeQuotesByType =>
+    (quotes ?? []).reduce<ExchangeQuotesByType>(
+        (groups, quote) => {
+            const providerInfo = exchangeInfo?.providerInfos[quote.exchange || ''];
+
+            if (quote.isDex) {
+                groups.dex.push(quote);
+            } else {
+                if (
+                    kycFilter === TRADING_EXCHANGE_COMPARATOR_KYC_FILTER_NO_KYC &&
+                    providerInfo?.kycPolicyType !== KYC_NO_KYC &&
+                    providerInfo?.kycPolicyType !== KYC_DEX
+                )
+                    return groups;
+
+                if (providerInfo?.isFixedRate) {
+                    groups.fixed.push(quote);
+                } else {
+                    groups.float.push(quote);
+                }
+            }
+
+            return groups;
+        },
+        { fixed: [], float: [], dex: [] },
+    );
 
 export const createQuoteLink = async (
     request: ExchangeTradeQuoteRequest,

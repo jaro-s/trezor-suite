@@ -1,10 +1,7 @@
 import { useMemo } from 'react';
 
-import { type ExchangeTrade } from 'invity-api';
-
 import {
     TRADING_EXCHANGE_COMPARATOR_KYC_FILTER,
-    TRADING_EXCHANGE_COMPARATOR_KYC_FILTER_NO_KYC,
     TRADING_EXCHANGE_COMPARATOR_RATE_FILTER,
     TRADING_EXCHANGE_COMPARATOR_RATE_FILTER_ALL,
     TRADING_EXCHANGE_COMPARATOR_RATE_FILTER_DEX,
@@ -13,8 +10,8 @@ import {
     type TradingExchangeType,
 } from '@suite-common/trading';
 
-import { KYC_DEX, KYC_NO_KYC } from 'src/constants/wallet/trading/kyc';
 import { useTradingFormContext } from 'src/hooks/wallet/trading/form/useTradingCommonForm';
+import { groupExchangeQuotesByType } from 'src/utils/wallet/trading/exchangeUtils';
 import { TradingOffersExchangeQuotesByTypeSection } from 'src/views/wallet/trading/common/TradingOffers/TradingOffersExchangeQuotesByTypeSection';
 
 import { TradingUtilsTorWarning } from '../TradingUtils/TradingUtilsTorWarning';
@@ -26,34 +23,8 @@ export const TradingOffersExchange = () => {
     const showAll = exchangeTypeFilter === TRADING_EXCHANGE_COMPARATOR_RATE_FILTER_ALL;
 
     const { fixed, float, dex } = useMemo(
-        () =>
-            (quotes ?? []).reduce<Record<'fixed' | 'float' | 'dex', ExchangeTrade[]>>(
-                (groups, quote) => {
-                    const providerInfo = exchangeInfo?.providerInfos[quote.exchange || ''];
-                    if (
-                        kycFilter === TRADING_EXCHANGE_COMPARATOR_KYC_FILTER_NO_KYC &&
-                        providerInfo?.kycPolicyType !== KYC_NO_KYC &&
-                        providerInfo?.kycPolicyType !== KYC_DEX
-                    )
-                        return groups;
-
-                    if (quote.isDex) {
-                        groups.dex.push(quote);
-                    } else if (providerInfo?.isFixedRate) {
-                        groups.fixed.push(quote);
-                    } else {
-                        groups.float.push(quote);
-                    }
-
-                    return groups;
-                },
-                {
-                    fixed: [],
-                    float: [],
-                    dex: [],
-                },
-            ),
-        [exchangeInfo?.providerInfos, kycFilter, quotes],
+        () => groupExchangeQuotesByType({ quotes, exchangeInfo, kycFilter }),
+        [quotes, exchangeInfo, kycFilter],
     );
 
     if (!quotes) {

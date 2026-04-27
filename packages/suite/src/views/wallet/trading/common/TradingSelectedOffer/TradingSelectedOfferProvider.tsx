@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 
 import { Translation } from '@suite/intl';
 import { useProviderMetadataChangeEffect } from '@suite-common/trading';
@@ -12,6 +12,7 @@ import {
 } from 'src/utils/wallet/trading/tradingTypingUtils';
 
 import { getSelectedQuote } from '../TradingForm/TradingFormOffer';
+import { TradingOffersModal } from '../TradingOffers/TradingOffersModal';
 import { TradingUtilsProvider } from '../TradingUtils/TradingUtilsProvider';
 
 interface TradingReceiveAddressEmptyProps {
@@ -30,7 +31,8 @@ export const TradingReceiveAddressEmpty = ({ title, text }: TradingReceiveAddres
 
 export const TradingSelectedOfferProvider = () => {
     const context = useTradingFormContext();
-    const { preselectedQuote, isAmountEmpty, form, type, goToOffers } = context;
+    const { preselectedQuote, isAmountEmpty, form, type } = context;
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const providers = getProvidersInfoProps(context);
     const quote = preselectedQuote ?? getSelectedQuote(context);
@@ -39,10 +41,6 @@ export const TradingSelectedOfferProvider = () => {
         type,
         quote == null || isAmountEmpty ? undefined : quote?.exchange,
     );
-
-    const onGoToOffers = async () => {
-        await goToOffers();
-    };
 
     const isReceiveAddressSelected =
         (isTradingExchangeContext(context) || isTradingBuyContext(context)) &&
@@ -56,37 +54,40 @@ export const TradingSelectedOfferProvider = () => {
     }
 
     return (
-        <GhostContainer
-            onClick={onGoToOffers}
-            cursor="pointer"
-            data-testid="@trading/selected-offer-provider"
-            borderRadius={0}
-        >
-            <Row alignItems="center" justifyContent="space-between" padding={20}>
-                <Text typographyStyle="body-md">
-                    <Translation id="TR_TRADING_PROVIDER" />
-                </Text>
-                <Row gap={16}>
-                    {form.state.isFormLoading ? (
-                        <SkeletonRectangle animate />
-                    ) : (
-                        <>
-                            <Text typographyStyle="body-md" as="div">
-                                <TradingUtilsProvider
-                                    providers={providers}
-                                    exchange={quote.exchange}
+        <>
+            <GhostContainer
+                onClick={() => setIsModalOpen(true)}
+                cursor="pointer"
+                data-testid="@trading/selected-offer-provider"
+                borderRadius={0}
+            >
+                <Row alignItems="center" justifyContent="space-between" padding={20}>
+                    <Text typographyStyle="body-md">
+                        <Translation id="TR_TRADING_PROVIDER" />
+                    </Text>
+                    <Row gap={16}>
+                        {form.state.isFormLoading ? (
+                            <SkeletonRectangle animate />
+                        ) : (
+                            <>
+                                <Text typographyStyle="body-md" as="div">
+                                    <TradingUtilsProvider
+                                        providers={providers}
+                                        exchange={quote.exchange}
+                                    />
+                                </Text>
+                                <Icon
+                                    name="caretRight"
+                                    size={20}
+                                    intent="neutral"
+                                    priority="secondary"
                                 />
-                            </Text>
-                            <Icon
-                                name="caretRight"
-                                size={20}
-                                intent="neutral"
-                                priority="secondary"
-                            />
-                        </>
-                    )}
+                            </>
+                        )}
+                    </Row>
                 </Row>
-            </Row>
-        </GhostContainer>
+            </GhostContainer>
+            {isModalOpen && <TradingOffersModal onClose={() => setIsModalOpen(false)} />}
+        </>
     );
 };
