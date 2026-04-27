@@ -189,7 +189,6 @@ describe('sendDexTransactionThunk', () => {
         );
 
         const { calls } = confirmExchangeTradeThunkSpy.mock;
-        // @ts-expect-error: indexing with noUncheckedIndexedAccess
         const firstCall: (typeof calls)[number] = calls[0];
         const [confirmTradeThunkArgs] = firstCall;
 
@@ -237,7 +236,6 @@ describe('sendDexTransactionThunk', () => {
         );
 
         const { calls } = confirmExchangeTradeThunkSpy.mock;
-        // @ts-expect-error: indexing with noUncheckedIndexedAccess
         const firstCall: (typeof calls)[number] = calls[0];
         const [confirmTradeThunkArgs] = firstCall;
         const { trade } = confirmTradeThunkArgs;
