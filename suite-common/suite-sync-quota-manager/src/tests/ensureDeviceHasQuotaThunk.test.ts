@@ -4,11 +4,9 @@ import { mockSuiteDevice } from '@suite-common/suite-types/mocks';
 import { DeviceModelInternal } from '@trezor/device-utils';
 import { err, ok } from '@trezor/type-utils';
 
-import { createCheckStorageByPublicKeyMock } from '../../mocks/createCheckStorageByPublicKeyMock';
-import { createEnsureDeviceHasQuotaDepsMock } from '../../mocks/createEnsureDeviceHasQuotaDepsMock';
-import { createPrepareChallengeSessionMock } from '../../mocks/createPrepareChallengeSessionMock';
 import { DEFAULT_DEVICE_SIZE_QUOTA } from '../constants';
 import { createEnsureDeviceHasQuota } from '../createEnsureDeviceHasQuota';
+import { createEnsureDeviceHasQuotaDepsMock } from '../mocks/createEnsureDeviceHasQuotaDepsMock';
 
 const device = mockSuiteDevice(
     { id: 'device-id' },
@@ -22,9 +20,11 @@ describe(createEnsureDeviceHasQuota.name, () => {
 
     it('dispatches device fetched when storage already exists', async () => {
         const deps = createEnsureDeviceHasQuotaDepsMock({
-            checkStorageByPublicKey: createCheckStorageByPublicKeyMock([
+            checkStorageByPublicKeyResponses: [
                 ok({ status: 'Allocated', totalSpace: 5000, unspentSpace: 1200 }),
-            ]),
+            ],
+            prepareChallengeSessionResponses: [],
+            registerStorageResponses: [],
         });
 
         const result = await createEnsureDeviceHasQuota(deps)({
@@ -54,9 +54,11 @@ describe(createEnsureDeviceHasQuota.name, () => {
 
     it('returns QuotaManagerCommunicationFailed for non-404 failures', async () => {
         const deps = createEnsureDeviceHasQuotaDepsMock({
-            checkStorageByPublicKey: createCheckStorageByPublicKeyMock([
+            checkStorageByPublicKeyResponses: [
                 err({ type: 'HttpError', code: 500, message: 'Internal error' }),
-            ]),
+            ],
+            prepareChallengeSessionResponses: [],
+            registerStorageResponses: [],
         });
 
         const result = await createEnsureDeviceHasQuota(deps)({
@@ -75,7 +77,9 @@ describe(createEnsureDeviceHasQuota.name, () => {
 
     it('returns QuotaManagerNoQuota when server reports NoQuota status', async () => {
         const deps = createEnsureDeviceHasQuotaDepsMock({
-            checkStorageByPublicKey: createCheckStorageByPublicKeyMock([ok({ status: 'NoQuota' })]),
+            checkStorageByPublicKeyResponses: [ok({ status: 'NoQuota' })],
+            prepareChallengeSessionResponses: [],
+            registerStorageResponses: [],
         });
 
         const result = await createEnsureDeviceHasQuota(deps)({
@@ -98,14 +102,15 @@ describe(createEnsureDeviceHasQuota.name, () => {
         });
 
         const deps = createEnsureDeviceHasQuotaDepsMock({
-            checkStorageByPublicKey: createCheckStorageByPublicKeyMock([
+            checkStorageByPublicKeyResponses: [
                 err({ type: 'HttpError', code: 404, message: 'Not found' }),
-            ]),
-            prepareChallengeSession: createPrepareChallengeSessionMock([
-                ok({ sessionId: 'session-123', challenge: 'aa55' }),
-            ]),
-            trezorConnect: {
-                evoluSignRegistrationRequest,
+            ],
+            prepareChallengeSessionResponses: [ok({ sessionId: 'session-123', challenge: 'aa55' })],
+            registerStorageResponses: [ok({ totalStorageSize: 5000, unspentStorageSize: 1200 })],
+            patch: {
+                trezorConnect: {
+                    evoluSignRegistrationRequest,
+                },
             },
         });
 

@@ -8,10 +8,8 @@ import { mockSuiteDevice } from '@suite-common/suite-types/mocks';
 import { type StaticSessionId } from '@trezor/connect';
 import { err, ok } from '@trezor/type-utils';
 
-import { createEnsureDeviceHasQuotaMock } from '../../mocks/createEnsureDeviceHasQuotaMock';
-import { createEnsureOwnerHasAllocatedQuotaMock } from '../../mocks/createEnsureOwnerHasAllocatedQuotaMock';
-import { createEnsureQuotaDepsMock } from '../../mocks/createEnsureQuotaDepsMock';
 import { createEnsureQuota } from '../createEnsureQuota';
+import { createEnsureQuotaDepsMock } from '../mocks/createEnsureQuotaDepsMock';
 
 const OWNER_ABCD: SuiteSyncOwner = {
     ownerId: asSuiteSyncOwnerId('owner-id-abcd'),
@@ -50,7 +48,11 @@ describe(createEnsureQuota.name, () => {
         },
     ])('returns ok without calling services when $description', async ({ getDevice }) => {
         const deps = createEnsureQuotaDepsMock({
-            getDeviceForStaticSessionId: () => getDevice(),
+            ensureDeviceHasQuotaResponses: [],
+            ensureOwnerHasAllocatedQuotaResponses: [],
+            patch: {
+                getDeviceForStaticSessionId: () => getDevice(),
+            },
         });
 
         const result = await createEnsureQuota(deps)(DEFAULT_PARAMS);
@@ -62,8 +64,12 @@ describe(createEnsureQuota.name, () => {
 
     it('returns ok without calling services when allowance is granted', async () => {
         const deps = createEnsureQuotaDepsMock({
-            getDeviceHasAllowance: () => true,
-            getDeviceForStaticSessionId: () => device,
+            ensureDeviceHasQuotaResponses: [],
+            ensureOwnerHasAllocatedQuotaResponses: [],
+            patch: {
+                getDeviceHasAllowance: () => true,
+                getDeviceForStaticSessionId: () => device,
+            },
         });
 
         const result = await createEnsureQuota(deps)(DEFAULT_PARAMS);
@@ -75,7 +81,11 @@ describe(createEnsureQuota.name, () => {
 
     it('calls both quota services when allowance is not granted', async () => {
         const deps = createEnsureQuotaDepsMock({
-            getDeviceForStaticSessionId: () => device,
+            ensureDeviceHasQuotaResponses: [ok()],
+            ensureOwnerHasAllocatedQuotaResponses: [ok()],
+            patch: {
+                getDeviceForStaticSessionId: () => device,
+            },
         });
 
         const result = await createEnsureQuota(deps)(DEFAULT_PARAMS);
@@ -95,10 +105,13 @@ describe(createEnsureQuota.name, () => {
 
     it('returns WriteModeRequiredForAllocation when owner allocation fails with that error', async () => {
         const deps = createEnsureQuotaDepsMock({
-            ensureOwnerHasAllocatedQuota: createEnsureOwnerHasAllocatedQuotaMock([
+            ensureDeviceHasQuotaResponses: [ok()],
+            ensureOwnerHasAllocatedQuotaResponses: [
                 err({ type: 'WriteModeRequiredForAllocation' }),
-            ]),
-            getDeviceForStaticSessionId: () => device,
+            ],
+            patch: {
+                getDeviceForStaticSessionId: () => device,
+            },
         });
 
         const result = await createEnsureQuota(deps)(DEFAULT_PARAMS);
@@ -108,10 +121,11 @@ describe(createEnsureQuota.name, () => {
 
     it('returns owner allocation errors other than WriteModeRequiredForAllocation directly', async () => {
         const deps = createEnsureQuotaDepsMock({
-            ensureOwnerHasAllocatedQuota: createEnsureOwnerHasAllocatedQuotaMock([
-                err({ type: 'NoQuotaLeftToAllocate' }),
-            ]),
-            getDeviceForStaticSessionId: () => device,
+            ensureDeviceHasQuotaResponses: [ok()],
+            ensureOwnerHasAllocatedQuotaResponses: [err({ type: 'NoQuotaLeftToAllocate' })],
+            patch: {
+                getDeviceForStaticSessionId: () => device,
+            },
         });
 
         const result = await createEnsureQuota(deps)(DEFAULT_PARAMS);
@@ -121,13 +135,16 @@ describe(createEnsureQuota.name, () => {
 
     it('returns QuotaManagerCommunicationFailed when device registration fails', async () => {
         const deps = createEnsureQuotaDepsMock({
-            ensureDeviceHasQuota: createEnsureDeviceHasQuotaMock([
+            ensureDeviceHasQuotaResponses: [
                 err({
                     type: 'QuotaManagerCommunicationFailed',
                     caused: { type: 'HttpError', code: 500 },
                 }),
-            ]),
-            getDeviceForStaticSessionId: () => device,
+            ],
+            ensureOwnerHasAllocatedQuotaResponses: [],
+            patch: {
+                getDeviceForStaticSessionId: () => device,
+            },
         });
 
         const result = await createEnsureQuota(deps)(DEFAULT_PARAMS);
@@ -145,8 +162,12 @@ describe(createEnsureQuota.name, () => {
         let hasDeviceAllowance = false;
 
         const deps = createEnsureQuotaDepsMock({
-            getDeviceHasAllowance: () => hasDeviceAllowance,
-            getDeviceForStaticSessionId: () => device,
+            ensureDeviceHasQuotaResponses: [],
+            ensureOwnerHasAllocatedQuotaResponses: [],
+            patch: {
+                getDeviceHasAllowance: () => hasDeviceAllowance,
+                getDeviceForStaticSessionId: () => device,
+            },
         });
 
         hasDeviceAllowance = true;

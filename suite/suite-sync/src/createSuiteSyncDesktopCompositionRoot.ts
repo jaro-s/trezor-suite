@@ -55,11 +55,13 @@ export const createSuiteSyncDesktopCompositionRoot = (
     });
 
     const suiteSyncErrorHandler = createSuiteSyncErrorHandler({
-        dispatch: deps.dispatch,
         increaseOwnerQuota: createProvisionalIncreaseOwnerQuota({
             getState: deps.getState,
             increaseOwnerQuota: suiteSync.increaseOwnerQuota,
         }),
+        onError: error => {
+            console.error('SuiteSync error', error);
+        },
     });
 
     evoluDeps.evoluError.subscribe(

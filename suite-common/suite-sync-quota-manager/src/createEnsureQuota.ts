@@ -1,3 +1,4 @@
+import { type ProofOfDelegatedSignFailedType } from '@suite-common/delegated-identity-key-types';
 import { isTrezorDeviceWithState } from '@suite-common/device';
 import { type SuiteSyncOwner } from '@suite-common/suite-sync-storage';
 import type {
@@ -35,6 +36,7 @@ export type EnsureQuota = (
 ) => Promise<
     Result<
         void,
+        | ProofOfDelegatedSignFailedType
         | WriteModeRequiredForAllocationErrType
         | QuotaManagerCommunicationFailedErrType
         | QuotaManagerNoQuotaLeftToAllocateErrType

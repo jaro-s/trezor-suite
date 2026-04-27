@@ -4,11 +4,9 @@ import { type WalletDescriptor, asWalletDescriptor } from '@suite-common/wallet-
 import { type StaticSessionId } from '@trezor/connect-common';
 import { err, ok } from '@trezor/type-utils';
 
-import { createCheckStorageByOwnerIdMock } from '../../mocks/createCheckStorageByOwnerIdMock';
-import { createEnsureOwnerHasAllocatedQuotaDepsMock } from '../../mocks/createEnsureOwnerHasAllocatedQuotaDepsMock';
-import { createPrepareChallengeSessionMock } from '../../mocks/createPrepareChallengeSessionMock';
 import { DEFAULT_ACCOUNT_SIZE_QUOTA } from '../constants';
 import { createEnsureOwnerHasAllocatedQuota } from '../createEnsureOwnerHasAllocatedQuota';
+import { createEnsureOwnerHasAllocatedQuotaDepsMock } from '../mocks/createEnsureOwnerHasAllocatedQuotaDepsMock';
 
 const ownerId = asSuiteSyncOwnerId('owner-id');
 const walletDescriptor: WalletDescriptor = asWalletDescriptor('descriptor');
@@ -22,9 +20,9 @@ describe(createEnsureOwnerHasAllocatedQuota.name, () => {
 
     it('dispatches owner fetched when storage already exists', async () => {
         const deps = createEnsureOwnerHasAllocatedQuotaDepsMock({
-            checkStorageByOwnerId: createCheckStorageByOwnerIdMock([
-                ok({ status: 'Allocated', totalSpace: 2048 }),
-            ]),
+            checkStorageByOwnerIdResponses: [ok({ status: 'Allocated', totalSpace: 2048 })],
+            prepareChallengeSessionResponses: [],
+            transferStorageResponses: [],
         });
 
         const result = await createEnsureOwnerHasAllocatedQuota(deps)({
@@ -54,8 +52,12 @@ describe(createEnsureOwnerHasAllocatedQuota.name, () => {
 
     it("does not attempt allocation when no quota is left and returns 'NoQuotaLeftToAllocate'", async () => {
         const deps = createEnsureOwnerHasAllocatedQuotaDepsMock({
-            checkStorageByOwnerId: createCheckStorageByOwnerIdMock([ok({ status: 'NoQuota' })]),
-            getLeftDeviceQuota: () => 0,
+            checkStorageByOwnerIdResponses: [ok({ status: 'NoQuota' })],
+            prepareChallengeSessionResponses: [],
+            transferStorageResponses: [],
+            patch: {
+                getLeftDeviceQuota: () => 0,
+            },
         });
 
         const result = await createEnsureOwnerHasAllocatedQuota(deps)({
@@ -72,9 +74,11 @@ describe(createEnsureOwnerHasAllocatedQuota.name, () => {
 
     it('returns QuotaManagerCommunicationFailed for non-404 storage lookup failures', async () => {
         const deps = createEnsureOwnerHasAllocatedQuotaDepsMock({
-            checkStorageByOwnerId: createCheckStorageByOwnerIdMock([
+            checkStorageByOwnerIdResponses: [
                 err({ type: 'HttpError', code: 500, message: 'Internal error' }),
-            ]),
+            ],
+            prepareChallengeSessionResponses: [],
+            transferStorageResponses: [],
         });
 
         const result = await createEnsureOwnerHasAllocatedQuota(deps)({
@@ -95,10 +99,9 @@ describe(createEnsureOwnerHasAllocatedQuota.name, () => {
 
     it('requests storage transfer when owner storage is missing', async () => {
         const deps = createEnsureOwnerHasAllocatedQuotaDepsMock({
-            checkStorageByOwnerId: createCheckStorageByOwnerIdMock([ok({ status: 'NoQuota' })]),
-            prepareChallengeSession: createPrepareChallengeSessionMock([
-                ok({ sessionId: 'session-123', challenge: 'aa55' }),
-            ]),
+            checkStorageByOwnerIdResponses: [ok({ status: 'NoQuota' })],
+            prepareChallengeSessionResponses: [ok({ sessionId: 'session-123', challenge: 'aa55' })],
+            transferStorageResponses: [ok({ publicKeyUnspentSpace: 0, ownerTotalSpace: 0 })],
         });
 
         const result = await createEnsureOwnerHasAllocatedQuota(deps)({
@@ -130,11 +133,12 @@ describe(createEnsureOwnerHasAllocatedQuota.name, () => {
     it('allocates only the remaining quota when it is below the default increment', async () => {
         const remainingQuota = 500;
         const deps = createEnsureOwnerHasAllocatedQuotaDepsMock({
-            checkStorageByOwnerId: createCheckStorageByOwnerIdMock([ok({ status: 'NoQuota' })]),
-            prepareChallengeSession: createPrepareChallengeSessionMock([
-                ok({ sessionId: 'session-456', challenge: 'bb66' }),
-            ]),
-            getLeftDeviceQuota: () => remainingQuota,
+            checkStorageByOwnerIdResponses: [ok({ status: 'NoQuota' })],
+            prepareChallengeSessionResponses: [ok({ sessionId: 'session-456', challenge: 'bb66' })],
+            transferStorageResponses: [ok({ publicKeyUnspentSpace: 0, ownerTotalSpace: 0 })],
+            patch: {
+                getLeftDeviceQuota: () => remainingQuota,
+            },
         });
 
         await createEnsureOwnerHasAllocatedQuota(deps)({

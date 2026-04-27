@@ -1,5 +1,3 @@
-import { type Dispatch } from '@reduxjs/toolkit';
-
 import { type SuiteSyncOwnerId } from '@suite-common/suite-sync-storage';
 import { type Result } from '@trezor/type-utils';
 
@@ -18,8 +16,8 @@ export type IncreaseOwnerQuota = (params: {
 }) => Promise<Result<void, IncreaseOwnerQuotaErr>>;
 
 export type CreateSuiteSyncErrorHandlerDep = {
-    dispatch?: Dispatch;
     increaseOwnerQuota: IncreaseOwnerQuota;
+    onError: (error: IncreaseOwnerQuotaErr) => void;
 };
 
 export type RelayQuotaExceededError = { type: 'RelayQuotaExceeded'; ownerId: SuiteSyncOwnerId };
@@ -27,4 +25,4 @@ export type SuiteSyncOtherError = { type: 'RelayOther'; message: string };
 
 export type Errors = RelayQuotaExceededError | SuiteSyncOtherError;
 
-export type SuiteSyncErrorHandler = (error: Errors) => void;
+export type SuiteSyncErrorHandler = (error: Errors) => Promise<void>;

@@ -1,22 +1,13 @@
 import { ok } from '@trezor/type-utils';
 
-import { createGenerateSessionIdMock } from '../../../mocks/createGenerateSessionIdMock';
-import { createPrepareChallengeSessionDepsMock } from '../../../mocks/createPrepareChallengeSessionDepsMock';
-import { createQuotaManagerFetchMock } from '../../../mocks/createQuotaManagerFetchMock';
+import { createPrepareChallengeSessionDepsMock } from '../mocks/createPrepareChallengeSessionDepsMock';
 import { createPrepareChallengeSession } from '../prepareChallengeSession';
 
 describe(createPrepareChallengeSession.name, () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
-
     it('should prepare challenge unique for each session', async () => {
         const deps = createPrepareChallengeSessionDepsMock({
-            generateSessionId: createGenerateSessionIdMock([
-                'mocked-session-id',
-                'mocked-session-id-2',
-            ]),
-            quotaManagerFetch: createQuotaManagerFetchMock([
+            sessionIds: ['mocked-session-id', 'mocked-session-id-2'],
+            quotaManagerFetchResponses: [
                 ok({
                     challenge: 'b4bc999327b7d2685890530b2814b56bba8549459aebdd551f33a1de2c5a2a8d',
                 }),
@@ -24,7 +15,7 @@ describe(createPrepareChallengeSession.name, () => {
                     challenge:
                         'b4bc999327b7d2685890530b2814b56bba8549459aebdd551f33a1de2c5a2a8dSecond',
                 }),
-            ]),
+            ],
         });
 
         const prepareChallengeSession = createPrepareChallengeSession(deps);

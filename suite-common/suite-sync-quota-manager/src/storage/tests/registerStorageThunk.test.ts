@@ -1,9 +1,8 @@
 import { err, ok } from '@trezor/type-utils';
 
-import { createQuotaManagerFetchMock } from '../../../mocks/createQuotaManagerFetchMock';
-import { createRegisterStorageDepsMock } from '../../../mocks/createRegisterStorageDepsMock';
 import { quotaManagerDeviceFetched } from '../../quotaManagerActions';
 import { createRegisterStorage } from '../createRegisterStorage';
+import { createRegisterStorageDepsMock } from '../mocks/createRegisterStorageDepsMock';
 
 describe(createRegisterStorage.name, () => {
     const bodyParams = {
@@ -26,12 +25,12 @@ describe(createRegisterStorage.name, () => {
 
     it('dispatches quotaManagerDeviceFetched on success', async () => {
         const deps = createRegisterStorageDepsMock({
-            quotaManagerFetch: createQuotaManagerFetchMock([
+            quotaManagerFetchResponses: [
                 ok({
                     totalStorageSize: 1000,
                     unspentStorageSize: 800,
                 }),
-            ]),
+            ],
         });
 
         const result = await createRegisterStorage(deps)(params);
@@ -59,9 +58,7 @@ describe(createRegisterStorage.name, () => {
 
     it('returns fetch errors without dispatching any failure action', async () => {
         const deps = createRegisterStorageDepsMock({
-            quotaManagerFetch: createQuotaManagerFetchMock([
-                err({ type: 'FetchError', message: 'Network error' }),
-            ]),
+            quotaManagerFetchResponses: [err({ type: 'FetchError', message: 'Network error' })],
         });
 
         const result = await createRegisterStorage(deps)(params);

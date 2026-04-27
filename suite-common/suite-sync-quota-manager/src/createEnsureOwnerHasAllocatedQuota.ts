@@ -127,7 +127,7 @@ export const createEnsureOwnerHasAllocatedQuota =
         });
 
         if (!proofOfDelegatedIdentity.success) {
-            return err(quotaManagerCommunicationFailed(proofOfDelegatedIdentity.error));
+            return proofOfDelegatedIdentity;
         }
 
         const transferStorageResult = await deps.transferStorage({
