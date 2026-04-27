@@ -78,10 +78,9 @@ export const mergeDeepObject = <T extends IObject[]>(...objects: T): TMerged<T[n
             }
 
             if (mergeDeepObject.options.dotNotation) {
-                const [first, ...rest] = key.split('.');
-                if (first !== undefined) {
-                    result[first] = mergeValuesWithPath(result[first], current[key], rest);
-                }
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                const [first, ...rest]: [string, ...string[]] = key.split('.');
+                result[first] = mergeValuesWithPath(result[first], current[key], rest);
             } else {
                 result[key] = mergeValues(result[key], current[key]);
             }

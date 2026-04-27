@@ -16,16 +16,18 @@ describe(arrayShuffle.name, () => {
         for (let sample = 0; sample < SAMPLES; ++sample) {
             const shuffled = arrayShuffle(KEYS, { randomInt: getWeakRandomInt });
             for (let i = 0; i < shuffled.length; ++i) {
-                const key = shuffled[i];
-                const counts = key !== undefined ? samples[key] : undefined;
-                if (counts !== undefined) {
-                    counts[i] = (counts[i] ?? 0) + 1;
-                }
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                const key: string = shuffled[i];
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                const counts: number[] = samples[key];
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                counts[i]++;
             }
         }
 
         KEYS.forEach(key =>
-            samples[key]?.forEach(count => {
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            samples[key].forEach(count => {
                 expect(count).toBeGreaterThanOrEqual(LOWER_BOUND);
                 expect(count).toBeLessThanOrEqual(UPPER_BOUND);
             }),

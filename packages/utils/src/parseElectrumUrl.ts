@@ -7,9 +7,18 @@ export const parseElectrumUrl = (url: string) => {
     const match = url.match(ELECTRUM_URL_REGEX);
     if (!match) return undefined;
 
-    const host = match[1] ?? match[2] ?? '';
-    const port = Number.parseInt(match[3] ?? '', 10);
-    const protocol = match[4] === 's' ? 's' : 't';
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const m1: string = match[1];
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const m2: string = match[2];
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const m3: string = match[3];
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const m4: string = match[4];
 
-    return { host, port, protocol };
+    return {
+        host: m1 ?? m2,
+        port: Number.parseInt(m3, 10),
+        protocol: m4 as 't' | 's',
+    };
 };

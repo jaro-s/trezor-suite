@@ -60,22 +60,25 @@ export const isChanged = (prev?: any, current?: any, filter?: { [k: string]: str
 
         // 8. observe every key recursive
         for (let i = 0; i < currentKeys.length; i++) {
-            const key = currentKeys[i];
-            if (key === undefined) continue;
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            const key: string = currentKeys[i];
 
-            const filterFields = filter?.[key];
             if (
-                filterFields &&
+                filter &&
                 Object.prototype.hasOwnProperty.call(filter, key) &&
                 prev[key] &&
                 current[key]
             ) {
-                const prevFiltered: Record<string, unknown> = {};
-                const currentFiltered: Record<string, unknown> = {};
+                const prevFiltered = {};
+                const currentFiltered = {};
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                const filterFields: string[] = filter[key];
                 for (let i2 = 0; i2 < filterFields.length; i2++) {
-                    const field = filterFields[i2];
-                    if (field === undefined) continue;
+                    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                    const field: string = filterFields[i2];
+                    // @ts-expect-error
                     prevFiltered[field] = prev[key][field];
+                    // @ts-expect-error
                     currentFiltered[field] = current[key][field];
                 }
                 if (isChanged(prevFiltered, currentFiltered)) return true;
