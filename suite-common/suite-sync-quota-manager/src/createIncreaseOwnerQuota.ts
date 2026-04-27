@@ -2,7 +2,10 @@ import {
     getProofOfDelegatedIdentity,
     getPublicIdentityKeyFromDelegatedKey,
 } from '@suite-common/delegated-identity-key';
-import { type EnsureDelegatedIdentityKeyDep } from '@suite-common/delegated-identity-key-types';
+import {
+    type EnsureDelegatedIdentityKeyDep,
+    type ProofOfDelegatedSignFailedType,
+} from '@suite-common/delegated-identity-key-types';
 import { type SuiteSyncOwnerId } from '@suite-common/suite-sync-storage';
 import {
     type QuotaManagerCommunicationFailedErrType,
@@ -32,7 +35,12 @@ export type IncreaseOwnerQuotaParams = {
 export type IncreaseOwnerQuota = (
     params: IncreaseOwnerQuotaParams,
 ) => Promise<
-    Result<void, QuotaManagerNoQuotaLeftToAllocateErrType | QuotaManagerCommunicationFailedErrType>
+    Result<
+        void,
+        | QuotaManagerNoQuotaLeftToAllocateErrType
+        | QuotaManagerCommunicationFailedErrType
+        | ProofOfDelegatedSignFailedType
+    >
 >;
 
 type GetQuotaManagerBaseUrl = () => string | null;
@@ -91,7 +99,7 @@ export const createIncreaseOwnerQuota =
         });
 
         if (!proof.success) {
-            return err(quotaManagerCommunicationFailed(proof.error));
+            return proof;
         }
 
         const transferStorageResult = await deps.transferStorage({

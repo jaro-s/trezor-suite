@@ -20,7 +20,7 @@ export const createSuiteSyncErrorHandler =
             }
 
             case 'RelayOther':
-                console.error('SuiteSync relay error', error.message);
+                deps.onError(error);
 
                 return;
 

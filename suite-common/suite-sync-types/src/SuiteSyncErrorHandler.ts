@@ -17,7 +17,7 @@ export type IncreaseOwnerQuota = (params: {
 
 export type CreateSuiteSyncErrorHandlerDep = {
     increaseOwnerQuota: IncreaseOwnerQuota;
-    onError: (error: IncreaseOwnerQuotaErr) => void;
+    onError: (error: IncreaseOwnerQuotaErr | SuiteSyncOtherError) => void;
 };
 
 export type RelayQuotaExceededError = { type: 'RelayQuotaExceeded'; ownerId: SuiteSyncOwnerId };

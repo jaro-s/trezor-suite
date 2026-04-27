@@ -1,6 +1,5 @@
 import { type PayloadAction, createSlice } from '@reduxjs/toolkit';
 
-import { type ProofOfDelegatedSignFailedType } from '@suite-common/delegated-identity-key-types';
 import { deviceActions } from '@suite-common/device';
 import { type EncryptedHex } from '@suite-common/platform-encryption';
 import { type SuiteSyncOwnerSerialized } from '@suite-common/suite-sync-storage';
@@ -11,7 +10,6 @@ import { type StaticSessionId } from '@trezor/connect';
 export type SuiteSyncErrorType =
     | DeviceErrorType
     | DeviceCancelledErrType
-    | ProofOfDelegatedSignFailedType
     | SuiteSyncFirmwareUpgradeNeededDeviceErrorType;
 
 export type SuiteSyncSettings = {
@@ -30,7 +28,7 @@ export type SuiteSyncSettings = {
     /**
      * This is URL for backend/relay.
      *
-     * Todo: This is kinda reladed to Evolu, and other libraries
+     * Todo: This is kinda related to Evolu, and other libraries
      *       can have different config. So this may better be in some
      *       Provider-Config place in the future.
      */

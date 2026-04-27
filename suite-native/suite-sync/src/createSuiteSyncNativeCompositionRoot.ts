@@ -39,7 +39,7 @@ export const createSuiteSyncNativeCompositionRoot = (
     const evoluDeps = createEvoluDeps({ console });
     const run = createRun(evoluDeps);
 
-    const suiteSync = createSuiteSyncCompositionRoot({
+    return createSuiteSyncCompositionRoot({
         ...deps,
         createSuiteStorage: createEvoluStorageFactory({
             createEvoluInstance: createEvoluInstanceFactory({ run }),
@@ -51,6 +51,4 @@ export const createSuiteSyncNativeCompositionRoot = (
             );
         },
     });
-
-    return suiteSync;
 };

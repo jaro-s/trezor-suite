@@ -4,6 +4,7 @@ import {
     getProofOfDelegatedIdentity,
     getPublicIdentityKeyFromDelegatedKey,
 } from '@suite-common/delegated-identity-key';
+import { type ProofOfDelegatedSignFailedType } from '@suite-common/delegated-identity-key-types';
 import {
     type QuotaManagerCommunicationFailedErrType,
     type QuotaManagerNoQuotaErrType,
@@ -29,7 +30,14 @@ export type EnsureDeviceHasQuotaParams = {
 
 export type EnsureDeviceHasQuota = (
     params: EnsureDeviceHasQuotaParams,
-) => Promise<Result<void, QuotaManagerCommunicationFailedErrType | QuotaManagerNoQuotaErrType>>;
+) => Promise<
+    Result<
+        void,
+        | QuotaManagerCommunicationFailedErrType
+        | QuotaManagerNoQuotaErrType
+        | ProofOfDelegatedSignFailedType
+    >
+>;
 
 type GetQuotaManagerBaseUrl = () => string | null;
 
@@ -97,7 +105,7 @@ export const createEnsureDeviceHasQuota =
         });
 
         if (!proofOfDelegatedIdentity.success) {
-            return err(quotaManagerCommunicationFailed(proofOfDelegatedIdentity.error));
+            return proofOfDelegatedIdentity;
         }
 
         const registrationRequestResult = await deps.trezorConnect.evoluSignRegistrationRequest({
