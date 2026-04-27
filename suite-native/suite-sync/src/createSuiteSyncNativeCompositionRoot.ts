@@ -17,6 +17,7 @@ import {
     createEvoluStorageFactory,
     evoluCreateSuiteSyncOwner,
 } from '@suite-common/suite-sync-evolu';
+import { type FetchDep } from '@suite-common/suite-sync-quota-manager';
 import { type SuiteSync } from '@suite-common/suite-sync-types';
 import { parseDeviceStaticSessionId } from '@suite-common/wallet-utils';
 import { type TrezorConnect } from '@trezor/connect';
@@ -28,7 +29,8 @@ type SuiteSyncNativeCompositionRootDeps = {
     trezorConnect: TrezorConnect;
 } & SuiteSyncAnalyticsDep &
     PlatformEncryptionDep &
-    EnsureDelegatedIdentityKeyDep;
+    EnsureDelegatedIdentityKeyDep &
+    FetchDep;
 
 export const createSuiteSyncNativeCompositionRoot = (
     deps: SuiteSyncNativeCompositionRootDeps,

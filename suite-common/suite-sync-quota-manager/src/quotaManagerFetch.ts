@@ -40,51 +40,51 @@ export type QuotaManagerFetchDep = {
     quotaManagerFetch: QuotaManagerFetch;
 };
 
-export const quotaManagerFetch: QuotaManagerFetch = async ({
-    baseUrl,
-    path,
-    method,
-    body,
-    queryParams,
-}: QuotaManagerFetchParams): Promise<QuotaManagerFetchResult> => {
-    const base = baseUrl ?? DEFAULT_QUOTA_MANAGER_URL;
+export type FetchDep = {
+    fetch: typeof fetch;
+};
 
-    const normalizedBase = base.endsWith('/') ? base : `${base}/`;
-    const normalizedPath = path.replace(/^\/+/, '');
+export const createQuotaManagerFetch =
+    (deps: FetchDep): QuotaManagerFetch =>
+    async ({ baseUrl, path, method, body, queryParams }) => {
+        const base = baseUrl ?? DEFAULT_QUOTA_MANAGER_URL;
 
-    const url = new URL(normalizedPath, normalizedBase);
+        const normalizedBase = base.endsWith('/') ? base : `${base}/`;
+        const normalizedPath = path.replace(/^\/+/, '');
 
-    if (queryParams !== undefined) {
-        typedObjectEntries(queryParams).forEach(([key, value]) => {
-            url.searchParams.append(key, value.toString());
-        });
-    }
+        const url = new URL(normalizedPath, normalizedBase);
 
-    try {
-        const response = await fetch(url.toString(), {
-            method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Suite-Version': getSuiteVersion(),
-            },
-            body: body ? JSON.stringify(body) : null,
-        });
-
-        if (!response.ok) {
-            return err({
-                type: 'HttpError' as const,
-                code: response.status,
-                message: response.statusText,
+        if (queryParams !== undefined) {
+            typedObjectEntries(queryParams).forEach(([key, value]) => {
+                url.searchParams.append(key, value.toString());
             });
         }
 
-        const data = (await response.json()) as unknown;
+        try {
+            const response = await deps.fetch(url.toString(), {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Suite-Version': getSuiteVersion(),
+                },
+                body: body ? JSON.stringify(body) : null,
+            });
 
-        return ok(data);
-    } catch (e) {
-        return err({
-            type: 'FetchError' as const,
-            message: e.message,
-        });
-    }
-};
+            if (!response.ok) {
+                return err({
+                    type: 'HttpError' as const,
+                    code: response.status,
+                    message: response.statusText,
+                });
+            }
+
+            const data = (await response.json()) as unknown;
+
+            return ok(data);
+        } catch (e) {
+            return err({
+                type: 'FetchError' as const,
+                message: e.message,
+            });
+        }
+    };

@@ -123,6 +123,7 @@ export const createSuiteServicesCompositionRoot = (deps: SuiteAppDeps): SuiteSer
         trezorConnect: TrezorConnect,
         ensureDelegatedIdentityKey,
         analytics,
+        fetch: globalThis.fetch.bind(globalThis),
     });
 
     const { bip329 } = createBip329CompositionRoot({

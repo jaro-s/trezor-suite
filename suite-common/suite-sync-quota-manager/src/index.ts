@@ -3,12 +3,12 @@
  */
 export { createPrepareChallengeSession } from './challenge/prepareChallengeSession';
 export { createCheckStorageByOwnerId, createCheckStorageByPublicKey } from './storage/checkStorage';
-export { quotaManagerFetch } from './quotaManagerFetch';
+export { createQuotaManagerFetch } from './quotaManagerFetch';
 export { createRegisterStorage } from './storage/createRegisterStorage';
 export type { RegisterStorage, RegisterStorageDep } from './storage/createRegisterStorage';
 export { createTransferStorage } from './storage/createTransferStorage';
 export type { TransferStorage, TransferStorageDep } from './storage/createTransferStorage';
-export type { QuotaManagerFetch, QuotaManagerFetchDep } from './quotaManagerFetch';
+export type { FetchDep, QuotaManagerFetch, QuotaManagerFetchDep } from './quotaManagerFetch';
 export { createEnsureDeviceHasQuota } from './createEnsureDeviceHasQuota';
 export type { EnsureDeviceHasQuota, EnsureDeviceHasQuotaDep } from './createEnsureDeviceHasQuota';
 export {

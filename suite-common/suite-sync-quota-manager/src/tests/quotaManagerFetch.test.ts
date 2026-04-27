@@ -1,4 +1,4 @@
-import { quotaManagerFetch } from '../quotaManagerFetch';
+import { createQuotaManagerFetch } from '../quotaManagerFetch';
 
 jest.mock('@trezor/env-utils', () => {
     const actual = jest.requireActual('@trezor/env-utils');
@@ -9,12 +9,11 @@ jest.mock('@trezor/env-utils', () => {
     };
 });
 
-describe(quotaManagerFetch.name, () => {
+describe(createQuotaManagerFetch.name, () => {
     it('should call GET with query parameters', async () => {
-        const fetchMock = jest
-            .spyOn(global, 'fetch')
-            .mockResolvedValueOnce(new Response('{}', { status: 200 }));
+        const fetchMock = jest.fn().mockResolvedValueOnce(new Response('{}', { status: 200 }));
 
+        const quotaManagerFetch = createQuotaManagerFetch({ fetch: fetchMock });
         const result = await quotaManagerFetch({
             baseUrl: 'https://example.com',
             path: '/challenge',
@@ -40,9 +39,10 @@ describe(quotaManagerFetch.name, () => {
 
     it('should call POST with body', async () => {
         const fetchMock = jest
-            .spyOn(global, 'fetch')
+            .fn()
             .mockResolvedValueOnce(new Response('{"success":true}', { status: 200 }));
 
+        const quotaManagerFetch = createQuotaManagerFetch({ fetch: fetchMock });
         const result = await quotaManagerFetch({
             baseUrl: 'https://example.com',
             path: '/challenge',
@@ -64,10 +64,13 @@ describe(quotaManagerFetch.name, () => {
     });
 
     it('should handle non-OK response', async () => {
-        jest.spyOn(global, 'fetch').mockResolvedValueOnce(
-            new Response('Not Found', { status: 404, statusText: 'Not Found' }),
-        );
+        const fetchMock = jest
+            .fn()
+            .mockResolvedValueOnce(
+                new Response('Not Found', { status: 404, statusText: 'Not Found' }),
+            );
 
+        const quotaManagerFetch = createQuotaManagerFetch({ fetch: fetchMock });
         const result = await quotaManagerFetch({
             baseUrl: 'https://example.com',
             path: '/challenge',

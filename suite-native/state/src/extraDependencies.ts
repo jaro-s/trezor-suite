@@ -73,6 +73,7 @@ export const createNativeCompositionRoot = (deps: NativeAppDeps): NativeServices
         trezorConnect: TrezorConnect,
         ensureDelegatedIdentityKey,
         analytics,
+        fetch: globalThis.fetch.bind(globalThis),
     });
 
     return {

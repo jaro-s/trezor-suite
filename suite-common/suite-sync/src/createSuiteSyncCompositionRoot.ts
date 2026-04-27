@@ -6,9 +6,10 @@ import { toGetter } from '@suite-common/dependency-injection';
 import { selectAllDeviceStaticIds, selectDeviceByStaticSessionId } from '@suite-common/device';
 import { type PlatformEncryptionDep } from '@suite-common/platform-encryption';
 import {
+    type FetchDep,
     type IncreaseOwnerQuotaDep,
+    createQuotaManagerFetch,
     createSuiteSyncQuotaManagerCompositionRoot,
-    quotaManagerFetch,
 } from '@suite-common/suite-sync-quota-manager';
 import {
     type CreateSuiteStorageDep,
@@ -67,7 +68,8 @@ type CreateSuiteSyncCompositionRootDeps = {
     EnsureDelegatedIdentityKeyDep &
     CreateSuiteStorageDep &
     CreateSuiteSyncOwnerDep &
-    PlatformEncryptionDep;
+    PlatformEncryptionDep &
+    FetchDep;
 
 type SuiteSyncCompositionRoot = SuiteSync & IncreaseOwnerQuotaDep;
 
@@ -105,6 +107,8 @@ export const createSuiteSyncCompositionRoot = (
         ensureSuiteSyncOwner,
         getDeviceForStaticSessionId,
     });
+
+    const quotaManagerFetch = createQuotaManagerFetch({ fetch: deps.fetch });
 
     const { ensureQuota, increaseOwnerQuota, getOwnerHasAllowance } =
         createSuiteSyncQuotaManagerCompositionRoot({
