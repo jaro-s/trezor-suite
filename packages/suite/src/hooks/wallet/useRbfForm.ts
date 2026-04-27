@@ -105,8 +105,10 @@ const getEthereumFeeInfo = (info: FeeInfo, rbfParams: RbfTransactionParamsEthere
         };
     }
 
+    const { levels: feeLevels } = feeInfo;
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const minFeeFromNetwork = new BigNumber(feeInfo.levels[0].feePerUnit);
+    const firstLevel: (typeof feeLevels)[number] = feeLevels[0];
+    const minFeeFromNetwork = new BigNumber(firstLevel.feePerUnit);
     const fee = BigNumber.maximum(minFeeFromNetwork, currentGasPrice.plus(feeInfo.minFee));
 
     // increase FeeLevel only if it's lower than predefined
