@@ -161,9 +161,9 @@ class BluetoothManager {
                         d => d.id === nearbyDevice.id,
                     );
                     if (nearbyDeviceIndex >= 0) {
+                        const { nearbyDevices } = this;
                         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-                        const oldNearbyDevice: BluetoothDevice =
-                            this.nearbyDevices[nearbyDeviceIndex];
+                        const oldNearbyDevice: BluetoothDevice = nearbyDevices[nearbyDeviceIndex];
                         nearbyDevice.connectionStatus = oldNearbyDevice.connectionStatus;
                         this.nearbyDevices[nearbyDeviceIndex] = nearbyDevice;
                         if (
