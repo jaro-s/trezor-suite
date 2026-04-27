@@ -117,9 +117,12 @@ export const useSignAddressOptions = (
                 ? translationString(label as ExtendedMessageDescriptor['id'])
                 : label;
 
-            const firstOption = options[0];
-            const pathParts = firstOption?.value.split('/') ?? [];
-            const pathLabel = `m/${pathParts[pathParts.length - 2] ?? '?'}/i`;
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            const firstOption: (typeof options)[number] = options[0];
+            const pathParts = firstOption.value.split('/');
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            const pathSegment: string = pathParts[pathParts.length - 2];
+            const pathLabel = `m/${pathSegment}/i`;
 
             return {
                 label: `${translatedLabel} ${pathLabel}`,
