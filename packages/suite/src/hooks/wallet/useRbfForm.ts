@@ -102,12 +102,9 @@ const getEthereumFeeInfo = (info: FeeInfo, rbfParams: RbfTransactionParamsEthere
         };
     }
 
-    const firstLevel = feeInfo.levels[0];
-
-    if (!firstLevel) {
-        return { ...feeInfo, levels: feeInfo.levels, minFee: feeInfo.minFee };
-    }
-
+    const { levels: feeLevels } = feeInfo;
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const firstLevel: (typeof feeLevels)[number] = feeLevels[0];
     const minFeeFromNetwork = new BigNumber(firstLevel.feePerUnit);
     const fee = BigNumber.maximum(minFeeFromNetwork, currentGasPrice.plus(feeInfo.minFee));
 
