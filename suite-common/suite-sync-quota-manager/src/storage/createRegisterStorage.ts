@@ -34,11 +34,8 @@ export type RegisterStorageResult = Result<
 
 export type RegisterStorage = (params: RegisterStorageParams) => Promise<RegisterStorageResult>;
 
-type GetQuotaManagerBaseUrl = () => string | null;
-
 export type RegisterStorageDeps = {
     dispatch: Dispatch;
-    getQuotaManagerBaseUrl: GetQuotaManagerBaseUrl;
 } & QuotaManagerFetchDep;
 
 export type RegisterStorageDep = {
@@ -49,7 +46,6 @@ export const createRegisterStorage =
     (deps: RegisterStorageDeps): RegisterStorage =>
     async ({ deviceId, ...params }) => {
         const result = await deps.quotaManagerFetch({
-            baseUrl: deps.getQuotaManagerBaseUrl(),
             path: '/storage/register',
             method: 'POST',
             body: params,

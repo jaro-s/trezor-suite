@@ -36,7 +36,6 @@ describe(createRegisterStorage.name, () => {
         const result = await createRegisterStorage(deps)(params);
 
         expect(deps.quotaManagerFetch).toHaveBeenCalledWith({
-            baseUrl: 'https://quota-manager.test',
             path: '/storage/register',
             method: 'POST',
             body: bodyParams,

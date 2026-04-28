@@ -23,7 +23,6 @@ export const createEnsureDeviceHasQuotaDepsMock = ({
             checkStorageByPublicKeyResponses,
         ),
         dispatch: jest.fn(),
-        getQuotaManagerBaseUrl: () => 'https://quota-manager.test',
         registerDevice: createRegisterDeviceMock(registerDeviceResponses),
         ...patch,
     });

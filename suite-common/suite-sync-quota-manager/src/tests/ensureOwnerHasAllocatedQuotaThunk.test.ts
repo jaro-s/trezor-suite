@@ -34,7 +34,6 @@ describe(createEnsureOwnerHasAllocatedQuota.name, () => {
 
         expect(result).toEqual(ok());
         expect(deps.checkStorageByOwnerId).toHaveBeenCalledWith({
-            baseUrl: 'https://quota-manager.test',
             ownerId,
         });
         expect(deps.dispatch).toHaveBeenCalledWith(
@@ -112,9 +111,7 @@ describe(createEnsureOwnerHasAllocatedQuota.name, () => {
         });
 
         expect(result).toEqual(ok());
-        expect(deps.prepareChallengeSession).toHaveBeenCalledWith({
-            baseUrl: 'https://quota-manager.test',
-        });
+        expect(deps.prepareChallengeSession).toHaveBeenCalledWith();
         expect(deps.transferStorage).toHaveBeenCalledWith({
             params: {
                 ownerId,

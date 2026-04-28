@@ -18,7 +18,6 @@ type QuotaPublicKeyResponse = {
 export type AskForStoragePublicKeyResponse = NoQuotaResponse | QuotaPublicKeyResponse;
 
 export type CheckStorageByPublicKeyParams = {
-    baseUrl: string | null;
     publicKey: string;
 };
 
@@ -41,9 +40,8 @@ export type CheckStorageByPublicKeyDep = {
  */
 export const createCheckStorageByPublicKey =
     (deps: QuotaManagerFetchDep): CheckStorageByPublicKey =>
-    async ({ baseUrl, publicKey }) => {
+    async ({ publicKey }) => {
         const result = await deps.quotaManagerFetch({
-            baseUrl,
             path: '/storage/ask',
             method: 'POST',
             body: { publicKey },

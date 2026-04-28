@@ -20,12 +20,8 @@ describe(createPrepareChallengeSession.name, () => {
 
         const prepareChallengeSession = createPrepareChallengeSession(deps);
 
-        const challengeSession = await prepareChallengeSession({
-            baseUrl: 'https://example.com',
-        });
-        const challengeSession2 = await prepareChallengeSession({
-            baseUrl: 'https://example.com',
-        });
+        const challengeSession = await prepareChallengeSession();
+        const challengeSession2 = await prepareChallengeSession();
 
         expect(challengeSession).toEqual(
             ok({
@@ -41,13 +37,11 @@ describe(createPrepareChallengeSession.name, () => {
         );
 
         expect(deps.quotaManagerFetch).toHaveBeenNthCalledWith(1, {
-            baseUrl: 'https://example.com',
             path: '/challenge',
             method: 'POST',
             body: { sessionId: 'mocked-session-id' },
         });
         expect(deps.quotaManagerFetch).toHaveBeenNthCalledWith(2, {
-            baseUrl: 'https://example.com',
             path: '/challenge',
             method: 'POST',
             body: { sessionId: 'mocked-session-id-2' },

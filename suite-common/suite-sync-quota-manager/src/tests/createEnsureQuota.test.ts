@@ -67,7 +67,7 @@ describe(createEnsureQuota.name, () => {
             ensureDeviceHasQuotaResponses: [],
             ensureOwnerHasAllocatedQuotaResponses: [],
             patch: {
-                getDeviceHasAllowance: () => true,
+                getHasDeviceRegisteredAndOwnerHasAllowance: () => true,
                 getDeviceForStaticSessionId: () => device,
             },
         });
@@ -165,7 +165,7 @@ describe(createEnsureQuota.name, () => {
             ensureDeviceHasQuotaResponses: [],
             ensureOwnerHasAllocatedQuotaResponses: [],
             patch: {
-                getDeviceHasAllowance: () => hasDeviceAllowance,
+                getHasDeviceRegisteredAndOwnerHasAllowance: () => hasDeviceAllowance,
                 getDeviceForStaticSessionId: () => device,
             },
         });

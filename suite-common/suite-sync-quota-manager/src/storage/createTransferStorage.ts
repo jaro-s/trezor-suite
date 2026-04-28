@@ -40,11 +40,8 @@ export type TransferStorageResult = Result<
 
 export type TransferStorage = (params: TransferStorageParams) => Promise<TransferStorageResult>;
 
-type GetQuotaManagerBaseUrl = () => string | null;
-
 export type TransferStorageDeps = {
     dispatch: Dispatch;
-    getQuotaManagerBaseUrl: GetQuotaManagerBaseUrl;
 } & QuotaManagerFetchDep;
 
 export type TransferStorageDep = {
@@ -55,7 +52,6 @@ export const createTransferStorage =
     (deps: TransferStorageDeps): TransferStorage =>
     async ({ params, walletDescriptor, deviceId }) => {
         const result = await deps.quotaManagerFetch({
-            baseUrl: deps.getQuotaManagerBaseUrl(),
             path: '/storage/add',
             method: 'POST',
             body: params,

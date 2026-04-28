@@ -25,7 +25,6 @@ export type QuotaManagerFetchCommunicationError = QuotaManagerHttpError | QuotaM
 export type QuotaManagerFetchResult = Result<unknown, QuotaManagerFetchCommunicationError>;
 
 export type QuotaManagerFetchParams = {
-    baseUrl: string | null;
     path: SupportedPath;
     method: SupportedMethod;
     body?: unknown;
@@ -44,10 +43,16 @@ export type FetchDep = {
     fetch: typeof fetch;
 };
 
+type GetQuotaManagerBaseUrl = () => string | null;
+
+export type CreateQuotaManagerFetchDeps = {
+    getQuotaManagerBaseUrl: GetQuotaManagerBaseUrl;
+} & FetchDep;
+
 export const createQuotaManagerFetch =
-    (deps: FetchDep): QuotaManagerFetch =>
-    async ({ baseUrl, path, method, body, queryParams }) => {
-        const base = baseUrl ?? DEFAULT_QUOTA_MANAGER_URL;
+    (deps: CreateQuotaManagerFetchDeps): QuotaManagerFetch =>
+    async ({ path, method, body, queryParams }) => {
+        const base = deps.getQuotaManagerBaseUrl() ?? DEFAULT_QUOTA_MANAGER_URL;
 
         const normalizedBase = base.endsWith('/') ? base : `${base}/`;
         const normalizedPath = path.replace(/^\/+/, '');

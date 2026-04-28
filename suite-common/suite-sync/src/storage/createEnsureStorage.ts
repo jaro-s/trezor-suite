@@ -117,6 +117,7 @@ export const createEnsureStorage =
 
                     return err(SuiteSyncUnavailableOnDeviceError());
                 }
+                case 'DeviceError':
                 case 'QuotaManagerCommunicationFailed':
                 case 'QuotaManagerNoQuota':
                 case 'NoQuotaLeftToAllocate':

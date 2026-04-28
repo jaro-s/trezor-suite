@@ -26,6 +26,6 @@ export const createEnsureQuotaDepsMock = ({
             ensureOwnerHasAllocatedQuotaResponses,
         ),
         getDeviceForStaticSessionId: () => null,
-        getDeviceHasAllowance: () => false,
+        getHasDeviceRegisteredAndOwnerHasAllowance: () => false,
         ...patch,
     });

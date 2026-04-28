@@ -1,7 +1,7 @@
 import { type ProofOfDelegatedSignFailedType } from '@suite-common/delegated-identity-key-types';
 import { isTrezorDeviceWithState } from '@suite-common/device';
 import { type SuiteSyncOwner } from '@suite-common/suite-sync-storage';
-import { type DelegatedIdentityKey } from '@suite-common/suite-types';
+import { type DelegatedIdentityKey, type DeviceErrorType } from '@suite-common/suite-types';
 import { parseDeviceStaticSessionId } from '@suite-common/wallet-utils';
 import { type StaticSessionId } from '@trezor/connect';
 import { type Result, err, ok } from '@trezor/type-utils';
@@ -9,7 +9,6 @@ import { isNotNull, isNotNullOrUndefined } from '@trezor/utils';
 
 import { type EnsureDeviceHasQuotaDep } from './device/createEnsureDeviceHasQuota';
 import { type GetDeviceForStaticSessionIdDep } from './device/getDeviceForStaticSessionId';
-import { type GetDeviceHasAllowanceDep } from './device/getDeviceHasAllowance';
 import {
     type QuotaManagerCommunicationFailedErrType,
     type QuotaManagerNoQuotaErrType,
@@ -17,12 +16,13 @@ import {
     WriteModeRequiredForAllocation,
     type WriteModeRequiredForAllocationErrType,
 } from './errors';
+import { type GetHasDeviceRegisteredAndOwnerHasAllowanceDep } from './getHasDeviceRegisteredAndOwnerHasAllowance';
 import { type EnsureOwnerHasAllocatedQuotaDep } from './owner/createEnsureOwnerHasAllocatedQuota';
 
 export type EnsureQuotaDeps = GetDeviceForStaticSessionIdDep &
     EnsureDeviceHasQuotaDep &
     EnsureOwnerHasAllocatedQuotaDep &
-    GetDeviceHasAllowanceDep;
+    GetHasDeviceRegisteredAndOwnerHasAllowanceDep;
 
 export type EnsureQuotaParams = {
     deviceStaticSessionId: StaticSessionId;
@@ -36,6 +36,7 @@ export type EnsureQuota = (
 ) => Promise<
     Result<
         void,
+        | DeviceErrorType
         | ProofOfDelegatedSignFailedType
         | WriteModeRequiredForAllocationErrType
         | QuotaManagerCommunicationFailedErrType
@@ -63,7 +64,7 @@ export const createEnsureQuota =
             return ok();
         }
 
-        if (deps.getDeviceHasAllowance(device.id, walletDescriptor)) {
+        if (deps.getHasDeviceRegisteredAndOwnerHasAllowance(device.id, walletDescriptor)) {
             return ok();
         }
 

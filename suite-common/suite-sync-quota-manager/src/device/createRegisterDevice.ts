@@ -3,7 +3,12 @@ import {
     getPublicIdentityKeyFromDelegatedKey,
 } from '@suite-common/delegated-identity-key';
 import { type ProofOfDelegatedSignFailedType } from '@suite-common/delegated-identity-key-types';
-import { type DelegatedIdentityKey, type TrezorDeviceWithState } from '@suite-common/suite-types';
+import { DeviceError } from '@suite-common/device';
+import {
+    type DelegatedIdentityKey,
+    type DeviceErrorType,
+    type TrezorDeviceWithState,
+} from '@suite-common/suite-types';
 import { type TrezorConnect } from '@trezor/connect';
 import { type Result, err, ok } from '@trezor/type-utils';
 
@@ -25,12 +30,14 @@ export type RegisterDeviceParams = {
 
 export type RegisterDevice = (
     params: RegisterDeviceParams,
-) => Promise<Result<void, QuotaManagerCommunicationFailedErrType | ProofOfDelegatedSignFailedType>>;
-
-type GetQuotaManagerBaseUrl = () => string | null;
+) => Promise<
+    Result<
+        void,
+        QuotaManagerCommunicationFailedErrType | ProofOfDelegatedSignFailedType | DeviceErrorType
+    >
+>;
 
 export type RegisterDeviceDeps = {
-    getQuotaManagerBaseUrl: GetQuotaManagerBaseUrl;
     trezorConnect: Pick<TrezorConnect, 'evoluSignRegistrationRequest'>;
 } & RegisterStorageDep &
     PrepareChallengeSessionDep;
@@ -44,9 +51,7 @@ export const createRegisterDevice =
     async ({ device, delegatedKey }) => {
         const delegatedKeyPublic = getPublicIdentityKeyFromDelegatedKey(delegatedKey);
 
-        const sessionChallenge = await deps.prepareChallengeSession({
-            baseUrl: deps.getQuotaManagerBaseUrl(),
-        });
+        const sessionChallenge = await deps.prepareChallengeSession();
 
         if (!sessionChallenge.success) {
             return err(QuotaManagerCommunicationFailed(sessionChallenge.error));
@@ -65,6 +70,7 @@ export const createRegisterDevice =
             return proofOfDelegatedIdentity;
         }
 
+        // Optiga singing call
         const registrationRequestResult = await deps.trezorConnect.evoluSignRegistrationRequest({
             challenge_from_server: sessionChallenge.payload.challenge,
             size_to_acquire: DEFAULT_DEVICE_SIZE_QUOTA,
@@ -72,7 +78,7 @@ export const createRegisterDevice =
         });
 
         if (!registrationRequestResult.success) {
-            return err(QuotaManagerCommunicationFailed(registrationRequestResult));
+            return err(DeviceError(registrationRequestResult.error.message));
         }
 
         const registerStorageResult = await deps.registerStorage({

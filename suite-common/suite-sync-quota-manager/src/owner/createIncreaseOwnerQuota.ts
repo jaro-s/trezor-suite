@@ -42,12 +42,9 @@ export type IncreaseOwnerQuota = (
         | ProofOfDelegatedSignFailedType
     >
 >;
-
-type GetQuotaManagerBaseUrl = () => string | null;
 type GetLeftDeviceQuota = (deviceId: string) => number | undefined;
 
 export type IncreaseOwnerQuotaDeps = {
-    getQuotaManagerBaseUrl: GetQuotaManagerBaseUrl;
     getLeftDeviceQuota: GetLeftDeviceQuota;
 } & EnsureDelegatedIdentityKeyDep &
     TransferStorageDep &
@@ -77,9 +74,7 @@ export const createIncreaseOwnerQuota =
 
         const delegatedPublicKey = getPublicIdentityKeyFromDelegatedKey(delegatedKey.payload);
 
-        const sessionChallenge = await deps.prepareChallengeSession({
-            baseUrl: deps.getQuotaManagerBaseUrl(),
-        });
+        const sessionChallenge = await deps.prepareChallengeSession();
 
         if (!sessionChallenge.success) {
             return err(QuotaManagerCommunicationFailed(sessionChallenge.error));

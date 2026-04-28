@@ -28,7 +28,6 @@ describe(createRegisterDevice.name, () => {
         });
 
         const deps = createMockDeps<RegisterDeviceDeps>({
-            getQuotaManagerBaseUrl: () => 'https://quota-manager.test',
             prepareChallengeSession: jest
                 .fn()
                 .mockResolvedValue(ok({ sessionId: 'session-123', challenge: 'aa55' })),
@@ -46,9 +45,7 @@ describe(createRegisterDevice.name, () => {
         });
 
         expect(result).toEqual(ok());
-        expect(deps.prepareChallengeSession).toHaveBeenCalledWith({
-            baseUrl: 'https://quota-manager.test',
-        });
+        expect(deps.prepareChallengeSession).toHaveBeenCalledWith();
         expect(evoluSignRegistrationRequest).toHaveBeenCalledWith({
             challenge_from_server: 'aa55',
             size_to_acquire: DEFAULT_DEVICE_SIZE_QUOTA,
@@ -73,7 +70,6 @@ describe(createRegisterDevice.name, () => {
 
     it('maps challenge session failure to quota manager communication failure', async () => {
         const deps = createMockDeps<RegisterDeviceDeps>({
-            getQuotaManagerBaseUrl: () => 'https://quota-manager.test',
             prepareChallengeSession: jest
                 .fn()
                 .mockResolvedValue(

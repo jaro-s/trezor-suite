@@ -25,7 +25,6 @@ export const createEnsureOwnerHasAllocatedQuotaDepsMock = ({
         checkStorageByOwnerId: createCheckStorageByOwnerIdMock(checkStorageByOwnerIdResponses),
         dispatch: jest.fn(),
         getLeftDeviceQuota: () => undefined,
-        getQuotaManagerBaseUrl: () => 'https://quota-manager.test',
         prepareChallengeSession: createPrepareChallengeSessionMock(
             prepareChallengeSessionResponses,
         ),

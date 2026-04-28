@@ -13,9 +13,11 @@ describe(createQuotaManagerFetch.name, () => {
     it('should call GET with query parameters', async () => {
         const fetchMock = jest.fn().mockResolvedValueOnce(new Response('{}', { status: 200 }));
 
-        const quotaManagerFetch = createQuotaManagerFetch({ fetch: fetchMock });
+        const quotaManagerFetch = createQuotaManagerFetch({
+            fetch: fetchMock,
+            getQuotaManagerBaseUrl: () => 'https://example.com',
+        });
         const result = await quotaManagerFetch({
-            baseUrl: 'https://example.com',
             path: '/challenge',
             method: 'GET',
             queryParams: { foo: 'bar', count: 10, active: true },
@@ -42,9 +44,11 @@ describe(createQuotaManagerFetch.name, () => {
             .fn()
             .mockResolvedValueOnce(new Response('{"success":true}', { status: 200 }));
 
-        const quotaManagerFetch = createQuotaManagerFetch({ fetch: fetchMock });
+        const quotaManagerFetch = createQuotaManagerFetch({
+            fetch: fetchMock,
+            getQuotaManagerBaseUrl: () => 'https://example.com',
+        });
         const result = await quotaManagerFetch({
-            baseUrl: 'https://example.com',
             path: '/challenge',
             method: 'POST',
             body: { success: true },
@@ -70,9 +74,11 @@ describe(createQuotaManagerFetch.name, () => {
                 new Response('Not Found', { status: 404, statusText: 'Not Found' }),
             );
 
-        const quotaManagerFetch = createQuotaManagerFetch({ fetch: fetchMock });
+        const quotaManagerFetch = createQuotaManagerFetch({
+            fetch: fetchMock,
+            getQuotaManagerBaseUrl: () => 'https://example.com',
+        });
         const result = await quotaManagerFetch({
-            baseUrl: 'https://example.com',
             path: '/challenge',
             method: 'GET',
         });

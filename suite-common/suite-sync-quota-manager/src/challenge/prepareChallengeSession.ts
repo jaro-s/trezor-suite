@@ -5,10 +5,6 @@ import {
     type QuotaManagerFetchDep,
 } from '../quotaManagerFetch';
 
-type PrepareChallengeSessionParams = {
-    baseUrl: string | null;
-};
-
 type ChallengeResponse = {
     sessionId: string;
     challenge: string;
@@ -19,9 +15,7 @@ export type PrepareChallengeSessionResult = Result<
     QuotaManagerFetchCommunicationError
 >;
 
-export type PrepareChallengeSession = (
-    params: PrepareChallengeSessionParams,
-) => Promise<PrepareChallengeSessionResult>;
+export type PrepareChallengeSession = () => Promise<PrepareChallengeSessionResult>;
 
 export type PrepareChallengeSessionDep = {
     prepareChallengeSession: PrepareChallengeSession;
@@ -37,11 +31,10 @@ export type PrepareChallengeSessionDeps = QuotaManagerFetchDep & GenerateSession
 
 export const createPrepareChallengeSession =
     (deps: PrepareChallengeSessionDeps): PrepareChallengeSession =>
-    async ({ baseUrl }) => {
+    async () => {
         const sessionId = deps.generateSessionId();
 
         const challengeResponse = await deps.quotaManagerFetch({
-            baseUrl,
             path: '/challenge',
             method: 'POST',
             body: { sessionId },

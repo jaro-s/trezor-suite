@@ -17,7 +17,6 @@ type QuotaOwnerResponse = {
 export type AskForStorageResponse = NoQuotaResponse | QuotaOwnerResponse;
 
 export type CheckStorageByOwnerIdParams = {
-    baseUrl: string | null;
     ownerId: string;
 };
 
@@ -39,9 +38,8 @@ export type CheckStorageByOwnerIdDep = {
  */
 export const createCheckStorageByOwnerId =
     (deps: QuotaManagerFetchDep): CheckStorageByOwnerId =>
-    async ({ baseUrl, ownerId }) => {
+    async ({ ownerId }) => {
         const result = await deps.quotaManagerFetch({
-            baseUrl,
             path: '/storage/ask',
             method: 'POST',
             body: { ownerId },

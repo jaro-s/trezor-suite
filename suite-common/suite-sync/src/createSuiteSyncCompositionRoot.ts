@@ -9,6 +9,7 @@ import {
     createProvisionalIncreaseOwnerQuota,
     createQuotaManagerFetch,
     createSuiteSyncQuotaManagerCompositionRoot,
+    selectQuotaManagerBaseUrl,
 } from '@suite-common/suite-sync-quota-manager';
 import type {
     FetchDep,
@@ -120,7 +121,10 @@ export const createSuiteSyncCompositionRoot = (
         getDeviceForStaticSessionId,
     });
 
-    const quotaManagerFetch = createQuotaManagerFetch({ fetch: deps.fetch });
+    const quotaManagerFetch = createQuotaManagerFetch({
+        fetch: deps.fetch,
+        getQuotaManagerBaseUrl: () => selectQuotaManagerBaseUrl(deps.getState()),
+    });
 
     const { ensureQuota, increaseOwnerQuota, getOwnerHasAllowance } =
         createSuiteSyncQuotaManagerCompositionRoot({

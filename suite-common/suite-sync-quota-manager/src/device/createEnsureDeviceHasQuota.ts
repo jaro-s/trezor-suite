@@ -2,12 +2,12 @@ import { type Dispatch } from '@reduxjs/toolkit';
 
 import { getPublicIdentityKeyFromDelegatedKey } from '@suite-common/delegated-identity-key';
 import { type ProofOfDelegatedSignFailedType } from '@suite-common/delegated-identity-key-types';
-import { type DelegatedIdentityKey, type TrezorDeviceWithState } from '@suite-common/suite-types';
+import { type DelegatedIdentityKey, type DeviceErrorType, type TrezorDeviceWithState } from '@suite-common/suite-types';
 import { type Result, err, exhaustive, ok } from '@trezor/type-utils';
 
 import { type RegisterDeviceDep } from './createRegisterDevice';
 import { QuotaManagerCommunicationFailed } from '../errors';
-import type { QuotaManagerCommunicationFailedErrType, QuotaManagerNoQuotaErrType } from '../errors';
+import type { QuotaManagerCommunicationFailedErrType } from '../errors';
 import { quotaManagerDeviceFetched } from '../quotaManagerActions';
 import { type CheckStorageByPublicKeyDep } from '../storage/createCheckStorageByPublicKey';
 
@@ -21,17 +21,12 @@ export type EnsureDeviceHasQuota = (
 ) => Promise<
     Result<
         void,
-        | QuotaManagerCommunicationFailedErrType
-        | QuotaManagerNoQuotaErrType
-        | ProofOfDelegatedSignFailedType
+        QuotaManagerCommunicationFailedErrType | ProofOfDelegatedSignFailedType | DeviceErrorType
     >
 >;
 
-type GetQuotaManagerBaseUrl = () => string | null;
-
 export type EnsureDeviceHasQuotaDeps = {
     dispatch: Dispatch;
-    getQuotaManagerBaseUrl: GetQuotaManagerBaseUrl;
 } & CheckStorageByPublicKeyDep &
     RegisterDeviceDep;
 
@@ -45,15 +40,10 @@ export const createEnsureDeviceHasQuota =
         const delegatedKeyPublic = getPublicIdentityKeyFromDelegatedKey(delegatedKey);
 
         const hasPublicKeyStorage = await deps.checkStorageByPublicKey({
-            baseUrl: deps.getQuotaManagerBaseUrl(),
             publicKey: delegatedKeyPublic,
         });
 
         if (!hasPublicKeyStorage.success) {
-            // const isHttp404 =
-            //     hasPublicKeyStorage.error.type === 'HttpError' &&
-            // hasPublicKeyStorage.error.code === 404;
-
             return err(QuotaManagerCommunicationFailed(hasPublicKeyStorage.error));
         }
 

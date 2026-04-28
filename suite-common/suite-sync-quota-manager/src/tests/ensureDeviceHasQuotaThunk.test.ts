@@ -32,7 +32,6 @@ describe(createEnsureDeviceHasQuota.name, () => {
 
         expect(result).toEqual(ok());
         expect(deps.checkStorageByPublicKey).toHaveBeenCalledWith({
-            baseUrl: 'https://quota-manager.test',
             publicKey:
                 '0428a3cefc19b41ff56795e371aab72d6d85a3ca2200bd46c54e611a36222295a88b44d6f23ce94025b6010f9eb0f9168ad35d8396dc865fa0a16f2f5471816a45',
         });
@@ -71,26 +70,9 @@ describe(createEnsureDeviceHasQuota.name, () => {
         expect(deps.registerDevice).not.toHaveBeenCalled();
     });
 
-    it('returns QuotaManagerNoQuota when server reports NoQuota status', async () => {
+    it('requests registration when server reports NoQuota status', async () => {
         const deps = createEnsureDeviceHasQuotaDepsMock({
             checkStorageByPublicKeyResponses: [ok({ status: 'NoQuota' })],
-            registerDeviceResponses: [],
-        });
-
-        const result = await createEnsureDeviceHasQuota(deps)({
-            delegatedKey: DELEGATED_IDENTITY_KEY,
-            device,
-        });
-
-        expect(result).toEqual(err({ type: 'QuotaManagerNoQuota' }));
-        expect(deps.registerDevice).not.toHaveBeenCalled();
-    });
-
-    it('requests registration when device is unknown (HTTP 404)', async () => {
-        const deps = createEnsureDeviceHasQuotaDepsMock({
-            checkStorageByPublicKeyResponses: [
-                err({ type: 'HttpError', code: 404, message: 'Not found' }),
-            ],
             registerDeviceResponses: [ok()],
         });
 
@@ -104,5 +86,27 @@ describe(createEnsureDeviceHasQuota.name, () => {
             delegatedKey: DELEGATED_IDENTITY_KEY,
             device,
         });
+    });
+
+    it('returns QuotaManagerCommunicationFailed when device is unknown (HTTP 404)', async () => {
+        const deps = createEnsureDeviceHasQuotaDepsMock({
+            checkStorageByPublicKeyResponses: [
+                err({ type: 'HttpError', code: 404, message: 'Not found' }),
+            ],
+            registerDeviceResponses: [],
+        });
+
+        const result = await createEnsureDeviceHasQuota(deps)({
+            delegatedKey: DELEGATED_IDENTITY_KEY,
+            device,
+        });
+
+        expect(result).toEqual(
+            err({
+                type: 'QuotaManagerCommunicationFailed',
+                caused: { type: 'HttpError', code: 404, message: 'Not found' },
+            }),
+        );
+        expect(deps.registerDevice).not.toHaveBeenCalled();
     });
 });

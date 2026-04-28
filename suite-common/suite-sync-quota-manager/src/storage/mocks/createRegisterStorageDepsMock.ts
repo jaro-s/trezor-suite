@@ -15,7 +15,6 @@ export const createRegisterStorageDepsMock = ({
 }: CreateRegisterStorageDepsMockParams) =>
     createMockDeps<RegisterStorageDeps>({
         dispatch: jest.fn(),
-        getQuotaManagerBaseUrl: () => 'https://quota-manager.test',
         quotaManagerFetch: createQuotaManagerFetchMock(quotaManagerFetchResponses),
         ...patch,
     });
