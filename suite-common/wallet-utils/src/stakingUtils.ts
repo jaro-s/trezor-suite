@@ -138,17 +138,14 @@ export const getStakingDataForNetwork = (
         case 'solana': {
             const solStakingInfo = getSolStakingAccountsInfo(account) ?? {};
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const {
-                solStakedBalance,
-                solClaimableBalance,
-                solPendingStakeBalance,
-                solPendingUnstakeBalance,
-            }: {
-                solStakedBalance: string;
-                solClaimableBalance: string;
-                solPendingStakeBalance: string;
-                solPendingUnstakeBalance: string;
-            } = solStakingInfo;
+            const { solStakedBalance }: { solStakedBalance: string } = solStakingInfo;
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            const { solClaimableBalance }: { solClaimableBalance: string } = solStakingInfo;
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            const { solPendingStakeBalance }: { solPendingStakeBalance: string } = solStakingInfo;
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            const { solPendingUnstakeBalance }: { solPendingUnstakeBalance: string } =
+                solStakingInfo;
             const { canClaimSol } = solStakingInfo;
 
             return {
