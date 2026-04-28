@@ -5,12 +5,17 @@ import { type TrezorConnect } from '@trezor/connect';
 
 import { createPrepareChallengeSession } from './challenge/prepareChallengeSession';
 import { createEnsureQuota } from './createEnsureQuota';
+import { createTransferStorage } from './createTransferStorage';
+import { createCheckStorageByPublicKey } from './device/createCheckStorageByPublicKey';
 import { createEnsureDeviceHasQuota } from './device/createEnsureDeviceHasQuota';
 import { createRegisterDevice } from './device/createRegisterDevice';
+import { createRegisterStorage } from './device/createRegisterStorage';
 import { type GetDeviceForStaticSessionIdDep } from './device/getDeviceForStaticSessionId';
+import { type GetHasDeviceRegisteredAndOwnerHasAllowance } from './getHasDeviceRegisteredAndOwnerHasAllowance';
 import { type GetIsUsingTrezorRelayDep } from './getIsDefaultRelayUrlSet';
 import { type GetIsQuotaManagerEnabled } from './getIsQuotaManagerEnabled';
-import { type GetHasDeviceRegisteredAndOwnerHasAllowance } from './getHasDeviceRegisteredAndOwnerHasAllowance';
+import { createAllocateOwnerQuota } from './owner/createAllocateOwnerQuota';
+import { createCheckStorageByOwnerId } from './owner/createCheckStorageByOwnerId';
 import { createEnsureOwnerHasAllocatedQuota } from './owner/createEnsureOwnerHasAllocatedQuota';
 import { createIncreaseOwnerQuota } from './owner/createIncreaseOwnerQuota';
 import { type GetOwnerHasAllowance } from './owner/getOwnerHasAllowance';
@@ -22,10 +27,6 @@ import {
     selectHasOwnerAllowance,
     selectLeftDeviceQuota,
 } from './quotaManagerSelectors';
-import { createCheckStorageByOwnerId } from './storage/createCheckStorageByOwnerId';
-import { createCheckStorageByPublicKey } from './storage/createCheckStorageByPublicKey';
-import { createRegisterStorage } from './storage/createRegisterStorage';
-import { createTransferStorage } from './storage/createTransferStorage';
 import { generateSessionId } from './util/generateSessionId';
 
 type CreateSuiteSyncQuotaManagerCompositionRootDeps = {
@@ -79,24 +80,32 @@ export const createSuiteSyncQuotaManagerCompositionRoot = (
         trezorConnect: deps.trezorConnect,
     });
 
-    const transferStorage = createTransferStorage({
-        dispatch: deps.dispatch,
-        quotaManagerFetch: deps.quotaManagerFetch,
-    });
-
     const ensureDeviceHasQuota = createEnsureDeviceHasQuota({
         checkStorageByPublicKey,
         dispatch: deps.dispatch,
         registerDevice,
     });
 
-    const ensureOwnerHasAllocatedQuota = createEnsureOwnerHasAllocatedQuota({
-        checkStorageByOwnerId,
+    // Owner
+
+    const transferStorage = createTransferStorage({
         dispatch: deps.dispatch,
+        quotaManagerFetch: deps.quotaManagerFetch,
+    });
+
+    const allocateOwnerQuota = createAllocateOwnerQuota({
         getLeftDeviceQuota,
         prepareChallengeSession,
         transferStorage,
     });
+
+    const ensureOwnerHasAllocatedQuota = createEnsureOwnerHasAllocatedQuota({
+        allocateOwnerQuota,
+        checkStorageByOwnerId,
+        dispatch: deps.dispatch,
+    });
+
+    // Main
 
     const ensureQuota = createEnsureQuota({
         ensureDeviceHasQuota,

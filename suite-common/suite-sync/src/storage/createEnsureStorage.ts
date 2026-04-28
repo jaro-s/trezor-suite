@@ -2,7 +2,6 @@ import {
     type EnsureQuotaDep,
     type GetOwnerHasAllowanceDep,
     type QuotaManagerCommunicationFailedErrType,
-    type QuotaManagerNoQuotaErrType,
     type QuotaManagerNoQuotaLeftToAllocateErrType,
     type WriteModeRequiredForAllocationErrType,
 } from '@suite-common/suite-sync-quota-manager';
@@ -48,8 +47,7 @@ export type CreateEnsureStorage = (
         | DeviceErrorType
         | DeviceCancelledErrType
         | WriteModeRequiredForAllocationErrType
-        | QuotaManagerNoQuotaErrType
-        | QuotaManagerNoQuotaLeftToAllocateErrType
+        | QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType
         | QuotaManagerCommunicationFailedErrType
     >
 >;
@@ -119,8 +117,7 @@ export const createEnsureStorage =
                 }
                 case 'DeviceError':
                 case 'QuotaManagerCommunicationFailed':
-                case 'QuotaManagerNoQuota':
-                case 'NoQuotaLeftToAllocate':
+                case 'QuotaManagerNoQuotaLeftOnDeviceToAllocate':
                     return err(quotaResult.error);
 
                 default:

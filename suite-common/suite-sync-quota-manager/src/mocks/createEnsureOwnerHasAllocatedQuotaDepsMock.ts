@@ -1,33 +1,23 @@
 import { createMockDeps } from '@suite-common/dependency-injection';
+import { ok } from '@trezor/type-utils';
 
-import { createPrepareChallengeSessionMock } from '../challenge/mocks/createPrepareChallengeSessionMock';
-import { type PrepareChallengeSessionResult } from '../challenge/prepareChallengeSession';
+import { createAllocateOwnerQuotaMock } from '../owner/mocks/createAllocateOwnerQuotaMock';
 import { type EnsureOwnerHasAllocatedQuotaDeps } from '../owner/createEnsureOwnerHasAllocatedQuota';
 import { type CheckStorageByOwnerIdResult } from '../storage/createCheckStorageByOwnerId';
-import { type TransferStorageResult } from '../storage/createTransferStorage';
 import { createCheckStorageByOwnerIdMock } from '../storage/mocks/createCheckStorageByOwnerIdMock';
-import { createTransferStorageMock } from '../storage/mocks/createTransferStorageMock';
 
 type CreateEnsureOwnerHasAllocatedQuotaDepsMockParams = {
     checkStorageByOwnerIdResponses: CheckStorageByOwnerIdResult[];
-    prepareChallengeSessionResponses: PrepareChallengeSessionResult[];
-    transferStorageResponses: TransferStorageResult[];
     patch?: Partial<EnsureOwnerHasAllocatedQuotaDeps>;
 };
 
 export const createEnsureOwnerHasAllocatedQuotaDepsMock = ({
     checkStorageByOwnerIdResponses,
-    prepareChallengeSessionResponses,
-    transferStorageResponses,
     patch = {},
 }: CreateEnsureOwnerHasAllocatedQuotaDepsMockParams) =>
     createMockDeps<EnsureOwnerHasAllocatedQuotaDeps>({
+        allocateOwnerQuota: createAllocateOwnerQuotaMock([ok()]),
         checkStorageByOwnerId: createCheckStorageByOwnerIdMock(checkStorageByOwnerIdResponses),
         dispatch: jest.fn(),
-        getLeftDeviceQuota: () => undefined,
-        prepareChallengeSession: createPrepareChallengeSessionMock(
-            prepareChallengeSessionResponses,
-        ),
-        transferStorage: createTransferStorageMock(transferStorageResponses),
         ...patch,
     });

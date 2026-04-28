@@ -1,7 +1,65 @@
-export const createAllocateOwnerQuota = () => {
-    () => {
+import {
+    getProofOfDelegatedIdentity,
+    getPublicIdentityKeyFromDelegatedKey,
+} from '@suite-common/delegated-identity-key';
+import { type ProofOfDelegatedSignFailedType } from '@suite-common/delegated-identity-key-types';
+import { type SuiteSyncOwnerId } from '@suite-common/suite-sync-storage';
+import { type DelegatedIdentityKey } from '@suite-common/suite-types';
+import { type WalletDescriptor } from '@suite-common/wallet-types';
+import { type Result, err, ok } from '@trezor/type-utils';
+
+import { type PrepareChallengeSessionDep } from '../challenge/prepareChallengeSession';
+import {
+    DEFAULT_DEVICE_SIZE_QUOTA,
+    EVOLU_SIGN_ADD_SPACE_TO_OWNER_REQUEST_HEADER,
+} from '../constants';
+import {
+    NoQuotaLeftToAllocate,
+    QuotaManagerCommunicationFailed,
+    type QuotaManagerCommunicationFailedErrType,
+    type QuotaManagerNoQuotaLeftToAllocateErrType,
+    WriteModeRequiredForAllocation,
+    type WriteModeRequiredForAllocationErrType,
+} from '../errors';
+import { type TransferStorageDep } from '../storage/createTransferStorage';
+import { getAccountIncrementSizeQuota } from '../util/getAccountIncrementSizeQuota';
+import { prepareMessageBufferEvoluAddSpaceToOwner } from '../util/prepareMessageBufferEvoluAddSpaceToOwner';
+
+type GetLeftDeviceQuota = (deviceId: string) => number | undefined;
+
+export type AllocateOwnerQuotaParams = {
+    ownerId: SuiteSyncOwnerId;
+    delegatedKey: DelegatedIdentityKey;
+    deviceId: string;
+    walletDescriptor: WalletDescriptor;
+    isWriteMode: boolean;
+};
+
+export type AllocateOwnerQuota = (
+    params: AllocateOwnerQuotaParams,
+) => Promise<
+    Result<
+        void,
+        | ProofOfDelegatedSignFailedType
+        | WriteModeRequiredForAllocationErrType
+        | QuotaManagerNoQuotaLeftToAllocateErrType
+        | QuotaManagerCommunicationFailedErrType
+    >
+>;
+
+export type AllocateOwnerQuotaDeps = {
+    getLeftDeviceQuota: GetLeftDeviceQuota;
+} & TransferStorageDep &
+    PrepareChallengeSessionDep;
+
+export type AllocateOwnerQuotaDep = {
+    allocateOwnerQuota: AllocateOwnerQuota;
+};
+
+export const createAllocateOwnerQuota =
+    (deps: AllocateOwnerQuotaDeps): AllocateOwnerQuota =>
+    async ({ ownerId, delegatedKey, deviceId, walletDescriptor, isWriteMode }) => {
         if (isWriteMode === false) {
-            // we want to allocate on-demand
             return err(WriteModeRequiredForAllocation());
         }
 
@@ -20,11 +78,12 @@ export const createAllocateOwnerQuota = () => {
             return err(QuotaManagerCommunicationFailed(sessionChallenge.error));
         }
 
+        const delegatedPublicKey = getPublicIdentityKeyFromDelegatedKey(delegatedKey);
         const proofOfDelegatedIdentity = getProofOfDelegatedIdentity({
             delegatedKey,
             header: EVOLU_SIGN_ADD_SPACE_TO_OWNER_REQUEST_HEADER,
             appendMessageBuffer: prepareMessageBufferEvoluAddSpaceToOwner({
-                publicKey: getPublicIdentityKeyFromDelegatedKey(delegatedKey),
+                publicKey: delegatedPublicKey,
                 ownerId,
                 challenge: sessionChallenge.payload.challenge,
                 size: sizeToAllocate,
@@ -38,7 +97,7 @@ export const createAllocateOwnerQuota = () => {
         const transferStorageResult = await deps.transferStorage({
             params: {
                 ownerId,
-                publicKey: getPublicIdentityKeyFromDelegatedKey(delegatedKey),
+                publicKey: delegatedPublicKey,
                 proof: proofOfDelegatedIdentity.payload,
                 size: sizeToAllocate,
                 challenge: sessionChallenge.payload.challenge,
@@ -54,4 +113,3 @@ export const createAllocateOwnerQuota = () => {
 
         return ok();
     };
-};
