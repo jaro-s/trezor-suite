@@ -31,24 +31,23 @@ export const TradingFormOfferOTC = () => {
     const baseCurrencyCode = useSelector(selectBaseCurrency);
     const { amountInCrypto } = context.getValues();
 
-    let fiatInput;
-    let fiatCurrency;
-    let cryptoAmount;
-    if (isTradingBuyContext(context)) {
-        fiatInput = context.getValues().fiatInput;
-        fiatCurrency = context.getValues().currencySelect.value;
-        cryptoAmount = context.getValues().cryptoInput;
-    } else {
-        const { outputs } = context.getValues();
-        // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const firstOutput: (typeof outputs)[number] = outputs[0];
-        fiatInput = firstOutput.fiat;
-        fiatCurrency = firstOutput.currency.value;
-        cryptoAmount = firstOutput.amount;
-    }
+    const fiatInput = isTradingBuyContext(context)
+        ? context.getValues().fiatInput
+        : // @ts-expect-error: indexing with noUncheckedIndexedAccess
+          context.getValues().outputs[0].fiat;
+
+    let fiatCurrency = isTradingBuyContext(context)
+        ? context.getValues().currencySelect.value
+        : // @ts-expect-error: indexing with noUncheckedIndexedAccess
+          context.getValues().outputs[0].currency.value;
     if (amountInCrypto) {
         fiatCurrency = baseCurrencyCode;
     }
+
+    const cryptoAmount = isTradingBuyContext(context)
+        ? context.getValues().cryptoInput
+        : // @ts-expect-error: indexing with noUncheckedIndexedAccess
+          context.getValues().outputs[0].amount;
 
     let cryptoCurrency;
     if (isTradingBuyContext(context)) {
