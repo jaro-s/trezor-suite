@@ -5,8 +5,8 @@ import { type StaticSessionId } from '@trezor/connect-common';
 import { err, ok } from '@trezor/type-utils';
 
 import { DEFAULT_ACCOUNT_SIZE_QUOTA } from '../constants';
-import { createEnsureOwnerHasAllocatedQuota } from '../createEnsureOwnerHasAllocatedQuota';
 import { createEnsureOwnerHasAllocatedQuotaDepsMock } from '../mocks/createEnsureOwnerHasAllocatedQuotaDepsMock';
+import { createEnsureOwnerHasAllocatedQuota } from '../owner/createEnsureOwnerHasAllocatedQuota';
 
 const ownerId = asSuiteSyncOwnerId('owner-id');
 const walletDescriptor: WalletDescriptor = asWalletDescriptor('descriptor');

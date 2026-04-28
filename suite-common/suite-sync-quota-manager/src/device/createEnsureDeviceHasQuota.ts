@@ -1,0 +1,83 @@
+import { type Dispatch } from '@reduxjs/toolkit';
+
+import { getPublicIdentityKeyFromDelegatedKey } from '@suite-common/delegated-identity-key';
+import { type ProofOfDelegatedSignFailedType } from '@suite-common/delegated-identity-key-types';
+import { type DelegatedIdentityKey, type TrezorDeviceWithState } from '@suite-common/suite-types';
+import { type Result, err, exhaustive, ok } from '@trezor/type-utils';
+
+import { type RegisterDeviceDep } from './createRegisterDevice';
+import { QuotaManagerCommunicationFailed } from '../errors';
+import type { QuotaManagerCommunicationFailedErrType, QuotaManagerNoQuotaErrType } from '../errors';
+import { quotaManagerDeviceFetched } from '../quotaManagerActions';
+import { type CheckStorageByPublicKeyDep } from '../storage/createCheckStorageByPublicKey';
+
+export type EnsureDeviceHasQuotaParams = {
+    device: TrezorDeviceWithState;
+    delegatedKey: DelegatedIdentityKey;
+};
+
+export type EnsureDeviceHasQuota = (
+    params: EnsureDeviceHasQuotaParams,
+) => Promise<
+    Result<
+        void,
+        | QuotaManagerCommunicationFailedErrType
+        | QuotaManagerNoQuotaErrType
+        | ProofOfDelegatedSignFailedType
+    >
+>;
+
+type GetQuotaManagerBaseUrl = () => string | null;
+
+export type EnsureDeviceHasQuotaDeps = {
+    dispatch: Dispatch;
+    getQuotaManagerBaseUrl: GetQuotaManagerBaseUrl;
+} & CheckStorageByPublicKeyDep &
+    RegisterDeviceDep;
+
+export type EnsureDeviceHasQuotaDep = {
+    ensureDeviceHasQuota: EnsureDeviceHasQuota;
+};
+
+export const createEnsureDeviceHasQuota =
+    (deps: EnsureDeviceHasQuotaDeps): EnsureDeviceHasQuota =>
+    async ({ device, delegatedKey }) => {
+        const delegatedKeyPublic = getPublicIdentityKeyFromDelegatedKey(delegatedKey);
+
+        const hasPublicKeyStorage = await deps.checkStorageByPublicKey({
+            baseUrl: deps.getQuotaManagerBaseUrl(),
+            publicKey: delegatedKeyPublic,
+        });
+
+        if (!hasPublicKeyStorage.success) {
+            // const isHttp404 =
+            //     hasPublicKeyStorage.error.type === 'HttpError' &&
+            // hasPublicKeyStorage.error.code === 404;
+
+            return err(QuotaManagerCommunicationFailed(hasPublicKeyStorage.error));
+        }
+
+        const { status } = hasPublicKeyStorage.payload;
+
+        switch (status) {
+            case 'Allocated':
+                deps.dispatch(
+                    quotaManagerDeviceFetched({
+                        deviceId: device.id,
+                        totalStorageSize: hasPublicKeyStorage.payload.totalSpace,
+                        unspentStorageSize: hasPublicKeyStorage.payload.unspentSpace,
+                    }),
+                );
+
+                return ok();
+
+            case 'NoQuota':
+                return deps.registerDevice({
+                    delegatedKey,
+                    device,
+                });
+
+            default:
+                return exhaustive(status);
+        }
+    };

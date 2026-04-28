@@ -81,8 +81,4 @@ export type {
     SuiteSyncOtherError,
     RelayQuotaExceededError,
     Errors,
-    CreateSuiteSyncErrorHandlerDeps as CreateSuiteSyncErrorHandlerDep,
-    IncreaseOwnerQuota,
-    IncreaseOwnerQuotaErr,
-    OwnerDeviceNotAvailableErrType,
 } from './SuiteSyncErrorHandler';

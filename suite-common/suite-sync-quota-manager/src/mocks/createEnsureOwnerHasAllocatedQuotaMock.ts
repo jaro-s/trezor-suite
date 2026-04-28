@@ -1,6 +1,6 @@
 import { mock } from '@suite-common/dependency-injection';
 
-import { type EnsureOwnerHasAllocatedQuota } from '../createEnsureOwnerHasAllocatedQuota';
+import { type EnsureOwnerHasAllocatedQuota } from '../owner/createEnsureOwnerHasAllocatedQuota';
 
 type EnsureOwnerHasAllocatedQuotaResult = Awaited<ReturnType<EnsureOwnerHasAllocatedQuota>>;
 

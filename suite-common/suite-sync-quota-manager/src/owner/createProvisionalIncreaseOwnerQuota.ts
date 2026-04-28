@@ -1,12 +1,32 @@
 import { isTrezorDeviceWithState, selectSelectedDevice } from '@suite-common/device';
+import { type SuiteSyncOwnerId } from '@suite-common/suite-sync-storage';
 import { parseDeviceStaticSessionId } from '@suite-common/wallet-utils';
-import { ok } from '@trezor/type-utils';
+import { type Result, ok } from '@trezor/type-utils';
 
-import { type IncreaseOwnerQuota, type IncreaseOwnerQuotaDep } from './createIncreaseOwnerQuota';
+import { type IncreaseOwnerQuotaDep as IncreaseOwnerQuotaInnerDep } from './createIncreaseOwnerQuota';
+import {
+    type QuotaManagerCommunicationFailedErrType,
+    type QuotaManagerNoQuotaLeftToAllocateErrType,
+} from '../errors';
+
+export type OwnerDeviceNotAvailableErrType = { type: 'OwnerDeviceNotAvailable' };
+
+export type IncreaseOwnerQuotaErr =
+    | OwnerDeviceNotAvailableErrType
+    | QuotaManagerNoQuotaLeftToAllocateErrType
+    | QuotaManagerCommunicationFailedErrType;
+
+export type IncreaseOwnerQuota = (params: {
+    ownerId: SuiteSyncOwnerId;
+}) => Promise<Result<void, IncreaseOwnerQuotaErr>>;
+
+export type IncreaseOwnerQuotaDep = {
+    increaseOwnerQuota: IncreaseOwnerQuota;
+};
 
 export type CreateProvisionalIncreaseOwnerQuotaDeps = {
     getState: () => any;
-} & IncreaseOwnerQuotaDep;
+} & IncreaseOwnerQuotaInnerDep;
 
 /**
  * PROVISIONAL: bridges the error-handler's IncreaseOwnerQuota (just `ownerId`)
@@ -16,8 +36,8 @@ export type CreateProvisionalIncreaseOwnerQuotaDeps = {
  * This will be refactored once we have a proper ownerId -> device mapping.
  */
 export const createProvisionalIncreaseOwnerQuota =
-    (deps: CreateProvisionalIncreaseOwnerQuotaDeps): IncreaseOwnerQuota =>
-    async ({ ownerId }) => {
+    (deps: CreateProvisionalIncreaseOwnerQuotaDeps) =>
+    async ({ ownerId }: { ownerId: SuiteSyncOwnerId }) => {
         const device = selectSelectedDevice(deps.getState());
 
         if (!device || !isTrezorDeviceWithState(device)) {

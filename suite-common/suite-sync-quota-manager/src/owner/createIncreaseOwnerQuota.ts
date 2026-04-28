@@ -11,17 +11,19 @@ import { type TrezorDeviceWithState, asDelegatedIdentityKey } from '@suite-commo
 import { type WalletDescriptor } from '@suite-common/wallet-types';
 import { type Result, err, ok } from '@trezor/type-utils';
 
-import { type PrepareChallengeSessionDep } from './challenge/prepareChallengeSession';
+import { type PrepareChallengeSessionDep } from '../challenge/prepareChallengeSession';
 import {
     DEFAULT_DEVICE_SIZE_QUOTA,
     EVOLU_SIGN_ADD_SPACE_TO_OWNER_REQUEST_HEADER,
-} from './constants';
-import { type QuotaManagerNoQuotaLeftToAllocateErrType } from './createEnsureOwnerHasAllocatedQuota';
-import { quotaManagerCommunicationFailed } from './errors';
-import { type QuotaManagerCommunicationFailedErrType } from './quotaManagerTypes';
-import { type TransferStorageDep } from './storage/createTransferStorage';
-import { getAccountIncrementSizeQuota } from './util/getAccountIncrementSizeQuota';
-import { prepareMessageBufferEvoluAddSpaceToOwner } from './util/prepareMessageBufferEvoluAddSpaceToOwner';
+} from '../constants';
+import {
+    QuotaManagerCommunicationFailed,
+    type QuotaManagerCommunicationFailedErrType,
+    type QuotaManagerNoQuotaLeftToAllocateErrType,
+} from '../errors';
+import { type TransferStorageDep } from '../storage/createTransferStorage';
+import { getAccountIncrementSizeQuota } from '../util/getAccountIncrementSizeQuota';
+import { prepareMessageBufferEvoluAddSpaceToOwner } from '../util/prepareMessageBufferEvoluAddSpaceToOwner';
 
 export type IncreaseOwnerQuotaParams = {
     ownerId: SuiteSyncOwnerId;
@@ -80,7 +82,7 @@ export const createIncreaseOwnerQuota =
         });
 
         if (!sessionChallenge.success) {
-            return err(quotaManagerCommunicationFailed(sessionChallenge.error));
+            return err(QuotaManagerCommunicationFailed(sessionChallenge.error));
         }
 
         const proof = getProofOfDelegatedIdentity({
@@ -112,7 +114,7 @@ export const createIncreaseOwnerQuota =
         });
 
         if (!transferStorageResult.success) {
-            return err(quotaManagerCommunicationFailed(transferStorageResult.error));
+            return err(QuotaManagerCommunicationFailed(transferStorageResult.error));
         }
 
         return ok();

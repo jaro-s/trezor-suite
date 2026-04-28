@@ -10,15 +10,25 @@ import {
     createQuotaManagerFetch,
     createSuiteSyncQuotaManagerCompositionRoot,
 } from '@suite-common/suite-sync-quota-manager';
-import type { FetchDep } from '@suite-common/suite-sync-quota-manager';
+import type {
+    FetchDep,
+    IncreaseOwnerQuota,
+    IncreaseOwnerQuotaErr,
+    QuotaManagerCommunicationFailedErrType,
+} from '@suite-common/suite-sync-quota-manager';
 import {
     type CreateSuiteStorageDep,
     type CreateSuiteSyncOwnerDep,
 } from '@suite-common/suite-sync-storage';
-import { type SuiteSync, type SuiteSyncErrorHandler } from '@suite-common/suite-sync-types';
+import {
+    type SuiteSync,
+    type SuiteSyncErrorHandler,
+    type SuiteSyncOtherError,
+} from '@suite-common/suite-sync-types';
 import { selectAccounts } from '@suite-common/wallet-core';
 import { type Analytics } from '@trezor/analytics-uploader';
 import type TrezorConnect from '@trezor/connect';
+import { err } from '@trezor/type-utils';
 
 import { createEnsureSuiteSyncKeys } from './createEnsureSuiteSyncKeys';
 import { createSuiteSyncErrorHandler } from './createSuiteSyncErrorHandler';
@@ -129,10 +139,32 @@ export const createSuiteSyncCompositionRoot = (
         increaseOwnerQuota,
     });
 
+    const increaseOwnerQuotaForSuiteSyncErrorHandler: IncreaseOwnerQuota = async ({ ownerId }) => {
+        const result = await provisionalIncreaseOwnerQuota({ ownerId });
+
+        if (result.success) {
+            return result;
+        }
+
+        switch (result.error.type) {
+            case 'ProofOfDelegatedSignFailed': {
+                const mappedError: QuotaManagerCommunicationFailedErrType = {
+                    type: 'QuotaManagerCommunicationFailed',
+                    caused: result.error,
+                };
+
+                return err(mappedError);
+            }
+            case 'NoQuotaLeftToAllocate':
+            case 'QuotaManagerCommunicationFailed':
+                return err(result.error);
+        }
+    };
+
     deps.subscribeError(
         createSuiteSyncErrorHandler({
-            increaseOwnerQuota: provisionalIncreaseOwnerQuota,
-            onError: error => {
+            increaseOwnerQuota: increaseOwnerQuotaForSuiteSyncErrorHandler,
+            onError: (error: IncreaseOwnerQuotaErr | SuiteSyncOtherError) => {
                 console.error('SuiteSync error', error);
             },
         }),

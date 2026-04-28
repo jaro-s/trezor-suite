@@ -11,29 +11,24 @@ import { parseDeviceStaticSessionId } from '@suite-common/wallet-utils';
 import { type StaticSessionId } from '@trezor/connect';
 import { type Result, err, ok } from '@trezor/type-utils';
 
-import { type PrepareChallengeSessionDep } from './challenge/prepareChallengeSession';
+import { type PrepareChallengeSessionDep } from '../challenge/prepareChallengeSession';
 import {
     DEFAULT_DEVICE_SIZE_QUOTA,
     EVOLU_SIGN_ADD_SPACE_TO_OWNER_REQUEST_HEADER,
-} from './constants';
-import { quotaManagerCommunicationFailed } from './errors';
-import { quotaManagerOwnerFetched } from './quotaManagerActions';
+} from '../constants';
 import {
+    NoQuotaLeftToAllocate,
+    QuotaManagerCommunicationFailed,
     type QuotaManagerCommunicationFailedErrType,
+    type QuotaManagerNoQuotaLeftToAllocateErrType,
+    WriteModeRequiredForAllocation,
     type WriteModeRequiredForAllocationErrType,
-} from './quotaManagerTypes';
-import { type CheckStorageByOwnerIdDep } from './storage/createCheckStorageByOwnerId';
-import { type TransferStorageDep } from './storage/createTransferStorage';
-import { getAccountIncrementSizeQuota } from './util/getAccountIncrementSizeQuota';
-import { prepareMessageBufferEvoluAddSpaceToOwner } from './util/prepareMessageBufferEvoluAddSpaceToOwner';
-
-export type HttpErrType = { type: 'HttpError' };
-
-export type ChallengeFailedErrType = { type: 'ChallengeFailed' };
-
-export type ProofOfDelegatedIdentityFailedErrType = { type: 'ProofOfDelegatedIdentityFailed' };
-
-export type QuotaManagerNoQuotaLeftToAllocateErrType = { type: 'NoQuotaLeftToAllocate' };
+} from '../errors';
+import { quotaManagerOwnerFetched } from '../quotaManagerActions';
+import { type CheckStorageByOwnerIdDep } from '../storage/createCheckStorageByOwnerId';
+import { type TransferStorageDep } from '../storage/createTransferStorage';
+import { getAccountIncrementSizeQuota } from '../util/getAccountIncrementSizeQuota';
+import { prepareMessageBufferEvoluAddSpaceToOwner } from '../util/prepareMessageBufferEvoluAddSpaceToOwner';
 
 export type EnsureOwnerHasAllocatedQuotaParams = {
     ownerId: SuiteSyncOwnerId;
@@ -53,26 +48,6 @@ export type EnsureOwnerHasAllocatedQuota = (
         | QuotaManagerCommunicationFailedErrType
     >
 >;
-
-export const WriteModeRequiredForAllocation = (): WriteModeRequiredForAllocationErrType => ({
-    type: 'WriteModeRequiredForAllocation',
-});
-
-export const ChallengeFailed = (): ChallengeFailedErrType => ({
-    type: 'ChallengeFailed',
-});
-
-export const HttpError = (): HttpErrType => ({
-    type: 'HttpError',
-});
-
-export const ProofOfDelegatedIdentityFailed = (): ProofOfDelegatedIdentityFailedErrType => ({
-    type: 'ProofOfDelegatedIdentityFailed',
-});
-
-export const NoQuotaLeftToAllocate = (): QuotaManagerNoQuotaLeftToAllocateErrType => ({
-    type: 'NoQuotaLeftToAllocate',
-});
 
 type GetQuotaManagerBaseUrl = () => string | null;
 type GetLeftDeviceQuota = (deviceId: string) => number | undefined;
@@ -104,7 +79,7 @@ export const createEnsureOwnerHasAllocatedQuota =
                 hasOwnerStorage.error.type === 'HttpError' && hasOwnerStorage.error.code === 404;
 
             if (!isHttp404) {
-                return err(quotaManagerCommunicationFailed(hasOwnerStorage.error));
+                return err(QuotaManagerCommunicationFailed(hasOwnerStorage.error));
             }
         }
 
@@ -139,7 +114,7 @@ export const createEnsureOwnerHasAllocatedQuota =
         });
 
         if (!sessionChallenge.success) {
-            return err(quotaManagerCommunicationFailed(sessionChallenge.error));
+            return err(QuotaManagerCommunicationFailed(sessionChallenge.error));
         }
 
         const proofOfDelegatedIdentity = getProofOfDelegatedIdentity({
@@ -171,7 +146,7 @@ export const createEnsureOwnerHasAllocatedQuota =
         });
 
         if (!transferStorageResult.success) {
-            return err(quotaManagerCommunicationFailed(transferStorageResult.error));
+            return err(QuotaManagerCommunicationFailed(transferStorageResult.error));
         }
 
         return ok();

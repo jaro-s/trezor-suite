@@ -4,15 +4,16 @@ import { type EnsureDelegatedIdentityKeyDep } from '@suite-common/delegated-iden
 import { type TrezorConnect } from '@trezor/connect';
 
 import { createPrepareChallengeSession } from './challenge/prepareChallengeSession';
-import { createEnsureDeviceHasQuota } from './createEnsureDeviceHasQuota';
-import { createEnsureOwnerHasAllocatedQuota } from './createEnsureOwnerHasAllocatedQuota';
 import { createEnsureQuota } from './createEnsureQuota';
-import { createIncreaseOwnerQuota } from './createIncreaseOwnerQuota';
-import { type GetDeviceForStaticSessionIdDep } from './getDeviceForStaticSessionId';
-import { type GetDeviceHasAllowance } from './getDeviceHasAllowance';
+import { createEnsureDeviceHasQuota } from './device/createEnsureDeviceHasQuota';
+import { createRegisterDevice } from './device/createRegisterDevice';
+import { type GetDeviceForStaticSessionIdDep } from './device/getDeviceForStaticSessionId';
+import { type GetDeviceHasAllowance } from './device/getDeviceHasAllowance';
 import { type GetIsUsingTrezorRelayDep } from './getIsDefaultRelayUrlSet';
 import { type GetIsQuotaManagerEnabled } from './getIsQuotaManagerEnabled';
-import { type GetOwnerHasAllowance } from './getOwnerHasAllowance';
+import { createEnsureOwnerHasAllocatedQuota } from './owner/createEnsureOwnerHasAllocatedQuota';
+import { createIncreaseOwnerQuota } from './owner/createIncreaseOwnerQuota';
+import { type GetOwnerHasAllowance } from './owner/getOwnerHasAllowance';
 import { type QuotaManagerFetchDep } from './quotaManagerFetch';
 import {
     type WithSuiteSyncQuotaManagerState,
@@ -72,6 +73,13 @@ export const createSuiteSyncQuotaManagerCompositionRoot = (
         quotaManagerFetch: deps.quotaManagerFetch,
     });
 
+    const registerDevice = createRegisterDevice({
+        getQuotaManagerBaseUrl,
+        prepareChallengeSession,
+        registerStorage,
+        trezorConnect: deps.trezorConnect,
+    });
+
     const transferStorage = createTransferStorage({
         dispatch: deps.dispatch,
         getQuotaManagerBaseUrl,
@@ -82,9 +90,7 @@ export const createSuiteSyncQuotaManagerCompositionRoot = (
         checkStorageByPublicKey,
         dispatch: deps.dispatch,
         getQuotaManagerBaseUrl,
-        prepareChallengeSession,
-        registerStorage,
-        trezorConnect: deps.trezorConnect,
+        registerDevice,
     });
 
     const ensureOwnerHasAllocatedQuota = createEnsureOwnerHasAllocatedQuota({

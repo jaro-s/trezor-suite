@@ -7,19 +7,17 @@ import { type StaticSessionId } from '@trezor/connect';
 import { type Result, err, ok } from '@trezor/type-utils';
 import { isNotNull, isNotNullOrUndefined } from '@trezor/utils';
 
-import { type EnsureDeviceHasQuotaDep } from './createEnsureDeviceHasQuota';
+import { type EnsureDeviceHasQuotaDep } from './device/createEnsureDeviceHasQuota';
+import { type GetDeviceForStaticSessionIdDep } from './device/getDeviceForStaticSessionId';
+import { type GetDeviceHasAllowanceDep } from './device/getDeviceHasAllowance';
 import {
-    type EnsureOwnerHasAllocatedQuotaDep,
+    type QuotaManagerCommunicationFailedErrType,
+    type QuotaManagerNoQuotaErrType,
     type QuotaManagerNoQuotaLeftToAllocateErrType,
     WriteModeRequiredForAllocation,
-} from './createEnsureOwnerHasAllocatedQuota';
-import { type GetDeviceForStaticSessionIdDep } from './getDeviceForStaticSessionId';
-import { type GetDeviceHasAllowanceDep } from './getDeviceHasAllowance';
-import type {
-    QuotaManagerCommunicationFailedErrType,
-    QuotaManagerNoQuotaErrType,
-    WriteModeRequiredForAllocationErrType,
-} from './quotaManagerTypes';
+    type WriteModeRequiredForAllocationErrType,
+} from './errors';
+import { type EnsureOwnerHasAllocatedQuotaDep } from './owner/createEnsureOwnerHasAllocatedQuota';
 
 export type EnsureQuotaDeps = GetDeviceForStaticSessionIdDep &
     EnsureDeviceHasQuotaDep &

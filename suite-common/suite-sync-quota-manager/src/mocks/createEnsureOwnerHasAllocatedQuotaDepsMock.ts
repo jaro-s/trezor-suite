@@ -2,7 +2,7 @@ import { createMockDeps } from '@suite-common/dependency-injection';
 
 import { createPrepareChallengeSessionMock } from '../challenge/mocks/createPrepareChallengeSessionMock';
 import { type PrepareChallengeSessionResult } from '../challenge/prepareChallengeSession';
-import { type EnsureOwnerHasAllocatedQuotaDeps } from '../createEnsureOwnerHasAllocatedQuota';
+import { type EnsureOwnerHasAllocatedQuotaDeps } from '../owner/createEnsureOwnerHasAllocatedQuota';
 import { type CheckStorageByOwnerIdResult } from '../storage/createCheckStorageByOwnerId';
 import { type TransferStorageResult } from '../storage/createTransferStorage';
 import { createCheckStorageByOwnerIdMock } from '../storage/mocks/createCheckStorageByOwnerIdMock';

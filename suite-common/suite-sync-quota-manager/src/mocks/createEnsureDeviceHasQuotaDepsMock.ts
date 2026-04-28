@@ -1,24 +1,21 @@
 import { createMockDeps } from '@suite-common/dependency-injection';
 
-import { createPrepareChallengeSessionMock } from '../challenge/mocks/createPrepareChallengeSessionMock';
-import { type PrepareChallengeSessionResult } from '../challenge/prepareChallengeSession';
-import { type EnsureDeviceHasQuotaDeps } from '../createEnsureDeviceHasQuota';
+import { type EnsureDeviceHasQuotaDeps } from '../device/createEnsureDeviceHasQuota';
+import { createRegisterDeviceMock } from '../device/mocks/createRegisterDeviceMock';
 import { type CheckStorageByPublicKeyResult } from '../storage/createCheckStorageByPublicKey';
-import { type RegisterStorageResult } from '../storage/createRegisterStorage';
 import { createCheckStorageByPublicKeyMock } from '../storage/mocks/createCheckStorageByPublicKeyMock';
-import { createRegisterStorageMock } from '../storage/mocks/createRegisterStorageMock';
+
+type RegisterDeviceResult = Awaited<ReturnType<EnsureDeviceHasQuotaDeps['registerDevice']>>;
 
 type CreateEnsureDeviceHasQuotaDepsMockParams = {
     checkStorageByPublicKeyResponses: CheckStorageByPublicKeyResult[];
-    prepareChallengeSessionResponses: PrepareChallengeSessionResult[];
-    registerStorageResponses: RegisterStorageResult[];
+    registerDeviceResponses: RegisterDeviceResult[];
     patch?: Partial<EnsureDeviceHasQuotaDeps>;
 };
 
 export const createEnsureDeviceHasQuotaDepsMock = ({
     checkStorageByPublicKeyResponses,
-    prepareChallengeSessionResponses,
-    registerStorageResponses,
+    registerDeviceResponses,
     patch = {},
 }: CreateEnsureDeviceHasQuotaDepsMockParams) =>
     createMockDeps<EnsureDeviceHasQuotaDeps>({
@@ -27,12 +24,6 @@ export const createEnsureDeviceHasQuotaDepsMock = ({
         ),
         dispatch: jest.fn(),
         getQuotaManagerBaseUrl: () => 'https://quota-manager.test',
-        prepareChallengeSession: createPrepareChallengeSessionMock(
-            prepareChallengeSessionResponses,
-        ),
-        registerStorage: createRegisterStorageMock(registerStorageResponses),
-        trezorConnect: {
-            evoluSignRegistrationRequest: jest.fn(),
-        },
+        registerDevice: createRegisterDeviceMock(registerDeviceResponses),
         ...patch,
     });

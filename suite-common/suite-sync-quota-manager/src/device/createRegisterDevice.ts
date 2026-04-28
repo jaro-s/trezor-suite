@@ -1,5 +1,3 @@
-import { type Dispatch } from '@reduxjs/toolkit';
-
 import {
     getProofOfDelegatedIdentity,
     getPublicIdentityKeyFromDelegatedKey,
@@ -9,90 +7,49 @@ import { type DelegatedIdentityKey, type TrezorDeviceWithState } from '@suite-co
 import { type TrezorConnect } from '@trezor/connect';
 import { type Result, err, ok } from '@trezor/type-utils';
 
-import { type PrepareChallengeSessionDep } from './challenge/prepareChallengeSession';
-import { DEFAULT_DEVICE_SIZE_QUOTA } from './constants';
-import { quotaManagerCommunicationFailed, quotaManagerNoQuota } from './errors';
-import { quotaManagerDeviceFetched } from './quotaManagerActions';
+import { type PrepareChallengeSessionDep } from '../challenge/prepareChallengeSession';
+import { DEFAULT_DEVICE_SIZE_QUOTA } from '../constants';
 import {
+    QuotaManagerCommunicationFailed,
     type QuotaManagerCommunicationFailedErrType,
-    type QuotaManagerNoQuotaErrType,
-} from './quotaManagerTypes';
-import { type CheckStorageByPublicKeyDep } from './storage/createCheckStorageByPublicKey';
-import { type RegisterStorageDep } from './storage/createRegisterStorage';
-import { prepareMessageBufferEvoluSignRegistrationRequest } from './util/prepareMessageBufferEvoluSignRegistrationRequest';
+} from '../errors';
+import { type RegisterStorageDep } from '../storage/createRegisterStorage';
+import { prepareMessageBufferEvoluSignRegistrationRequest } from '../util/prepareMessageBufferEvoluSignRegistrationRequest';
 
 const EVOLU_SIGN_REGISTRATION_REQUEST_HEADER = 'EvoluSignRegistrationRequest';
 
-export type EnsureDeviceHasQuotaParams = {
+export type RegisterDeviceParams = {
     device: TrezorDeviceWithState;
     delegatedKey: DelegatedIdentityKey;
 };
 
-export type EnsureDeviceHasQuota = (
-    params: EnsureDeviceHasQuotaParams,
-) => Promise<
-    Result<
-        void,
-        | QuotaManagerCommunicationFailedErrType
-        | QuotaManagerNoQuotaErrType
-        | ProofOfDelegatedSignFailedType
-    >
->;
+export type RegisterDevice = (
+    params: RegisterDeviceParams,
+) => Promise<Result<void, QuotaManagerCommunicationFailedErrType | ProofOfDelegatedSignFailedType>>;
 
 type GetQuotaManagerBaseUrl = () => string | null;
 
-export type EnsureDeviceHasQuotaDeps = {
-    dispatch: Dispatch;
+export type RegisterDeviceDeps = {
     getQuotaManagerBaseUrl: GetQuotaManagerBaseUrl;
     trezorConnect: Pick<TrezorConnect, 'evoluSignRegistrationRequest'>;
 } & RegisterStorageDep &
-    PrepareChallengeSessionDep &
-    CheckStorageByPublicKeyDep;
+    PrepareChallengeSessionDep;
 
-export type EnsureDeviceHasQuotaDep = {
-    ensureDeviceHasQuota: EnsureDeviceHasQuota;
+export type RegisterDeviceDep = {
+    registerDevice: RegisterDevice;
 };
 
-export const createEnsureDeviceHasQuota =
-    (deps: EnsureDeviceHasQuotaDeps): EnsureDeviceHasQuota =>
+export const createRegisterDevice =
+    (deps: RegisterDeviceDeps): RegisterDevice =>
     async ({ device, delegatedKey }) => {
         const delegatedKeyPublic = getPublicIdentityKeyFromDelegatedKey(delegatedKey);
-
-        const hasPublicKeyStorage = await deps.checkStorageByPublicKey({
-            baseUrl: deps.getQuotaManagerBaseUrl(),
-            publicKey: delegatedKeyPublic,
-        });
-
-        if (hasPublicKeyStorage.success) {
-            if (hasPublicKeyStorage.payload.status === 'NoQuota') {
-                return err(quotaManagerNoQuota());
-            }
-
-            deps.dispatch(
-                quotaManagerDeviceFetched({
-                    deviceId: device.id,
-                    totalStorageSize: hasPublicKeyStorage.payload.totalSpace,
-                    unspentStorageSize: hasPublicKeyStorage.payload.unspentSpace,
-                }),
-            );
-
-            return ok();
-        }
-
-        const isHttp404 =
-            hasPublicKeyStorage.error.type === 'HttpError' &&
-            hasPublicKeyStorage.error.code === 404;
-
-        if (!isHttp404) {
-            return err(quotaManagerCommunicationFailed(hasPublicKeyStorage.error));
-        }
 
         const sessionChallenge = await deps.prepareChallengeSession({
             baseUrl: deps.getQuotaManagerBaseUrl(),
         });
 
         if (!sessionChallenge.success) {
-            return err(quotaManagerCommunicationFailed(sessionChallenge.error));
+            return err(QuotaManagerCommunicationFailed(sessionChallenge.error));
         }
 
         const proofOfDelegatedIdentity = getProofOfDelegatedIdentity({
@@ -115,7 +72,7 @@ export const createEnsureDeviceHasQuota =
         });
 
         if (!registrationRequestResult.success) {
-            return err(quotaManagerCommunicationFailed(registrationRequestResult));
+            return err(QuotaManagerCommunicationFailed(registrationRequestResult));
         }
 
         const registerStorageResult = await deps.registerStorage({
@@ -133,7 +90,7 @@ export const createEnsureDeviceHasQuota =
         });
 
         if (!registerStorageResult.success) {
-            return err(quotaManagerCommunicationFailed(registerStorageResult.error));
+            return err(QuotaManagerCommunicationFailed(registerStorageResult.error));
         }
 
         return ok();
