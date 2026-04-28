@@ -136,27 +136,29 @@ export const getStakingDataForNetwork = (
         case 'ethereum':
             return getAccountEverstakeStakingPool(account);
         case 'solana': {
+            const solStakingInfo = getSolStakingAccountsInfo(account) ?? {};
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
             const {
-                canClaimSol,
-                solClaimableBalance,
                 solStakedBalance,
+                solClaimableBalance,
                 solPendingStakeBalance,
                 solPendingUnstakeBalance,
-            } = getSolStakingAccountsInfo(account) ?? {};
+            }: {
+                solStakedBalance: string;
+                solClaimableBalance: string;
+                solPendingStakeBalance: string;
+                solPendingUnstakeBalance: string;
+            } = solStakingInfo;
+            const { canClaimSol } = solStakingInfo;
 
             return {
-                // @ts-expect-error: indexing with noUncheckedIndexedAccess
                 autocompoundBalance: solStakedBalance,
-                // @ts-expect-error: indexing with noUncheckedIndexedAccess
                 claimableAmount: solClaimableBalance,
-                // @ts-expect-error: indexing with noUncheckedIndexedAccess
                 depositedBalance: solStakedBalance,
                 pendingBalance: '',
                 pendingDepositedBalance: '',
-                // @ts-expect-error: indexing with noUncheckedIndexedAccess
                 totalPendingStakeBalance: solPendingStakeBalance,
                 restakedReward: '',
-                // @ts-expect-error: indexing with noUncheckedIndexedAccess
                 withdrawTotalAmount: solPendingUnstakeBalance,
                 canClaim: canClaimSol,
             };
