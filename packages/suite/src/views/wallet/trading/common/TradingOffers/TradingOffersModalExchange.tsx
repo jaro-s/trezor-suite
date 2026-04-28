@@ -29,22 +29,28 @@ export const TradingOffersModalExchange = ({
         kycFilter: TRADING_EXCHANGE_COMPARATOR_KYC_FILTER_ALL,
     });
 
-    const showDex = activeTab === 'all' || activeTab === 'dex';
-    const showCex = activeTab === 'all' || activeTab === 'cex';
+    const hasDex = dex.length > 0;
+    const hasCex = fixed.length > 0 || float.length > 0;
+    const showTabs = hasDex && hasCex;
+
+    const showDex = hasDex && (activeTab === 'all' || activeTab === 'dex');
+    const showCex = hasCex && (activeTab === 'all' || activeTab === 'cex');
 
     return (
         <Column gap={24}>
-            <SubTabs activeItemId={activeTab}>
-                <SubTabs.Item id="all" onClick={() => setActiveTab('all')}>
-                    <Translation id="TR_ALL" />
-                </SubTabs.Item>
-                <SubTabs.Item id="cex" onClick={() => setActiveTab('cex')}>
-                    <Translation id="TR_EXCHANGE_CEX" />
-                </SubTabs.Item>
-                <SubTabs.Item id="dex" onClick={() => setActiveTab('dex')}>
-                    <Translation id="TR_EXCHANGE_DEX" />
-                </SubTabs.Item>
-            </SubTabs>
+            {showTabs && (
+                <SubTabs activeItemId={activeTab}>
+                    <SubTabs.Item id="all" onClick={() => setActiveTab('all')}>
+                        <Translation id="TR_ALL" />
+                    </SubTabs.Item>
+                    <SubTabs.Item id="cex" onClick={() => setActiveTab('cex')}>
+                        <Translation id="TR_EXCHANGE_CEX" />
+                    </SubTabs.Item>
+                    <SubTabs.Item id="dex" onClick={() => setActiveTab('dex')}>
+                        <Translation id="TR_EXCHANGE_DEX" />
+                    </SubTabs.Item>
+                </SubTabs>
+            )}
             {showDex && dex.length > 0 && (
                 <TradingOffersModalGroup
                     title="TR_TRADING_EXCHANGE_DEX_OFFERS_HEADING"
