@@ -349,21 +349,24 @@ export const selectTransactionsWithMissingRates = (
     const transactions = selectTransactions(state);
     const historicFiatRates = selectHistoricFiatRates(state);
 
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const accountTransactions: WalletAccountTransaction[] = transactions[accountKey ?? ''];
+    const scopedTransactions: Record<string, WalletAccountTransaction[]> = accountKey
+        ? { [accountKey]: accountTransactions }
+        : transactions;
+
     return pipe(
-        accountKey ? { [accountKey]: transactions[accountKey] } : transactions,
+        scopedTransactions,
         D.mapWithKey((key, txs) => ({
             account: selectAccountByKey(state, key as AccountKey),
-            txs: (txs as WalletAccountTransaction[]).filter((tx: WalletAccountTransaction) => {
+            txs: txs.filter(tx => {
                 const fiatRateKey = getFiatRateKey(tx.symbol, localCurrency as BaseCurrencyCode);
                 const roundedTimestamp = roundTimestampToNearestPastHour(tx.blockTime as Timestamp);
                 const historicRate = historicFiatRates?.[fiatRateKey]?.[roundedTimestamp];
 
                 const isMissingTokenRate = tx.tokens
-                    .filter(
-                        (token: WalletAccountTransaction['tokens'][number]) =>
-                            !isNftTokenTransfer(token),
-                    )
-                    .some((token: WalletAccountTransaction['tokens'][number]) => {
+                    .filter(token => !isNftTokenTransfer(token))
+                    .some(token => {
                         const tokenFiatRateKey = getFiatRateKey(
                             tx.symbol,
                             localCurrency,
