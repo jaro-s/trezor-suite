@@ -1,6 +1,6 @@
 import { mock } from '@suite-common/dependency-injection';
 
-import { type GenerateSessionId } from '../prepareChallengeSession';
+import { type GenerateSessionId } from '../generateSessionId';
 
 /**
  * Returns a jest.fn() implementing GenerateSessionId that yields the given

@@ -79,8 +79,7 @@ export const useTurnOnSuiteSyncGuard = () => {
                 case 'DeviceCancelled':
                 case 'DeviceError':
                 case 'QuotaManagerCommunicationFailed':
-                case 'QuotaManagerNoQuota':
-                case 'NoQuotaLeftToAllocate':
+                case 'QuotaManagerNoQuotaLeftOnDeviceToAllocate':
                     showToast({
                         variant: 'error',
                         icon: 'warning',

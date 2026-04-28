@@ -2,8 +2,8 @@ import {
     type QuotaManagerCommunicationFailedErrType,
     type QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType,
     type WriteModeRequiredForAllocationErrType,
-} from '@suite-common/suite-sync-quota-manager';
-import { type SuiteSyncStorage, type SuiteSyncUpdateError } from '@suite-common/suite-sync-storage';
+} from '@suite-common/suite-sync-quota-manager-types';
+import { type SuiteSyncStorage } from '@suite-common/suite-sync-storage';
 import { type DeviceCancelledErrType, type DeviceErrorType } from '@suite-common/suite-types';
 import { type StaticSessionId } from '@trezor/connect-common';
 import { type Result } from '@trezor/type-utils';
@@ -40,7 +40,10 @@ export type EnsureWalletSuiteSyncOn = (
 export type EnsureWalletSuiteSyncOnDep = { ensureWalletSuiteSyncOn: EnsureWalletSuiteSyncOn };
 
 export type SuiteSyncUserFacingErrorType =
-    | Exclude<EnsureWalletSuiteSyncOnErrors['type'], 'WriteModeRequiredForAllocation'>
-    | SuiteSyncUpdateError['type']
-    | QuotaManagerCommunicationFailedErrType['type']
-    | QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType['type'];
+    | 'SuiteSyncUnavailableOnDeviceError'
+    | 'SuiteSyncFirmwareUpgradeNeededDeviceErrorType'
+    | 'DeviceCancelled'
+    | 'DeviceError'
+    | 'SuiteSyncUpdateError'
+    | 'QuotaManagerCommunicationFailed'
+    | 'QuotaManagerNoQuotaLeftOnDeviceToAllocate';

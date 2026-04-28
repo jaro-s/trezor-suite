@@ -13,6 +13,9 @@
         { "path": "../platform-encryption" },
         { "path": "../redux-utils" },
         { "path": "../suite-sync-quota-manager" },
+        {
+            "path": "../suite-sync-quota-manager-types"
+        },
         { "path": "../suite-sync-storage" },
         { "path": "../suite-sync-types" },
         { "path": "../suite-types" },

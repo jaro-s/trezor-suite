@@ -11547,6 +11547,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@suite-common/suite-sync-quota-manager-types@workspace:*, @suite-common/suite-sync-quota-manager-types@workspace:suite-common/suite-sync-quota-manager-types":
+  version: 0.0.0-use.local
+  resolution: "@suite-common/suite-sync-quota-manager-types@workspace:suite-common/suite-sync-quota-manager-types"
+  languageName: unknown
+  linkType: soft
+
 "@suite-common/suite-sync-quota-manager@workspace:*, @suite-common/suite-sync-quota-manager@workspace:suite-common/suite-sync-quota-manager":
   version: 0.0.0-use.local
   resolution: "@suite-common/suite-sync-quota-manager@workspace:suite-common/suite-sync-quota-manager"
@@ -11557,6 +11563,7 @@ __metadata:
     "@suite-common/dependency-injection": "workspace:*"
     "@suite-common/device": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
+    "@suite-common/suite-sync-quota-manager-types": "workspace:*"
     "@suite-common/suite-sync-storage": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
     "@suite-common/wallet-types": "workspace:*"
@@ -11588,6 +11595,7 @@ __metadata:
   dependencies:
     "@reduxjs/toolkit": "npm:2.11.2"
     "@suite-common/delegated-identity-key-types": "workspace:*"
+    "@suite-common/suite-sync-quota-manager-types": "workspace:*"
     "@suite-common/suite-sync-storage": "workspace:*"
     "@suite-common/suite-types": "workspace:*"
     "@suite-common/wallet-config": "workspace:*"
@@ -11612,6 +11620,7 @@ __metadata:
     "@suite-common/platform-encryption": "workspace:*"
     "@suite-common/redux-utils": "workspace:*"
     "@suite-common/suite-sync-quota-manager": "workspace:*"
+    "@suite-common/suite-sync-quota-manager-types": "workspace:*"
     "@suite-common/suite-sync-storage": "workspace:*"
     "@suite-common/suite-sync-types": "workspace:*"
     "@suite-common/suite-types": "workspace:*"

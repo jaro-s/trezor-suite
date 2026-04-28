@@ -1,8 +1,8 @@
 import { createMockDeps } from '@suite-common/dependency-injection';
 
-import { createGenerateSessionIdMock } from './createGenerateSessionIdMock';
 import { createQuotaManagerFetchMock } from '../../mocks/createQuotaManagerFetchMock';
 import { type QuotaManagerFetchResult } from '../../quotaManagerFetch';
+import { createGenerateSessionIdMock } from '../../session/mocks/createGenerateSessionIdMock';
 import { type PrepareChallengeSessionDeps } from '../prepareChallengeSession';
 
 type CreatePrepareChallengeSessionDepsMockParams = {

@@ -2,7 +2,7 @@ import {
     type QuotaManagerCommunicationFailedErrType,
     type QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType,
     type WriteModeRequiredForAllocationErrType,
-} from '@suite-common/suite-sync-quota-manager';
+} from '@suite-common/suite-sync-quota-manager-types';
 import { type SuiteSyncSchema, type SuiteSyncStorage } from '@suite-common/suite-sync-storage';
 import { type DeviceCancelledErrType, type DeviceErrorType } from '@suite-common/suite-types';
 import { type WalletDescriptor } from '@suite-common/wallet-types';

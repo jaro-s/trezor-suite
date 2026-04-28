@@ -34,8 +34,7 @@ export const suiteSyncErrorHandler = ({
         case 'DeviceError':
         case 'SuiteSyncUpdateError':
         case 'QuotaManagerCommunicationFailed':
-        case 'QuotaManagerNoQuota':
-        case 'NoQuotaLeftToAllocate':
+        case 'QuotaManagerNoQuotaLeftOnDeviceToAllocate':
             dispatch(
                 notificationsActions.addToast({
                     type: 'error',

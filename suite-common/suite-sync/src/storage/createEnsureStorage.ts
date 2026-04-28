@@ -1,10 +1,12 @@
 import {
     type EnsureQuotaDep,
     type GetOwnerHasAllowanceDep,
+} from '@suite-common/suite-sync-quota-manager';
+import {
     type QuotaManagerCommunicationFailedErrType,
     type QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType,
     type WriteModeRequiredForAllocationErrType,
-} from '@suite-common/suite-sync-quota-manager';
+} from '@suite-common/suite-sync-quota-manager-types';
 import {
     type CreateSuiteStorageDep,
     type SuiteSyncStorage,

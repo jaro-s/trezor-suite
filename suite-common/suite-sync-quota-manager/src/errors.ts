@@ -1,29 +1,24 @@
-export type WriteModeRequiredForAllocationErrType = {
-    type: 'WriteModeRequiredForAllocation';
+import type {
+    QuotaManagerCommunicationFailedErrType,
+    QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType,
+    WriteModeRequiredForAllocationErrType,
+} from '@suite-common/suite-sync-quota-manager-types';
+
+export type {
+    QuotaManagerCommunicationFailedErrType,
+    QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType,
+    WriteModeRequiredForAllocationErrType,
 };
+
 export const WriteModeRequiredForAllocation = (): WriteModeRequiredForAllocationErrType => ({
     type: 'WriteModeRequiredForAllocation',
 });
-
-/**
- * There is no more quota left for the given device.
- */
-export type QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType = {
-    type: 'QuotaManagerNoQuotaLeftOnDeviceToAllocate';
-};
 
 export const QuotaManagerNoQuotaLeftOnDeviceToAllocate =
     (): QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType => ({
         type: 'QuotaManagerNoQuotaLeftOnDeviceToAllocate',
     });
 
-/**
- * Communication with Quota Manager failed (bad URL, network error, ...)
- */
-export type QuotaManagerCommunicationFailedErrType = {
-    type: 'QuotaManagerCommunicationFailed';
-    caused: unknown;
-};
 export const QuotaManagerCommunicationFailed = (
     caused: unknown,
 ): QuotaManagerCommunicationFailedErrType => ({

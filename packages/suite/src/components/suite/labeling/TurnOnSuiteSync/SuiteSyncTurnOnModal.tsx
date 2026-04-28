@@ -57,8 +57,7 @@ export const SuiteSyncTurnOnModal = ({
                 case 'DeviceCancelled':
                 case 'DeviceError':
                 case 'QuotaManagerCommunicationFailed':
-                case 'QuotaManagerNoQuota':
-                case 'NoQuotaLeftToAllocate':
+                case 'QuotaManagerNoQuotaLeftOnDeviceToAllocate':
                     dispatch(
                         notificationsActions.addToast({
                             type: 'error',

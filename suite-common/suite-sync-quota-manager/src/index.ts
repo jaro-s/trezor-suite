@@ -8,12 +8,6 @@ export type {
 export type { GetOwnerHasAllowanceDep } from './owner/getOwnerHasAllowance';
 export type { FetchDep } from './quotaManagerFetch';
 
-export type {
-    QuotaManagerCommunicationFailedErrType,
-    QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType,
-    WriteModeRequiredForAllocationErrType,
-} from './errors';
-
 export {
     enforceQuotaManagerUpdated,
     eraseFetchedData,

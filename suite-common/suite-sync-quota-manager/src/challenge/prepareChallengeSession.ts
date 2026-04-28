@@ -4,6 +4,7 @@ import {
     type QuotaManagerFetchCommunicationError,
     type QuotaManagerFetchDep,
 } from '../quotaManagerFetch';
+import { type GenerateSessionIdDep } from '../session/generateSessionId';
 
 type ChallengeResponse = {
     sessionId: string;
@@ -19,12 +20,6 @@ export type PrepareChallengeSession = () => Promise<PrepareChallengeSessionResul
 
 export type PrepareChallengeSessionDep = {
     prepareChallengeSession: PrepareChallengeSession;
-};
-
-export type GenerateSessionId = () => string;
-
-export type GenerateSessionIdDep = {
-    generateSessionId: GenerateSessionId;
 };
 
 export type PrepareChallengeSessionDeps = QuotaManagerFetchDep & GenerateSessionIdDep;

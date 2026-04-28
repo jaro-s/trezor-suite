@@ -34,11 +34,11 @@ import { generateSessionId } from './session/generateSessionId';
 type CreateSuiteSyncQuotaManagerCompositionRootDeps = {
     dispatch: Dispatch;
     getState: () => WithSuiteSyncQuotaManagerState;
+    trezorConnect: Pick<TrezorConnect, 'evoluSignRegistrationRequest'>;
 } & GetDeviceForStaticSessionIdDep &
     GetIsUsingTrezorRelayDep &
-    EnsureDelegatedIdentityKeyDep & {
-        trezorConnect: Pick<TrezorConnect, 'evoluSignRegistrationRequest'>;
-    } & FetchDep;
+    EnsureDelegatedIdentityKeyDep &
+    FetchDep;
 
 export const createSuiteSyncQuotaManagerCompositionRoot = (
     deps: CreateSuiteSyncQuotaManagerCompositionRootDeps,

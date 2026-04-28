@@ -51,7 +51,7 @@ export const createEnsureWalletSuiteSyncOnWithErrorHandler =
 
                 case 'QuotaManagerCommunicationFailed':
                 case 'QuotaManagerNoQuotaLeftOnDeviceToAllocate':
-                    // Do nothing, these are expected control flow errors when we want allocate on-demand.
+                    // Do nothing, this is edge-case handled only imperatively by showing the toast notification.
                     break;
 
                 default:

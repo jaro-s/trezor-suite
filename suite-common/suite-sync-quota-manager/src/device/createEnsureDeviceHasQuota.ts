@@ -66,10 +66,7 @@ export const createEnsureDeviceHasQuota =
                 return ok();
 
             case 'NoQuota':
-                return deps.registerDevice({
-                    delegatedKey,
-                    device,
-                });
+                return deps.registerDevice({ delegatedKey, device });
 
             default:
                 return exhaustive(status);
