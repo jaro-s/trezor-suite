@@ -74,8 +74,9 @@ export const TradingFormInputPaymentMethod = ({
         : undefined;
 
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const firstPaymentMethod: (typeof paymentMethods)[number] = paymentMethods[0];
     const paymentMethodValue: TradingPaymentMethodProps =
-        selectedOption?.value ?? paymentMethod?.value ?? paymentMethods[0]?.value;
+        selectedOption?.value ?? paymentMethod?.value ?? firstPaymentMethod?.value;
 
     const displayLabel = hasPaymentMethods
         ? (selectedOption?.label ?? paymentMethod?.label ?? paymentMethods[0]?.label ?? '')
