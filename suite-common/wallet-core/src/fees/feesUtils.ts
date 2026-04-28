@@ -90,13 +90,14 @@ export const getNewFeeInfo = async ({
     if (!result.success) return;
 
     if (network.symbol === 'btc') {
+        const { bitcoin: bitcoinFeeOverride } = NETWORK_FEE_OVERRIDES;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const feeOverride: NonNullable<typeof NETWORK_FEE_OVERRIDES.bitcoin> =
-            NETWORK_FEE_OVERRIDES.bitcoin;
+        const feeOverride: NonNullable<typeof bitcoinFeeOverride> = bitcoinFeeOverride;
         result.payload.levels.forEach(level => {
             const { minFeePerUnit } = feeOverride;
+            const { label } = level;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const minFee: string = minFeePerUnit[level.label];
+            const minFee: string = minFeePerUnit[label];
             if (minFee !== undefined && new BigNumber(level.feePerUnit).lte(minFee)) {
                 level.feePerUnit = minFee;
             }

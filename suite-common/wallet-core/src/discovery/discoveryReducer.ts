@@ -18,7 +18,6 @@ const update = (draft: Discovery, payload: { status: DiscoveryStatus; path: Devi
         return;
     }
 
-    // @ts-expect-error: indexing with noUncheckedIndexedAccess
     const currentStatus: (typeof draft)[DeviceUniquePath] = draft[path];
     const hasLoadedAnyNonEmptyAccount =
         currentStatus.hasLoadedAnyNonEmptyAccount || payload.status.hasLoadedAnyNonEmptyAccount;
