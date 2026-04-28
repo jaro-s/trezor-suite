@@ -82,7 +82,6 @@ export const TradingOffersModalItem = ({
 
     return (
         <CardList.Item
-            key={quote.id}
             onClick={onSelectQuote}
             data-testid="@trading/offers/quote"
             data-testid-alt={`@trading/offers/quote-${exchange}`}

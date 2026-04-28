@@ -17,22 +17,24 @@ export const TradingOffersModalGroup = ({
     onSelectCallback,
 }: TradingOffersModalGroupProps) => (
     <Column gap={16}>
-        <div>
-            {title && (
-                <H3 typographyStyle="body-md-strong">
-                    <Translation id={title} />
-                </H3>
-            )}
-            {description && (
-                <Paragraph typographyStyle="body-sm" color="contentSecondary">
-                    <Translation id={description} />
-                </Paragraph>
-            )}
-        </div>
+        {(title || description) && (
+            <div>
+                {title && (
+                    <H3 typographyStyle="body-md-strong">
+                        <Translation id={title} />
+                    </H3>
+                )}
+                {description && (
+                    <Paragraph typographyStyle="body-sm" color="contentSecondary">
+                        <Translation id={description} />
+                    </Paragraph>
+                )}
+            </div>
+        )}
         <CardList>
             {quotes.map(quote => (
                 <TradingOffersModalItem
-                    key={quote.id!}
+                    key={quote.id ?? `quote-${quote.exchange}`}
                     quote={quote}
                     onSelectCallback={onSelectCallback}
                 />

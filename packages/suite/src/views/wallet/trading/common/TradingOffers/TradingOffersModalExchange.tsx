@@ -10,6 +10,7 @@ import { Column, SubTabs } from '@trezor/components';
 import { useTradingFormContext } from 'src/hooks/wallet/trading/form/useTradingCommonForm';
 import { groupExchangeQuotesByType } from 'src/utils/wallet/trading/exchangeUtils';
 
+import { TradingOffersModalEmpty } from './TradingOffersModalEmpty';
 import { TradingOffersModalGroup } from './TradingOffersModalGroup';
 
 type ExchangeTab = 'all' | 'cex' | 'dex';
@@ -29,28 +30,28 @@ export const TradingOffersModalExchange = ({
         kycFilter: TRADING_EXCHANGE_COMPARATOR_KYC_FILTER_ALL,
     });
 
-    const hasDex = dex.length > 0;
-    const hasCex = fixed.length > 0 || float.length > 0;
-    const showTabs = hasDex && hasCex;
-
-    const showDex = hasDex && (activeTab === 'all' || activeTab === 'dex');
-    const showCex = hasCex && (activeTab === 'all' || activeTab === 'cex');
+    const showDex = activeTab === 'all' || activeTab === 'dex';
+    const showCex = activeTab === 'all' || activeTab === 'cex';
+    const isFilterActive = activeTab !== 'all';
+    const isEmpty =
+        isFilterActive &&
+        ((activeTab === 'dex' && dex.length === 0) ||
+            (activeTab === 'cex' && fixed.length === 0 && float.length === 0));
 
     return (
-        <Column gap={24}>
-            {showTabs && (
-                <SubTabs activeItemId={activeTab}>
-                    <SubTabs.Item id="all" onClick={() => setActiveTab('all')}>
-                        <Translation id="TR_ALL" />
-                    </SubTabs.Item>
-                    <SubTabs.Item id="cex" onClick={() => setActiveTab('cex')}>
-                        <Translation id="TR_EXCHANGE_CEX" />
-                    </SubTabs.Item>
-                    <SubTabs.Item id="dex" onClick={() => setActiveTab('dex')}>
-                        <Translation id="TR_EXCHANGE_DEX" />
-                    </SubTabs.Item>
-                </SubTabs>
-            )}
+        <Column gap={24} height="100%">
+            <SubTabs activeItemId={activeTab}>
+                <SubTabs.Item id="all" onClick={() => setActiveTab('all')}>
+                    <Translation id="TR_ALL" />
+                </SubTabs.Item>
+                <SubTabs.Item id="cex" onClick={() => setActiveTab('cex')}>
+                    <Translation id="TR_EXCHANGE_CEX" />
+                </SubTabs.Item>
+                <SubTabs.Item id="dex" onClick={() => setActiveTab('dex')}>
+                    <Translation id="TR_EXCHANGE_DEX" />
+                </SubTabs.Item>
+            </SubTabs>
+            {isEmpty && <TradingOffersModalEmpty />}
             {showDex && dex.length > 0 && (
                 <TradingOffersModalGroup
                     title="TR_TRADING_EXCHANGE_DEX_OFFERS_HEADING"
