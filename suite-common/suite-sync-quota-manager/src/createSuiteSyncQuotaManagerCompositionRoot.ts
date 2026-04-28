@@ -82,7 +82,7 @@ export const createSuiteSyncQuotaManagerCompositionRoot = (
 
     const registerDevice = createRegisterDevice({
         dispatch: deps.dispatch,
-        prepareChallengeSession,
+        prepareChallengeSessionFetch: prepareChallengeSession,
         registerDeviceFetch,
         trezorConnect: deps.trezorConnect,
     });
@@ -106,7 +106,7 @@ export const createSuiteSyncQuotaManagerCompositionRoot = (
 
     const allocateOwnerQuota = createAllocateOwnerQuota({
         getLeftDeviceQuota,
-        prepareChallengeSession,
+        prepareChallengeSessionFetch: prepareChallengeSession,
         transferStorageFetch,
     });
 
@@ -128,7 +128,7 @@ export const createSuiteSyncQuotaManagerCompositionRoot = (
     const increaseOwnerQuota = createIncreaseOwnerQuota({
         ensureDelegatedIdentityKey: deps.ensureDelegatedIdentityKey,
         getLeftDeviceQuota,
-        prepareChallengeSession,
+        prepareChallengeSessionFetch: prepareChallengeSession,
         transferStorageFetch,
         getState: deps.getState,
     });

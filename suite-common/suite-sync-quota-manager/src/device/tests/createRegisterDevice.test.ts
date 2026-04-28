@@ -15,23 +15,15 @@ const device = mockSuiteDevice(
 
 describe(createRegisterDevice.name, () => {
     it('registers device using challenge session and Connect signature', async () => {
-        const evoluSignRegistrationRequest = jest.fn().mockResolvedValue({
-            success: true,
-            payload: {
-                certificate_chain: ['device-cert', 'ca-cert'],
-                signature: 'device-signature',
-            },
-        });
-
         const deps = createMockDeps<RegisterDeviceDeps>({
-            prepareChallengeSession: jest
-                .fn()
-                .mockResolvedValue(ok({ sessionId: 'session-123', challenge: 'aa55' })),
-            registerDeviceFetch: jest
-                .fn()
-                .mockResolvedValue(ok({ totalStorageSize: 5000, unspentStorageSize: 1200 })),
+            prepareChallengeSessionFetch: () => ok({ sessionId: 'session-123', challenge: 'aa55' }),
+            registerDeviceFetch: () => ok({ totalStorageSize: 5000, unspentStorageSize: 1200 }),
             trezorConnect: {
-                evoluSignRegistrationRequest,
+                evoluSignRegistrationRequest: () =>
+                    ok({
+                        certificate_chain: ['device-cert', 'ca-cert'],
+                        signature: 'device-signature',
+                    }),
             },
             dispatch: jest.fn(),
         });
@@ -42,8 +34,8 @@ describe(createRegisterDevice.name, () => {
         });
 
         expect(result).toEqual(ok());
-        expect(deps.prepareChallengeSession).toHaveBeenCalledWith();
-        expect(evoluSignRegistrationRequest).toHaveBeenCalledWith({
+        expect(deps.prepareChallengeSessionFetch).toHaveBeenCalledWith();
+        expect(deps.trezorConnect.evoluSignRegistrationRequest).toHaveBeenCalledWith({
             challenge_from_server: 'aa55',
             size_to_acquire: DEFAULT_DEVICE_SIZE_QUOTA,
             proof_of_delegated_identity:
@@ -67,14 +59,11 @@ describe(createRegisterDevice.name, () => {
 
     it('maps challenge session failure to quota manager communication failure', async () => {
         const deps = createMockDeps<RegisterDeviceDeps>({
-            prepareChallengeSession: jest
-                .fn()
-                .mockResolvedValue(
-                    err({ type: 'HttpError', code: 500, message: 'Internal error' }),
-                ),
-            registerDeviceFetch: jest.fn(),
+            prepareChallengeSessionFetch: () =>
+                err({ type: 'HttpError', code: 500, message: 'Internal error' }),
+            registerDeviceFetch: null,
             trezorConnect: {
-                evoluSignRegistrationRequest: jest.fn(),
+                evoluSignRegistrationRequest: null,
             },
             dispatch: jest.fn(),
         });

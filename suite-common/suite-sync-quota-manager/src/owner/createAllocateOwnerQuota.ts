@@ -8,7 +8,7 @@ import { type DelegatedIdentityKey } from '@suite-common/suite-types';
 import { type WalletDescriptor } from '@suite-common/wallet-types';
 import { type Result, err, ok } from '@trezor/type-utils';
 
-import { type PrepareChallengeSessionDep } from '../challenge/prepareChallengeSession';
+import { type PrepareChallengeSessionFetchDep } from '../challenge/prepareChallengeSession';
 import {
     DEFAULT_DEVICE_SIZE_QUOTA,
     EVOLU_SIGN_ADD_SPACE_TO_OWNER_REQUEST_HEADER,
@@ -50,7 +50,7 @@ export type AllocateOwnerQuota = (
 export type AllocateOwnerQuotaDeps = {
     getLeftDeviceQuota: GetLeftDeviceQuota;
 } & TransferStorageFetchDep &
-    PrepareChallengeSessionDep;
+    PrepareChallengeSessionFetchDep;
 
 export type AllocateOwnerQuotaDep = {
     allocateOwnerQuota: AllocateOwnerQuota;
@@ -72,7 +72,7 @@ export const createAllocateOwnerQuota =
             return err(QuotaManagerNoQuotaLeftOnDeviceToAllocate());
         }
 
-        const sessionChallenge = await deps.prepareChallengeSession();
+        const sessionChallenge = await deps.prepareChallengeSessionFetch();
 
         if (!sessionChallenge.success) {
             return err(QuotaManagerCommunicationFailed(sessionChallenge.error));

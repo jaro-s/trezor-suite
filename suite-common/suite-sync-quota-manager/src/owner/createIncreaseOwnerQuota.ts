@@ -12,7 +12,7 @@ import { asDelegatedIdentityKey } from '@suite-common/suite-types';
 import { parseDeviceStaticSessionId } from '@suite-common/wallet-utils';
 import { type Result, err, ok } from '@trezor/type-utils';
 
-import { type PrepareChallengeSessionDep } from '../challenge/prepareChallengeSession';
+import { type PrepareChallengeSessionFetchDep } from '../challenge/prepareChallengeSession';
 import {
     DEFAULT_DEVICE_SIZE_QUOTA,
     EVOLU_SIGN_ADD_SPACE_TO_OWNER_REQUEST_HEADER,
@@ -47,7 +47,7 @@ export type IncreaseOwnerQuotaDeps = {
     getState: () => any; // Todo: temporary, see: https://github.com/trezor/trezor-suite/issues/27049
 } & EnsureDelegatedIdentityKeyDep &
     TransferStorageFetchDep &
-    PrepareChallengeSessionDep;
+    PrepareChallengeSessionFetchDep;
 
 export type IncreaseOwnerQuotaDep = {
     increaseOwnerQuota: IncreaseOwnerQuota;
@@ -84,7 +84,7 @@ export const createIncreaseOwnerQuota =
 
         const delegatedPublicKey = getPublicIdentityKeyFromDelegatedKey(delegatedKey.payload);
 
-        const sessionChallenge = await deps.prepareChallengeSession();
+        const sessionChallenge = await deps.prepareChallengeSessionFetch();
 
         if (!sessionChallenge.success) {
             return err(QuotaManagerCommunicationFailed(sessionChallenge.error));

@@ -15,7 +15,7 @@ describe(createAllocateOwnerQuota.name, () => {
     it("does not attempt allocation when write mode is off and returns 'WriteModeRequiredForAllocation'", async () => {
         const deps = createMockDeps<AllocateOwnerQuotaDeps>({
             getLeftDeviceQuota: () => undefined,
-            prepareChallengeSession: jest.fn(),
+            prepareChallengeSessionFetch: jest.fn(),
             transferStorageFetch: jest.fn(),
         });
 
@@ -28,14 +28,14 @@ describe(createAllocateOwnerQuota.name, () => {
         });
 
         expect(result).toEqual(err({ type: 'WriteModeRequiredForAllocation' }));
-        expect(deps.prepareChallengeSession).not.toHaveBeenCalled();
+        expect(deps.prepareChallengeSessionFetch).not.toHaveBeenCalled();
         expect(deps.transferStorageFetch).not.toHaveBeenCalled();
     });
 
     it("does not attempt allocation when no quota is left and returns 'QuotaManagerNoQuotaLeftOnDeviceToAllocate'", async () => {
         const deps = createMockDeps<AllocateOwnerQuotaDeps>({
             getLeftDeviceQuota: () => 0,
-            prepareChallengeSession: jest.fn(),
+            prepareChallengeSessionFetch: jest.fn(),
             transferStorageFetch: jest.fn(),
         });
 
@@ -48,14 +48,14 @@ describe(createAllocateOwnerQuota.name, () => {
         });
 
         expect(result).toEqual(err({ type: 'QuotaManagerNoQuotaLeftOnDeviceToAllocate' }));
-        expect(deps.prepareChallengeSession).not.toHaveBeenCalled();
+        expect(deps.prepareChallengeSessionFetch).not.toHaveBeenCalled();
         expect(deps.transferStorageFetch).not.toHaveBeenCalled();
     });
 
     it('maps challenge session failure to quota manager communication failure', async () => {
         const deps = createMockDeps<AllocateOwnerQuotaDeps>({
             getLeftDeviceQuota: () => undefined,
-            prepareChallengeSession: jest
+            prepareChallengeSessionFetch: jest
                 .fn()
                 .mockResolvedValue(
                     err({ type: 'HttpError', code: 500, message: 'Internal error' }),
@@ -83,7 +83,7 @@ describe(createAllocateOwnerQuota.name, () => {
     it('requests storage transfer when owner storage is missing', async () => {
         const deps = createMockDeps<AllocateOwnerQuotaDeps>({
             getLeftDeviceQuota: () => undefined,
-            prepareChallengeSession: jest
+            prepareChallengeSessionFetch: jest
                 .fn()
                 .mockResolvedValue(ok({ sessionId: 'session-123', challenge: 'aa55' })),
             transferStorageFetch: jest
@@ -100,7 +100,7 @@ describe(createAllocateOwnerQuota.name, () => {
         });
 
         expect(result).toEqual(ok());
-        expect(deps.prepareChallengeSession).toHaveBeenCalledWith();
+        expect(deps.prepareChallengeSessionFetch).toHaveBeenCalledWith();
         expect(deps.transferStorageFetch).toHaveBeenCalledWith({
             params: {
                 ownerId,
@@ -120,7 +120,7 @@ describe(createAllocateOwnerQuota.name, () => {
         const remainingQuota = 500;
         const deps = createMockDeps<AllocateOwnerQuotaDeps>({
             getLeftDeviceQuota: () => remainingQuota,
-            prepareChallengeSession: jest
+            prepareChallengeSessionFetch: jest
                 .fn()
                 .mockResolvedValue(ok({ sessionId: 'session-456', challenge: 'bb66' })),
             transferStorageFetch: jest

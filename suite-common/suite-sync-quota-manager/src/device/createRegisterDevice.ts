@@ -14,7 +14,7 @@ import {
 import { type TrezorConnect } from '@trezor/connect';
 import { type Result, err, ok } from '@trezor/type-utils';
 
-import { type PrepareChallengeSessionDep } from '../challenge/prepareChallengeSession';
+import { type PrepareChallengeSessionFetchDep } from '../challenge/prepareChallengeSession';
 import { DEFAULT_DEVICE_SIZE_QUOTA } from '../constants';
 import {
     QuotaManagerCommunicationFailed,
@@ -44,7 +44,7 @@ export type RegisterDeviceDeps = {
     dispatch: Dispatch;
     trezorConnect: Pick<TrezorConnect, 'evoluSignRegistrationRequest'>;
 } & RegisterDeviceFetchDep &
-    PrepareChallengeSessionDep;
+    PrepareChallengeSessionFetchDep;
 
 export type RegisterDeviceDep = {
     registerDevice: RegisterDevice;
@@ -55,7 +55,7 @@ export const createRegisterDevice =
     async ({ device, delegatedKey }) => {
         const delegatedKeyPublic = getPublicIdentityKeyFromDelegatedKey(delegatedKey);
 
-        const sessionChallenge = await deps.prepareChallengeSession();
+        const sessionChallenge = await deps.prepareChallengeSessionFetch();
 
         if (!sessionChallenge.success) {
             return err(QuotaManagerCommunicationFailed(sessionChallenge.error));

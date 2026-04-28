@@ -1,12 +1,14 @@
 import { mock } from '@suite-common/dependency-injection';
 
 import {
-    type PrepareChallengeSession,
+    type PrepareChallengeSessionFetch,
     type PrepareChallengeSessionResult,
 } from '../prepareChallengeSession';
 
-export const createPrepareChallengeSessionMock = (responses: PrepareChallengeSessionResult[]) => {
-    const impl = mock<PrepareChallengeSession>();
+export const createPrepareChallengeSessionFetchMock = (
+    responses: PrepareChallengeSessionResult[],
+) => {
+    const impl = mock<PrepareChallengeSessionFetch>();
     responses.forEach(response => impl.mockResolvedValueOnce(response));
 
     return impl;

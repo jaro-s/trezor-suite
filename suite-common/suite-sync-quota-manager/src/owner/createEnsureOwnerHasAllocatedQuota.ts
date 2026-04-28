@@ -46,21 +46,9 @@ export type EnsureOwnerHasAllocatedQuotaDep = {
 };
 
 export const createEnsureOwnerHasAllocatedQuota =
-    (baseDeps: EnsureOwnerHasAllocatedQuotaDeps): EnsureOwnerHasAllocatedQuota =>
+    (deps: EnsureOwnerHasAllocatedQuotaDeps): EnsureOwnerHasAllocatedQuota =>
     async ({ ownerId, deviceStaticSessionId, delegatedKey, isWriteMode }) => {
         const { walletDescriptor, deviceId } = parseDeviceStaticSessionId(deviceStaticSessionId);
-
-        const deps = {
-            ...baseDeps,
-            allocateOwnerQuota: () =>
-                baseDeps.allocateOwnerQuota({
-                    ownerId,
-                    delegatedKey,
-                    deviceId,
-                    walletDescriptor,
-                    isWriteMode,
-                }),
-        };
 
         const hasOwnerStorage = await deps.checkStorageByOwnerId({ ownerId });
 
@@ -83,7 +71,13 @@ export const createEnsureOwnerHasAllocatedQuota =
             }
 
             case 'NoQuota': {
-                return deps.allocateOwnerQuota();
+                return deps.allocateOwnerQuota({
+                    ownerId,
+                    delegatedKey,
+                    deviceId,
+                    walletDescriptor,
+                    isWriteMode,
+                });
             }
 
             default:
