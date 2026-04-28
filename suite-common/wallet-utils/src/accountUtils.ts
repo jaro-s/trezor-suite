@@ -115,10 +115,12 @@ export const sortByBIP44AddressIndex = <T extends { path: string }>(
     }, {});
 
     return addresses.slice().sort((a, b) => {
+        const { path: aPath } = a;
+        const { path: bPath } = b;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const aIndex: number = lookup[a.path];
+        const aIndex: number = lookup[aPath];
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const bIndex: number = lookup[b.path];
+        const bIndex: number = lookup[bPath];
 
         return aIndex - bIndex;
     });
