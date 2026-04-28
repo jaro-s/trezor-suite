@@ -1,9 +1,9 @@
 import { createMockDeps } from '@suite-common/dependency-injection';
 
-import { type EnsureDeviceHasQuotaDeps } from '../device/createEnsureDeviceHasQuota';
-import { createRegisterDeviceMock } from '../device/mocks/createRegisterDeviceMock';
-import { type CheckStorageByPublicKeyResult } from '../storage/createCheckStorageByPublicKey';
-import { createCheckStorageByPublicKeyMock } from '../storage/mocks/createCheckStorageByPublicKeyMock';
+import { type CheckStorageByPublicKeyResult } from '../createCheckStorageByPublicKeyFetch';
+import { type EnsureDeviceHasQuotaDeps } from '../createEnsureDeviceHasQuota';
+import { createCheckStorageByPublicKeyMock } from './createCheckStorageByPublicKeyMock';
+import { createRegisterDeviceMock } from './createRegisterDeviceMock';
 
 type RegisterDeviceResult = Awaited<ReturnType<EnsureDeviceHasQuotaDeps['registerDevice']>>;
 
@@ -19,7 +19,7 @@ export const createEnsureDeviceHasQuotaDepsMock = ({
     patch = {},
 }: CreateEnsureDeviceHasQuotaDepsMockParams) =>
     createMockDeps<EnsureDeviceHasQuotaDeps>({
-        checkStorageByPublicKey: createCheckStorageByPublicKeyMock(
+        checkStorageByPublicKeyFetch: createCheckStorageByPublicKeyMock(
             checkStorageByPublicKeyResponses,
         ),
         dispatch: jest.fn(),

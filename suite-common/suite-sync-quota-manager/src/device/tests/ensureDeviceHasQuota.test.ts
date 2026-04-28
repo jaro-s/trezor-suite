@@ -4,7 +4,7 @@ import { mockSuiteDevice } from '@suite-common/suite-types/mocks';
 import { DeviceModelInternal } from '@trezor/device-utils';
 import { err, ok } from '@trezor/type-utils';
 
-import { createEnsureDeviceHasQuota } from '../device/createEnsureDeviceHasQuota';
+import { createEnsureDeviceHasQuota } from '../createEnsureDeviceHasQuota';
 import { createEnsureDeviceHasQuotaDepsMock } from '../mocks/createEnsureDeviceHasQuotaDepsMock';
 
 const device = mockSuiteDevice(
@@ -13,10 +13,6 @@ const device = mockSuiteDevice(
 ) as TrezorDeviceWithState;
 
 describe(createEnsureDeviceHasQuota.name, () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
-
     it('dispatches device fetched when storage already exists', async () => {
         const deps = createEnsureDeviceHasQuotaDepsMock({
             checkStorageByPublicKeyResponses: [
@@ -31,7 +27,7 @@ describe(createEnsureDeviceHasQuota.name, () => {
         });
 
         expect(result).toEqual(ok());
-        expect(deps.checkStorageByPublicKey).toHaveBeenCalledWith({
+        expect(deps.checkStorageByPublicKeyFetch).toHaveBeenCalledWith({
             publicKey:
                 '0428a3cefc19b41ff56795e371aab72d6d85a3ca2200bd46c54e611a36222295a88b44d6f23ce94025b6010f9eb0f9168ad35d8396dc865fa0a16f2f5471816a45',
         });

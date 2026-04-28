@@ -2,14 +2,18 @@ import { type Dispatch } from '@reduxjs/toolkit';
 
 import { getPublicIdentityKeyFromDelegatedKey } from '@suite-common/delegated-identity-key';
 import { type ProofOfDelegatedSignFailedType } from '@suite-common/delegated-identity-key-types';
-import { type DelegatedIdentityKey, type DeviceErrorType, type TrezorDeviceWithState } from '@suite-common/suite-types';
+import {
+    type DelegatedIdentityKey,
+    type DeviceErrorType,
+    type TrezorDeviceWithState,
+} from '@suite-common/suite-types';
 import { type Result, err, exhaustive, ok } from '@trezor/type-utils';
 
 import { type RegisterDeviceDep } from './createRegisterDevice';
 import { QuotaManagerCommunicationFailed } from '../errors';
 import type { QuotaManagerCommunicationFailedErrType } from '../errors';
 import { quotaManagerDeviceFetched } from '../quotaManagerActions';
-import { type CheckStorageByPublicKeyDep } from '../storage/createCheckStorageByPublicKey';
+import { type CheckStorageByPublicKeyDep } from './createCheckStorageByPublicKeyFetch';
 
 export type EnsureDeviceHasQuotaParams = {
     device: TrezorDeviceWithState;
@@ -39,7 +43,7 @@ export const createEnsureDeviceHasQuota =
     async ({ device, delegatedKey }) => {
         const delegatedKeyPublic = getPublicIdentityKeyFromDelegatedKey(delegatedKey);
 
-        const hasPublicKeyStorage = await deps.checkStorageByPublicKey({
+        const hasPublicKeyStorage = await deps.checkStorageByPublicKeyFetch({
             publicKey: delegatedKeyPublic,
         });
 

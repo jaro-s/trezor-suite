@@ -1,6 +1,6 @@
 import { mock } from '@suite-common/dependency-injection';
 
-import { type EnsureDeviceHasQuota } from '../device/createEnsureDeviceHasQuota';
+import { type EnsureDeviceHasQuota } from '../createEnsureDeviceHasQuota';
 
 type EnsureDeviceHasQuotaResult = Awaited<ReturnType<EnsureDeviceHasQuota>>;
 

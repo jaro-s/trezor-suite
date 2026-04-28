@@ -11,11 +11,11 @@ import { type AllocateOwnerQuotaDep } from './createAllocateOwnerQuota';
 import {
     QuotaManagerCommunicationFailed,
     type QuotaManagerCommunicationFailedErrType,
-    type QuotaManagerNoQuotaLeftToAllocateErrType,
+    type QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType,
     type WriteModeRequiredForAllocationErrType,
 } from '../errors';
 import { quotaManagerOwnerFetched } from '../quotaManagerActions';
-import { type CheckStorageByOwnerIdDep } from '../storage/createCheckStorageByOwnerId';
+import { type CheckStorageByOwnerIdDep } from './createCheckStorageByOwnerId';
 
 export type EnsureOwnerHasAllocatedQuotaParams = {
     ownerId: SuiteSyncOwnerId;
@@ -31,7 +31,7 @@ export type EnsureOwnerHasAllocatedQuota = (
         void,
         | ProofOfDelegatedSignFailedType
         | WriteModeRequiredForAllocationErrType
-        | QuotaManagerNoQuotaLeftToAllocateErrType
+        | QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType
         | QuotaManagerCommunicationFailedErrType
     >
 >;

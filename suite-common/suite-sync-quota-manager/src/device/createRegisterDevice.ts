@@ -1,3 +1,5 @@
+import { type Dispatch } from '@reduxjs/toolkit';
+
 import {
     getProofOfDelegatedIdentity,
     getPublicIdentityKeyFromDelegatedKey,
@@ -18,8 +20,9 @@ import {
     QuotaManagerCommunicationFailed,
     type QuotaManagerCommunicationFailedErrType,
 } from '../errors';
-import { type RegisterStorageDep } from '../storage/createRegisterStorage';
-import { prepareMessageBufferEvoluSignRegistrationRequest } from '../util/prepareMessageBufferEvoluSignRegistrationRequest';
+import { type RegisterDeviceFetchDep } from './createRegisterDeviceFetch';
+import { quotaManagerDeviceFetched } from '../quotaManagerActions';
+import { prepareMessageBufferEvoluSignRegistrationRequest } from './prepareMessageBufferEvoluSignRegistrationRequest';
 
 const EVOLU_SIGN_REGISTRATION_REQUEST_HEADER = 'EvoluSignRegistrationRequest';
 
@@ -38,8 +41,9 @@ export type RegisterDevice = (
 >;
 
 export type RegisterDeviceDeps = {
+    dispatch: Dispatch;
     trezorConnect: Pick<TrezorConnect, 'evoluSignRegistrationRequest'>;
-} & RegisterStorageDep &
+} & RegisterDeviceFetchDep &
     PrepareChallengeSessionDep;
 
 export type RegisterDeviceDep = {
@@ -81,7 +85,7 @@ export const createRegisterDevice =
             return err(DeviceError(registrationRequestResult.error.message));
         }
 
-        const registerStorageResult = await deps.registerStorage({
+        const registerDeviceResult = await deps.registerDeviceFetch({
             deviceId: device.id,
             size: DEFAULT_DEVICE_SIZE_QUOTA,
             certificateChain: {
@@ -95,9 +99,17 @@ export const createRegisterDevice =
             publicKey: delegatedKeyPublic,
         });
 
-        if (!registerStorageResult.success) {
-            return err(QuotaManagerCommunicationFailed(registerStorageResult.error));
+        if (!registerDeviceResult.success) {
+            return err(QuotaManagerCommunicationFailed(registerDeviceResult.error));
         }
+
+        deps.dispatch(
+            quotaManagerDeviceFetched({
+                deviceId: device.id,
+                totalStorageSize: registerDeviceResult.payload.totalStorageSize,
+                unspentStorageSize: registerDeviceResult.payload.unspentStorageSize,
+            }),
+        );
 
         return ok();
     };

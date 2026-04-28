@@ -2,7 +2,7 @@ import { createMockDeps } from '@suite-common/dependency-injection';
 
 import { createQuotaManagerFetchMock } from '../../mocks/createQuotaManagerFetchMock';
 import { type QuotaManagerFetchResult } from '../../quotaManagerFetch';
-import { type RegisterStorageDeps } from '../createRegisterStorage';
+import { type RegisterStorageDeps } from '../createRegisterDeviceFetch';
 
 type CreateRegisterStorageDepsMockParams = {
     quotaManagerFetchResponses: QuotaManagerFetchResult[];

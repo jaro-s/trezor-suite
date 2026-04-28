@@ -14,16 +14,16 @@ import {
     EVOLU_SIGN_ADD_SPACE_TO_OWNER_REQUEST_HEADER,
 } from '../constants';
 import {
-    NoQuotaLeftToAllocate,
     QuotaManagerCommunicationFailed,
     type QuotaManagerCommunicationFailedErrType,
-    type QuotaManagerNoQuotaLeftToAllocateErrType,
+    QuotaManagerNoQuotaLeftOnDeviceToAllocate,
+    type QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType,
     WriteModeRequiredForAllocation,
     type WriteModeRequiredForAllocationErrType,
 } from '../errors';
-import { type TransferStorageDep } from '../storage/createTransferStorage';
-import { getAccountIncrementSizeQuota } from '../util/getAccountIncrementSizeQuota';
-import { prepareMessageBufferEvoluAddSpaceToOwner } from '../util/prepareMessageBufferEvoluAddSpaceToOwner';
+import { type TransferStorageFetchDep } from './createTransferStorageFetch';
+import { getAccountIncrementSizeQuota } from './getAccountIncrementSizeQuota';
+import { prepareMessageBufferEvoluAddSpaceToOwner } from './prepareMessageBufferEvoluAddSpaceToOwner';
 
 type GetLeftDeviceQuota = (deviceId: string) => number | undefined;
 
@@ -42,14 +42,14 @@ export type AllocateOwnerQuota = (
         void,
         | ProofOfDelegatedSignFailedType
         | WriteModeRequiredForAllocationErrType
-        | QuotaManagerNoQuotaLeftToAllocateErrType
+        | QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType
         | QuotaManagerCommunicationFailedErrType
     >
 >;
 
 export type AllocateOwnerQuotaDeps = {
     getLeftDeviceQuota: GetLeftDeviceQuota;
-} & TransferStorageDep &
+} & TransferStorageFetchDep &
     PrepareChallengeSessionDep;
 
 export type AllocateOwnerQuotaDep = {
@@ -69,7 +69,7 @@ export const createAllocateOwnerQuota =
         });
 
         if (sizeToAllocate === 0) {
-            return err(NoQuotaLeftToAllocate());
+            return err(QuotaManagerNoQuotaLeftOnDeviceToAllocate());
         }
 
         const sessionChallenge = await deps.prepareChallengeSession();
@@ -94,7 +94,7 @@ export const createAllocateOwnerQuota =
             return proofOfDelegatedIdentity;
         }
 
-        const transferStorageResult = await deps.transferStorage({
+        const transferStorageResult = await deps.transferStorageFetch({
             params: {
                 ownerId,
                 publicKey: delegatedPublicKey,

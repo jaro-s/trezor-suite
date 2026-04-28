@@ -1,10 +1,10 @@
 import { createMockDeps } from '@suite-common/dependency-injection';
 import { ok } from '@trezor/type-utils';
 
-import { createAllocateOwnerQuotaMock } from '../owner/mocks/createAllocateOwnerQuotaMock';
-import { type EnsureOwnerHasAllocatedQuotaDeps } from '../owner/createEnsureOwnerHasAllocatedQuota';
-import { type CheckStorageByOwnerIdResult } from '../storage/createCheckStorageByOwnerId';
-import { createCheckStorageByOwnerIdMock } from '../storage/mocks/createCheckStorageByOwnerIdMock';
+import { type CheckStorageByOwnerIdResult } from '../../owner/createCheckStorageByOwnerId';
+import { type EnsureOwnerHasAllocatedQuotaDeps } from '../../owner/createEnsureOwnerHasAllocatedQuota';
+import { createAllocateOwnerQuotaMock } from '../../owner/mocks/createAllocateOwnerQuotaMock';
+import { createCheckStorageByOwnerIdMock } from '../../owner/mocks/createCheckStorageByOwnerIdMock';
 
 type CreateEnsureOwnerHasAllocatedQuotaDepsMockParams = {
     checkStorageByOwnerIdResponses: CheckStorageByOwnerIdResult[];

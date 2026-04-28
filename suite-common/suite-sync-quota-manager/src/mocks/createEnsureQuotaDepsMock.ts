@@ -1,10 +1,10 @@
 import { createMockDeps } from '@suite-common/dependency-injection';
 
-import { createEnsureDeviceHasQuotaMock } from './createEnsureDeviceHasQuotaMock';
-import { createEnsureOwnerHasAllocatedQuotaMock } from './createEnsureOwnerHasAllocatedQuotaMock';
 import { type EnsureQuotaDeps } from '../createEnsureQuota';
 import { type EnsureDeviceHasQuota } from '../device/createEnsureDeviceHasQuota';
+import { createEnsureDeviceHasQuotaMock } from '../device/mocks/createEnsureDeviceHasQuotaMock';
 import { type EnsureOwnerHasAllocatedQuota } from '../owner/createEnsureOwnerHasAllocatedQuota';
+import { createEnsureOwnerHasAllocatedQuotaMock } from '../owner/mocks/createEnsureOwnerHasAllocatedQuotaMock';
 
 type EnsureDeviceHasQuotaResult = Awaited<ReturnType<EnsureDeviceHasQuota>>;
 type EnsureOwnerHasAllocatedQuotaResult = Awaited<ReturnType<EnsureOwnerHasAllocatedQuota>>;

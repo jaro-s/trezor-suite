@@ -6,16 +6,10 @@ import { toGetter } from '@suite-common/dependency-injection';
 import { selectAllDeviceStaticIds, selectDeviceByStaticSessionId } from '@suite-common/device';
 import { type PlatformEncryptionDep } from '@suite-common/platform-encryption';
 import {
+    type FetchDep,
+    type IncreaseOwnerQuotaErr,
     createProvisionalIncreaseOwnerQuota,
-    createQuotaManagerFetch,
     createSuiteSyncQuotaManagerCompositionRoot,
-    selectQuotaManagerBaseUrl,
-} from '@suite-common/suite-sync-quota-manager';
-import type {
-    FetchDep,
-    IncreaseOwnerQuota,
-    IncreaseOwnerQuotaErr,
-    QuotaManagerCommunicationFailedErrType,
 } from '@suite-common/suite-sync-quota-manager';
 import {
     type CreateSuiteStorageDep,
@@ -29,7 +23,6 @@ import {
 import { selectAccounts } from '@suite-common/wallet-core';
 import { type Analytics } from '@trezor/analytics-uploader';
 import type TrezorConnect from '@trezor/connect';
-import { err } from '@trezor/type-utils';
 
 import { createEnsureSuiteSyncKeys } from './createEnsureSuiteSyncKeys';
 import { createSuiteSyncErrorHandler } from './createSuiteSyncErrorHandler';
@@ -121,11 +114,6 @@ export const createSuiteSyncCompositionRoot = (
         getDeviceForStaticSessionId,
     });
 
-    const quotaManagerFetch = createQuotaManagerFetch({
-        fetch: deps.fetch,
-        getQuotaManagerBaseUrl: () => selectQuotaManagerBaseUrl(deps.getState()),
-    });
-
     const { ensureQuota, increaseOwnerQuota, getOwnerHasAllowance } =
         createSuiteSyncQuotaManagerCompositionRoot({
             dispatch: deps.dispatch,
@@ -134,8 +122,8 @@ export const createSuiteSyncCompositionRoot = (
             ensureDelegatedIdentityKey: deps.ensureDelegatedIdentityKey,
             getIsUsingTrezorRelay: () =>
                 isUsingTrezorServer(selectSuiteSyncRelayUrl(deps.getState())),
-            quotaManagerFetch,
             trezorConnect: deps.trezorConnect,
+            fetch: deps.fetch,
         });
 
     const provisionalIncreaseOwnerQuota = createProvisionalIncreaseOwnerQuota({
@@ -143,31 +131,9 @@ export const createSuiteSyncCompositionRoot = (
         increaseOwnerQuota,
     });
 
-    const increaseOwnerQuotaForSuiteSyncErrorHandler: IncreaseOwnerQuota = async ({ ownerId }) => {
-        const result = await provisionalIncreaseOwnerQuota({ ownerId });
-
-        if (result.success) {
-            return result;
-        }
-
-        switch (result.error.type) {
-            case 'ProofOfDelegatedSignFailed': {
-                const mappedError: QuotaManagerCommunicationFailedErrType = {
-                    type: 'QuotaManagerCommunicationFailed',
-                    caused: result.error,
-                };
-
-                return err(mappedError);
-            }
-            case 'NoQuotaLeftToAllocate':
-            case 'QuotaManagerCommunicationFailed':
-                return err(result.error);
-        }
-    };
-
     deps.subscribeError(
         createSuiteSyncErrorHandler({
-            increaseOwnerQuota: increaseOwnerQuotaForSuiteSyncErrorHandler,
+            increaseOwnerQuota: provisionalIncreaseOwnerQuota,
             onError: (error: IncreaseOwnerQuotaErr | SuiteSyncOtherError) => {
                 console.error('SuiteSync error', error);
             },

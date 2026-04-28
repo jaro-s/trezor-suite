@@ -1,13 +1,13 @@
 import { DELEGATED_IDENTITY_KEY } from '@suite-common/delegated-identity-key-types/mocks';
-import { asSuiteSyncOwnerId } from '@suite-common/suite-sync-storage';
 import { createMockDeps } from '@suite-common/dependency-injection';
+import { asSuiteSyncOwnerId } from '@suite-common/suite-sync-storage';
 import { type WalletDescriptor, asWalletDescriptor } from '@suite-common/wallet-types';
 import { type StaticSessionId } from '@trezor/connect-common';
 import { err, ok } from '@trezor/type-utils';
 
-import { createEnsureOwnerHasAllocatedQuotaDepsMock } from '../mocks/createEnsureOwnerHasAllocatedQuotaDepsMock';
-import { createEnsureOwnerHasAllocatedQuota } from '../owner/createEnsureOwnerHasAllocatedQuota';
+import { createEnsureOwnerHasAllocatedQuotaDepsMock } from '../device/mocks/createEnsureOwnerHasAllocatedQuotaDepsMock';
 import { type AllocateOwnerQuota } from '../owner/createAllocateOwnerQuota';
+import { createEnsureOwnerHasAllocatedQuota } from '../owner/createEnsureOwnerHasAllocatedQuota';
 
 const ownerId = asSuiteSyncOwnerId('owner-id');
 const walletDescriptor: WalletDescriptor = asWalletDescriptor('descriptor');
@@ -19,10 +19,6 @@ describe(createEnsureOwnerHasAllocatedQuota.name, () => {
         createMockDeps<{ allocateOwnerQuota: AllocateOwnerQuota }>({
             allocateOwnerQuota: jest.fn().mockResolvedValue(ok()),
         }).allocateOwnerQuota;
-
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
 
     it('dispatches owner fetched when storage already exists', async () => {
         const deps = createEnsureOwnerHasAllocatedQuotaDepsMock({
@@ -37,9 +33,7 @@ describe(createEnsureOwnerHasAllocatedQuota.name, () => {
         });
 
         expect(result).toEqual(ok());
-        expect(deps.checkStorageByOwnerId).toHaveBeenCalledWith({
-            ownerId,
-        });
+        expect(deps.checkStorageByOwnerId).toHaveBeenCalledWith({ ownerId });
         expect(deps.dispatch).toHaveBeenCalledWith(
             expect.objectContaining({
                 type: '@suite/quota-manager/ownerFetched',
@@ -102,9 +96,11 @@ describe(createEnsureOwnerHasAllocatedQuota.name, () => {
     });
 
     it('propagates allocation failures from allocateOwnerQuota', async () => {
-        const allocateOwnerQuota = createMockDeps<{ allocateOwnerQuota: AllocateOwnerQuota }>({
-            allocateOwnerQuota: jest.fn().mockResolvedValue(err({ type: 'NoQuotaLeftToAllocate' })),
-        }).allocateOwnerQuota;
+        const { allocateOwnerQuota } = createMockDeps<{ allocateOwnerQuota: AllocateOwnerQuota }>({
+            allocateOwnerQuota: jest
+                .fn()
+                .mockResolvedValue(err({ type: 'QuotaManagerNoQuotaLeftOnDeviceToAllocate' })),
+        });
         const deps = createEnsureOwnerHasAllocatedQuotaDepsMock({
             checkStorageByOwnerIdResponses: [ok({ status: 'NoQuota' })],
             patch: {
@@ -119,7 +115,7 @@ describe(createEnsureOwnerHasAllocatedQuota.name, () => {
             isWriteMode: true,
         });
 
-        expect(result).toEqual(err({ type: 'NoQuotaLeftToAllocate' }));
+        expect(result).toEqual(err({ type: 'QuotaManagerNoQuotaLeftOnDeviceToAllocate' }));
         expect(allocateOwnerQuota).toHaveBeenCalledTimes(1);
     });
 });

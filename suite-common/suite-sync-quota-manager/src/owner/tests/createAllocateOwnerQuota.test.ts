@@ -12,15 +12,11 @@ const walletDescriptor: WalletDescriptor = asWalletDescriptor('descriptor');
 const deviceId = 'device-123';
 
 describe(createAllocateOwnerQuota.name, () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
-
     it("does not attempt allocation when write mode is off and returns 'WriteModeRequiredForAllocation'", async () => {
         const deps = createMockDeps<AllocateOwnerQuotaDeps>({
             getLeftDeviceQuota: () => undefined,
             prepareChallengeSession: jest.fn(),
-            transferStorage: jest.fn(),
+            transferStorageFetch: jest.fn(),
         });
 
         const result = await createAllocateOwnerQuota(deps)({
@@ -33,10 +29,10 @@ describe(createAllocateOwnerQuota.name, () => {
 
         expect(result).toEqual(err({ type: 'WriteModeRequiredForAllocation' }));
         expect(deps.prepareChallengeSession).not.toHaveBeenCalled();
-        expect(deps.transferStorage).not.toHaveBeenCalled();
+        expect(deps.transferStorageFetch).not.toHaveBeenCalled();
     });
 
-    it("does not attempt allocation when no quota is left and returns 'NoQuotaLeftToAllocate'", async () => {
+    it("does not attempt allocation when no quota is left and returns 'QuotaManagerNoQuotaLeftOnDeviceToAllocate'", async () => {
         const deps = createMockDeps<AllocateOwnerQuotaDeps>({
             getLeftDeviceQuota: () => 0,
             prepareChallengeSession: jest.fn(),
@@ -51,7 +47,7 @@ describe(createAllocateOwnerQuota.name, () => {
             isWriteMode: true,
         });
 
-        expect(result).toEqual(err({ type: 'NoQuotaLeftToAllocate' }));
+        expect(result).toEqual(err({ type: 'QuotaManagerNoQuotaLeftOnDeviceToAllocate' }));
         expect(deps.prepareChallengeSession).not.toHaveBeenCalled();
         expect(deps.transferStorage).not.toHaveBeenCalled();
     });

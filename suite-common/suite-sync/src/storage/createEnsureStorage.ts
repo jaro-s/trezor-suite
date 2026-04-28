@@ -2,7 +2,7 @@ import {
     type EnsureQuotaDep,
     type GetOwnerHasAllowanceDep,
     type QuotaManagerCommunicationFailedErrType,
-    type QuotaManagerNoQuotaLeftToAllocateErrType,
+    type QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType,
     type WriteModeRequiredForAllocationErrType,
 } from '@suite-common/suite-sync-quota-manager';
 import {

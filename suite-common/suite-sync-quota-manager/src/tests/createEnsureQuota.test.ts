@@ -33,10 +33,6 @@ const device = mockSuiteDevice({
 });
 
 describe(createEnsureQuota.name, () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
-
     it.each([
         {
             description: 'device is not found',
@@ -122,7 +118,9 @@ describe(createEnsureQuota.name, () => {
     it('returns owner allocation errors other than WriteModeRequiredForAllocation directly', async () => {
         const deps = createEnsureQuotaDepsMock({
             ensureDeviceHasQuotaResponses: [ok()],
-            ensureOwnerHasAllocatedQuotaResponses: [err({ type: 'NoQuotaLeftToAllocate' })],
+            ensureOwnerHasAllocatedQuotaResponses: [
+                err({ type: 'QuotaManagerNoQuotaLeftOnDeviceToAllocate' }),
+            ],
             patch: {
                 getDeviceForStaticSessionId: () => device,
             },
@@ -130,7 +128,7 @@ describe(createEnsureQuota.name, () => {
 
         const result = await createEnsureQuota(deps)(DEFAULT_PARAMS);
 
-        expect(result).toEqual(err({ type: 'NoQuotaLeftToAllocate' }));
+        expect(result).toEqual(err({ type: 'QuotaManagerNoQuotaLeftOnDeviceToAllocate' }));
     });
 
     it('returns QuotaManagerCommunicationFailed when device registration fails', async () => {

@@ -15,31 +15,33 @@ type QuotaPublicKeyResponse = {
     unspentSpace: number;
 };
 
-export type AskForStoragePublicKeyResponse = NoQuotaResponse | QuotaPublicKeyResponse;
+export type AskForStoragePublicKeyFetchResponse = NoQuotaResponse | QuotaPublicKeyResponse;
 
-export type CheckStorageByPublicKeyParams = {
+export type CheckStorageByPublicKeyFetchParams = {
     publicKey: string;
 };
 
 export type CheckStorageByPublicKeyResult = Result<
-    AskForStoragePublicKeyResponse,
+    AskForStoragePublicKeyFetchResponse,
     QuotaManagerFetchCommunicationError
 >;
 
-export type CheckStorageByPublicKey = (
-    params: CheckStorageByPublicKeyParams,
+export type CheckStorageByPublicKeyFetch = (
+    params: CheckStorageByPublicKeyFetchParams,
 ) => Promise<CheckStorageByPublicKeyResult>;
 
 export type CheckStorageByPublicKeyDep = {
-    checkStorageByPublicKey: CheckStorageByPublicKey;
+    checkStorageByPublicKeyFetch: CheckStorageByPublicKeyFetch;
 };
+
+type CheckStorageByPublicKeyFetchDep = QuotaManagerFetchDep;
 
 /**
  * Ask quota manager for storage allowance by public key.
  * Returns also unspent space left.
  */
-export const createCheckStorageByPublicKey =
-    (deps: QuotaManagerFetchDep): CheckStorageByPublicKey =>
+export const createCheckStorageByPublicKeyFetch =
+    (deps: CheckStorageByPublicKeyFetchDep): CheckStorageByPublicKeyFetch =>
     async ({ publicKey }) => {
         const result = await deps.quotaManagerFetch({
             path: '/storage/ask',
@@ -51,5 +53,5 @@ export const createCheckStorageByPublicKey =
             return err(result.error);
         }
 
-        return ok(result.payload as AskForStoragePublicKeyResponse);
+        return ok(result.payload as AskForStoragePublicKeyFetchResponse);
     };

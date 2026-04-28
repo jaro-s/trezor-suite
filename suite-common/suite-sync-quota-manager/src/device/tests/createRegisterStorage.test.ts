@@ -1,10 +1,10 @@
 import { err, ok } from '@trezor/type-utils';
 
 import { quotaManagerDeviceFetched } from '../../quotaManagerActions';
-import { createRegisterStorage } from '../createRegisterStorage';
+import { createRegisterDeviceFetch } from '../createRegisterDeviceFetch';
 import { createRegisterStorageDepsMock } from '../mocks/createRegisterStorageDepsMock';
 
-describe(createRegisterStorage.name, () => {
+describe(createRegisterDeviceFetch.name, () => {
     const bodyParams = {
         publicKey: 'pubkey',
         size: 123,
@@ -19,10 +19,6 @@ describe(createRegisterStorage.name, () => {
     };
     const params = { deviceId: 'device-id', ...bodyParams };
 
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
-
     it('dispatches quotaManagerDeviceFetched on success', async () => {
         const deps = createRegisterStorageDepsMock({
             quotaManagerFetchResponses: [
@@ -33,7 +29,7 @@ describe(createRegisterStorage.name, () => {
             ],
         });
 
-        const result = await createRegisterStorage(deps)(params);
+        const result = await createRegisterDeviceFetch(deps)(params);
 
         expect(deps.quotaManagerFetch).toHaveBeenCalledWith({
             path: '/storage/register',
@@ -60,7 +56,7 @@ describe(createRegisterStorage.name, () => {
             quotaManagerFetchResponses: [err({ type: 'FetchError', message: 'Network error' })],
         });
 
-        const result = await createRegisterStorage(deps)(params);
+        const result = await createRegisterDeviceFetch(deps)(params);
 
         expect(deps.dispatch).not.toHaveBeenCalled();
         expect(result).toEqual(err({ type: 'FetchError', message: 'Network error' }));

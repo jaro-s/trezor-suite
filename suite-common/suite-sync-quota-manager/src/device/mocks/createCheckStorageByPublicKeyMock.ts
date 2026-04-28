@@ -1,12 +1,12 @@
 import { mock } from '@suite-common/dependency-injection';
 
 import {
-    type CheckStorageByPublicKey,
+    type CheckStorageByPublicKeyFetch,
     type CheckStorageByPublicKeyResult,
-} from '../createCheckStorageByPublicKey';
+} from '../createCheckStorageByPublicKeyFetch';
 
 export const createCheckStorageByPublicKeyMock = (responses: CheckStorageByPublicKeyResult[]) => {
-    const impl = mock<CheckStorageByPublicKey>();
+    const impl = mock<CheckStorageByPublicKeyFetch>();
     responses.forEach(response => impl.mockResolvedValueOnce(response));
 
     return impl;

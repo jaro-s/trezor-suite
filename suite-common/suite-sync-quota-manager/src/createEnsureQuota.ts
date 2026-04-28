@@ -11,8 +11,7 @@ import { type EnsureDeviceHasQuotaDep } from './device/createEnsureDeviceHasQuot
 import { type GetDeviceForStaticSessionIdDep } from './device/getDeviceForStaticSessionId';
 import {
     type QuotaManagerCommunicationFailedErrType,
-    type QuotaManagerNoQuotaErrType,
-    type QuotaManagerNoQuotaLeftToAllocateErrType,
+    type QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType,
     WriteModeRequiredForAllocation,
     type WriteModeRequiredForAllocationErrType,
 } from './errors';
@@ -40,8 +39,7 @@ export type EnsureQuota = (
         | ProofOfDelegatedSignFailedType
         | WriteModeRequiredForAllocationErrType
         | QuotaManagerCommunicationFailedErrType
-        | QuotaManagerNoQuotaLeftToAllocateErrType
-        | QuotaManagerNoQuotaErrType
+        | QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType
     >
 >;
 

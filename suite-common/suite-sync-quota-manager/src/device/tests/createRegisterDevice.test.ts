@@ -14,10 +14,6 @@ const device = mockSuiteDevice(
 ) as TrezorDeviceWithState;
 
 describe(createRegisterDevice.name, () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
-
     it('registers device using challenge session and Connect signature', async () => {
         const evoluSignRegistrationRequest = jest.fn().mockResolvedValue({
             success: true,
@@ -31,12 +27,13 @@ describe(createRegisterDevice.name, () => {
             prepareChallengeSession: jest
                 .fn()
                 .mockResolvedValue(ok({ sessionId: 'session-123', challenge: 'aa55' })),
-            registerStorage: jest
+            registerDeviceFetch: jest
                 .fn()
                 .mockResolvedValue(ok({ totalStorageSize: 5000, unspentStorageSize: 1200 })),
             trezorConnect: {
                 evoluSignRegistrationRequest,
             },
+            dispatch: jest.fn(),
         });
 
         const result = await createRegisterDevice(deps)({
@@ -52,7 +49,7 @@ describe(createRegisterDevice.name, () => {
             proof_of_delegated_identity:
                 '9d40167d8ec7ce7949f1675d60a4d5c2a6ec5f16152bdc6c7959af99c856d31570c0d262996917cf424a3e638a7ee10b57aa2864c06895b0728d09f040496177',
         });
-        expect(deps.registerStorage).toHaveBeenCalledWith({
+        expect(deps.registerDeviceFetch).toHaveBeenCalledWith({
             deviceId: 'device-id',
             size: DEFAULT_DEVICE_SIZE_QUOTA,
             certificateChain: {
@@ -75,10 +72,11 @@ describe(createRegisterDevice.name, () => {
                 .mockResolvedValue(
                     err({ type: 'HttpError', code: 500, message: 'Internal error' }),
                 ),
-            registerStorage: jest.fn(),
+            registerDeviceFetch: jest.fn(),
             trezorConnect: {
                 evoluSignRegistrationRequest: jest.fn(),
             },
+            dispatch: jest.fn(),
         });
 
         const result = await createRegisterDevice(deps)({
@@ -92,6 +90,6 @@ describe(createRegisterDevice.name, () => {
                 caused: { type: 'HttpError', code: 500, message: 'Internal error' },
             }),
         );
-        expect(deps.registerStorage).not.toHaveBeenCalled();
+        expect(deps.registerDeviceFetch).not.toHaveBeenCalled();
     });
 });

@@ -1,5 +1,5 @@
 import {
-    type IncreaseOwnerQuota,
+    type IncreaseOwnerQuotaDep,
     type IncreaseOwnerQuotaErr,
 } from '@suite-common/suite-sync-quota-manager';
 import {
@@ -9,8 +9,7 @@ import {
 } from '@suite-common/suite-sync-types';
 import { exhaustive } from '@trezor/type-utils';
 
-export type CreateSuiteSyncErrorHandlerDeps = {
-    increaseOwnerQuota: IncreaseOwnerQuota;
+export type CreateSuiteSyncErrorHandlerDeps = IncreaseOwnerQuotaDep & {
     onError: (error: IncreaseOwnerQuotaErr | SuiteSyncOtherError) => void;
 };
 

@@ -1,15 +1,15 @@
 import { type Dispatch } from '@reduxjs/toolkit';
 
 import { type EnsureDelegatedIdentityKeyDep } from '@suite-common/delegated-identity-key-types';
+import { toGetter } from '@suite-common/dependency-injection';
 import { type TrezorConnect } from '@trezor/connect';
 
 import { createPrepareChallengeSession } from './challenge/prepareChallengeSession';
 import { createEnsureQuota } from './createEnsureQuota';
-import { createTransferStorage } from './createTransferStorage';
-import { createCheckStorageByPublicKey } from './device/createCheckStorageByPublicKey';
+import { createCheckStorageByPublicKeyFetch } from './device/createCheckStorageByPublicKeyFetch';
 import { createEnsureDeviceHasQuota } from './device/createEnsureDeviceHasQuota';
 import { createRegisterDevice } from './device/createRegisterDevice';
-import { createRegisterStorage } from './device/createRegisterStorage';
+import { createRegisterDeviceFetch } from './device/createRegisterDeviceFetch';
 import { type GetDeviceForStaticSessionIdDep } from './device/getDeviceForStaticSessionId';
 import { type GetHasDeviceRegisteredAndOwnerHasAllowance } from './getHasDeviceRegisteredAndOwnerHasAllowance';
 import { type GetIsUsingTrezorRelayDep } from './getIsDefaultRelayUrlSet';
@@ -18,16 +18,18 @@ import { createAllocateOwnerQuota } from './owner/createAllocateOwnerQuota';
 import { createCheckStorageByOwnerId } from './owner/createCheckStorageByOwnerId';
 import { createEnsureOwnerHasAllocatedQuota } from './owner/createEnsureOwnerHasAllocatedQuota';
 import { createIncreaseOwnerQuota } from './owner/createIncreaseOwnerQuota';
+import { createTransferStorageFetch } from './owner/createTransferStorageFetch';
 import { type GetOwnerHasAllowance } from './owner/getOwnerHasAllowance';
-import { type QuotaManagerFetchDep } from './quotaManagerFetch';
+import { type FetchDep, createQuotaManagerFetch } from './quotaManagerFetch';
 import {
     type WithSuiteSyncQuotaManagerState,
     selectEnforceQuotaManager,
     selectHasDeviceRegisteredAndOwnerHasAllowance,
     selectHasOwnerAllowance,
     selectLeftDeviceQuota,
+    selectQuotaManagerBaseUrl,
 } from './quotaManagerSelectors';
-import { generateSessionId } from './util/generateSessionId';
+import { generateSessionId } from './session/generateSessionId';
 
 type CreateSuiteSyncQuotaManagerCompositionRootDeps = {
     dispatch: Dispatch;
@@ -36,11 +38,16 @@ type CreateSuiteSyncQuotaManagerCompositionRootDeps = {
     GetIsUsingTrezorRelayDep &
     EnsureDelegatedIdentityKeyDep & {
         trezorConnect: Pick<TrezorConnect, 'evoluSignRegistrationRequest'>;
-    } & QuotaManagerFetchDep;
+    } & FetchDep;
 
 export const createSuiteSyncQuotaManagerCompositionRoot = (
     deps: CreateSuiteSyncQuotaManagerCompositionRootDeps,
 ) => {
+    const quotaManagerFetch = createQuotaManagerFetch({
+        fetch: deps.fetch,
+        getQuotaManagerBaseUrl: toGetter(deps.getState, selectQuotaManagerBaseUrl),
+    });
+
     // We only want to use QM for our own relay servers. In case custom URL has been set, QM is ignored,
     // unless enforceQuotaManager is set (used for e2e tests with a local relay).
     const getIsQuotaManagerEnabled: GetIsQuotaManagerEnabled = () =>
@@ -58,45 +65,49 @@ export const createSuiteSyncQuotaManagerCompositionRoot = (
 
     const getLeftDeviceQuota = (deviceId: string) =>
         selectLeftDeviceQuota(deps.getState(), deviceId);
+
+    // Challenge
+
     const prepareChallengeSession = createPrepareChallengeSession({
         generateSessionId,
-        quotaManagerFetch: deps.quotaManagerFetch,
-    });
-    const checkStorageByPublicKey = createCheckStorageByPublicKey({
-        quotaManagerFetch: deps.quotaManagerFetch,
-    });
-    const checkStorageByOwnerId = createCheckStorageByOwnerId({
-        quotaManagerFetch: deps.quotaManagerFetch,
+        quotaManagerFetch,
     });
 
-    const registerStorage = createRegisterStorage({
-        dispatch: deps.dispatch,
-        quotaManagerFetch: deps.quotaManagerFetch,
+    // Device
+    const checkStorageByPublicKeyFetch = createCheckStorageByPublicKeyFetch({ quotaManagerFetch });
+
+    const registerDeviceFetch = createRegisterDeviceFetch({
+        quotaManagerFetch,
     });
 
     const registerDevice = createRegisterDevice({
+        dispatch: deps.dispatch,
         prepareChallengeSession,
-        registerStorage,
+        registerDeviceFetch,
         trezorConnect: deps.trezorConnect,
     });
 
     const ensureDeviceHasQuota = createEnsureDeviceHasQuota({
-        checkStorageByPublicKey,
+        checkStorageByPublicKeyFetch,
         dispatch: deps.dispatch,
         registerDevice,
     });
 
     // Owner
 
-    const transferStorage = createTransferStorage({
+    const checkStorageByOwnerId = createCheckStorageByOwnerId({
+        quotaManagerFetch,
+    });
+
+    const transferStorageFetch = createTransferStorageFetch({
         dispatch: deps.dispatch,
-        quotaManagerFetch: deps.quotaManagerFetch,
+        quotaManagerFetch,
     });
 
     const allocateOwnerQuota = createAllocateOwnerQuota({
         getLeftDeviceQuota,
         prepareChallengeSession,
-        transferStorage,
+        transferStorageFetch,
     });
 
     const ensureOwnerHasAllocatedQuota = createEnsureOwnerHasAllocatedQuota({
@@ -118,7 +129,7 @@ export const createSuiteSyncQuotaManagerCompositionRoot = (
         ensureDelegatedIdentityKey: deps.ensureDelegatedIdentityKey,
         getLeftDeviceQuota,
         prepareChallengeSession,
-        transferStorage,
+        transferStorageFetch,
     });
 
     return {

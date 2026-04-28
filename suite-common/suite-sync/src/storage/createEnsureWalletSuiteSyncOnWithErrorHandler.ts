@@ -50,8 +50,7 @@ export const createEnsureWalletSuiteSyncOnWithErrorHandler =
                     break;
 
                 case 'QuotaManagerCommunicationFailed':
-                case 'QuotaManagerNoQuota':
-                case 'NoQuotaLeftToAllocate':
+                case 'QuotaManagerNoQuotaLeftOnDeviceToAllocate':
                     // Do nothing, these are expected control flow errors when we want allocate on-demand.
                     break;
 

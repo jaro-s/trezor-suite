@@ -6,9 +6,10 @@ import {
     type EnsureDelegatedIdentityKeyDep,
     type ProofOfDelegatedSignFailedType,
 } from '@suite-common/delegated-identity-key-types';
+import { isTrezorDeviceWithState, selectSelectedDevice } from '@suite-common/device';
 import { type SuiteSyncOwnerId } from '@suite-common/suite-sync-storage';
-import { type TrezorDeviceWithState, asDelegatedIdentityKey } from '@suite-common/suite-types';
-import { type WalletDescriptor } from '@suite-common/wallet-types';
+import { asDelegatedIdentityKey } from '@suite-common/suite-types';
+import { parseDeviceStaticSessionId } from '@suite-common/wallet-utils';
 import { type Result, err, ok } from '@trezor/type-utils';
 
 import { type PrepareChallengeSessionDep } from '../challenge/prepareChallengeSession';
@@ -16,38 +17,36 @@ import {
     DEFAULT_DEVICE_SIZE_QUOTA,
     EVOLU_SIGN_ADD_SPACE_TO_OWNER_REQUEST_HEADER,
 } from '../constants';
+import { type TransferStorageFetchDep } from './createTransferStorageFetch';
 import {
     QuotaManagerCommunicationFailed,
     type QuotaManagerCommunicationFailedErrType,
-    type QuotaManagerNoQuotaLeftToAllocateErrType,
+    QuotaManagerNoQuotaLeftOnDeviceToAllocate,
+    type QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType,
 } from '../errors';
-import { type TransferStorageDep } from '../storage/createTransferStorage';
-import { getAccountIncrementSizeQuota } from '../util/getAccountIncrementSizeQuota';
-import { prepareMessageBufferEvoluAddSpaceToOwner } from '../util/prepareMessageBufferEvoluAddSpaceToOwner';
+import { getAccountIncrementSizeQuota } from './getAccountIncrementSizeQuota';
+import { prepareMessageBufferEvoluAddSpaceToOwner } from './prepareMessageBufferEvoluAddSpaceToOwner';
+
+export type IncreaseOwnerQuotaErr =
+    | QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType
+    | ProofOfDelegatedSignFailedType
+    | QuotaManagerCommunicationFailedErrType;
 
 export type IncreaseOwnerQuotaParams = {
     ownerId: SuiteSyncOwnerId;
-    device: TrezorDeviceWithState;
-    deviceId: string;
-    walletDescriptor: WalletDescriptor;
 };
 
 export type IncreaseOwnerQuota = (
     params: IncreaseOwnerQuotaParams,
-) => Promise<
-    Result<
-        void,
-        | QuotaManagerNoQuotaLeftToAllocateErrType
-        | QuotaManagerCommunicationFailedErrType
-        | ProofOfDelegatedSignFailedType
-    >
->;
+) => Promise<Result<void, IncreaseOwnerQuotaErr>>;
+
 type GetLeftDeviceQuota = (deviceId: string) => number | undefined;
 
 export type IncreaseOwnerQuotaDeps = {
     getLeftDeviceQuota: GetLeftDeviceQuota;
+    getState: () => any; // Todo: temporary, see: https://github.com/trezor/trezor-suite/issues/27049
 } & EnsureDelegatedIdentityKeyDep &
-    TransferStorageDep &
+    TransferStorageFetchDep &
     PrepareChallengeSessionDep;
 
 export type IncreaseOwnerQuotaDep = {
@@ -56,14 +55,25 @@ export type IncreaseOwnerQuotaDep = {
 
 export const createIncreaseOwnerQuota =
     (deps: IncreaseOwnerQuotaDeps): IncreaseOwnerQuota =>
-    async ({ ownerId, device, deviceId, walletDescriptor }) => {
-        const leftDeviceQuota = deps.getLeftDeviceQuota(deviceId);
+    async ({ ownerId }) => {
+        // Todo: ------ this shall be REFACTORED OUT! [https://github.com/trezor/trezor-suite/issues/27049] ------
+        const device = selectSelectedDevice(deps.getState());
+
+        if (!device || !isTrezorDeviceWithState(device)) {
+            // Temporary, no better error
+            return err(QuotaManagerNoQuotaLeftOnDeviceToAllocate());
+        }
+
+        const { walletDescriptor } = parseDeviceStaticSessionId(device.state.staticSessionId);
+        // Todo: ------ end of temporary code ------
+
+        const leftDeviceQuota = deps.getLeftDeviceQuota(device.id);
         const sizeToAllocate = getAccountIncrementSizeQuota({
             unspentStorage: leftDeviceQuota ?? DEFAULT_DEVICE_SIZE_QUOTA,
         });
 
         if (sizeToAllocate === 0) {
-            return err({ type: 'NoQuotaLeftToAllocate' });
+            return err(QuotaManagerNoQuotaLeftOnDeviceToAllocate());
         }
 
         const delegatedKey = await deps.ensureDelegatedIdentityKey({ device });
@@ -95,7 +105,7 @@ export const createIncreaseOwnerQuota =
             return proof;
         }
 
-        const transferStorageResult = await deps.transferStorage({
+        const transferStorageResult = await deps.transferStorageFetch({
             deviceId: device.id,
             walletDescriptor,
             params: {
