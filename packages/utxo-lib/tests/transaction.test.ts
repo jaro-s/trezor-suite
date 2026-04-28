@@ -337,12 +337,13 @@ describe('Transaction', () => {
                 }
                 if (f.raw.nShieldedSpend) {
                     const shieldedSpend = specificData.vShieldedSpend;
+                    const expectedShieldedSpend = f.raw.vShieldedSpend;
                     for (let i = 0; i < f.raw.nShieldedSpend; ++i) {
                         // @ts-expect-error: indexing with noUncheckedIndexedAccess
                         const spend: (typeof shieldedSpend)[number] = shieldedSpend[i];
                         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-                        const expected: (typeof f.raw.vShieldedSpend)[number] =
-                            f.raw.vShieldedSpend[i];
+                        const expected: (typeof expectedShieldedSpend)[number] =
+                            expectedShieldedSpend[i];
                         expect(spend.cv.toString('hex')).toEqual(expected.cv);
                         expect(spend.anchor.toString('hex')).toEqual(expected.anchor);
                         expect(spend.nullifier.toString('hex')).toEqual(expected.nullifier);
