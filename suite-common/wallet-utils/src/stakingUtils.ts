@@ -136,17 +136,13 @@ export const getStakingDataForNetwork = (
         case 'ethereum':
             return getAccountEverstakeStakingPool(account);
         case 'solana': {
-            const solStakingInfo = getSolStakingAccountsInfo(account) ?? {};
-            // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const { solStakedBalance }: { solStakedBalance: string } = solStakingInfo;
-            // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const { solClaimableBalance }: { solClaimableBalance: string } = solStakingInfo;
-            // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const { solPendingStakeBalance }: { solPendingStakeBalance: string } = solStakingInfo;
-            // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const { solPendingUnstakeBalance }: { solPendingUnstakeBalance: string } =
-                solStakingInfo;
-            const { canClaimSol } = solStakingInfo;
+            const {
+                canClaimSol,
+                solClaimableBalance,
+                solStakedBalance,
+                solPendingStakeBalance,
+                solPendingUnstakeBalance,
+            } = getSolStakingAccountsInfo(account);
 
             return {
                 autocompoundBalance: solStakedBalance,
@@ -222,11 +218,7 @@ export const getOutputTxAmount = (composedLevels?: PrecomposedLevels) => {
     const precomposedTx = composedLevels['normal'];
     if (precomposedTx?.type !== 'final') return null;
 
-    const { outputs } = precomposedTx;
-    // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const firstOutput: (typeof outputs)[number] = outputs[0];
-
-    return firstOutput.amount;
+    return precomposedTx.outputs[0].amount;
 };
 
 export const calculateRewards = (amount: string, apyPercent: number | null, days = 365) => {
