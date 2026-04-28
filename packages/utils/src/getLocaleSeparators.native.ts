@@ -22,8 +22,9 @@ export function getLocaleSeparators(locale: string): {
         }
     }
 
+    const decimalSeparatorIndex = formattedNumber.length - 3;
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const decimalSeparator: string = formattedNumber[formattedNumber.length - 3];
+    const decimalSeparator: string = formattedNumber[decimalSeparatorIndex];
 
     return { decimalSeparator, thousandsSeparator };
 }
