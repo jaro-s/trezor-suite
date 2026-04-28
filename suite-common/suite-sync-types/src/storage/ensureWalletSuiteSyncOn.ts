@@ -1,7 +1,6 @@
 import {
     type QuotaManagerCommunicationFailedErrType,
-    type QuotaManagerNoQuotaErrType,
-    type QuotaManagerNoQuotaLeftToAllocateErrType,
+    type QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType,
     type WriteModeRequiredForAllocationErrType,
 } from '@suite-common/suite-sync-quota-manager';
 import { type SuiteSyncStorage, type SuiteSyncUpdateError } from '@suite-common/suite-sync-storage';
@@ -32,8 +31,7 @@ export type EnsureWalletSuiteSyncOnErrors =
     | DeviceCancelledErrType
     | WriteModeRequiredForAllocationErrType
     | QuotaManagerCommunicationFailedErrType
-    | QuotaManagerNoQuotaErrType
-    | QuotaManagerNoQuotaLeftToAllocateErrType;
+    | QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType;
 
 export type EnsureWalletSuiteSyncOn = (
     params: EnsureWalletSuiteSyncOnParams,
@@ -45,5 +43,4 @@ export type SuiteSyncUserFacingErrorType =
     | Exclude<EnsureWalletSuiteSyncOnErrors['type'], 'WriteModeRequiredForAllocation'>
     | SuiteSyncUpdateError['type']
     | QuotaManagerCommunicationFailedErrType['type']
-    | QuotaManagerNoQuotaErrType['type']
-    | QuotaManagerNoQuotaLeftToAllocateErrType['type'];
+    | QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType['type'];

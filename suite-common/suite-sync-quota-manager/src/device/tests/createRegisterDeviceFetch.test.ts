@@ -1,7 +1,9 @@
+import { createMockDeps } from '@suite-common/dependency-injection';
 import { ok } from '@trezor/type-utils';
 
+import { createQuotaManagerFetchMock } from '../../mocks/createQuotaManagerFetchMock';
+import { type RegisterStorageDeps } from '../createRegisterDeviceFetch';
 import { createRegisterDeviceFetch } from '../createRegisterDeviceFetch';
-import { createRegisterStorageDepsMock } from '../mocks/createRegisterStorageDepsMock';
 
 describe(createRegisterDeviceFetch.name, () => {
     const bodyParams = {
@@ -19,8 +21,10 @@ describe(createRegisterDeviceFetch.name, () => {
     const params = { deviceId: 'device-id', ...bodyParams };
 
     it('return the fetch result', async () => {
-        const deps = createRegisterStorageDepsMock({
-            quotaManagerFetchResponses: [ok({ totalStorageSize: 1000, unspentStorageSize: 800 })],
+        const deps = createMockDeps<RegisterStorageDeps>({
+            quotaManagerFetch: createQuotaManagerFetchMock([
+                ok({ totalStorageSize: 1000, unspentStorageSize: 800 }),
+            ]),
         });
 
         const result = await createRegisterDeviceFetch(deps)(params);

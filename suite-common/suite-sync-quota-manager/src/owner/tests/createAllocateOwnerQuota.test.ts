@@ -36,7 +36,7 @@ describe(createAllocateOwnerQuota.name, () => {
         const deps = createMockDeps<AllocateOwnerQuotaDeps>({
             getLeftDeviceQuota: () => 0,
             prepareChallengeSession: jest.fn(),
-            transferStorage: jest.fn(),
+            transferStorageFetch: jest.fn(),
         });
 
         const result = await createAllocateOwnerQuota(deps)({
@@ -49,7 +49,7 @@ describe(createAllocateOwnerQuota.name, () => {
 
         expect(result).toEqual(err({ type: 'QuotaManagerNoQuotaLeftOnDeviceToAllocate' }));
         expect(deps.prepareChallengeSession).not.toHaveBeenCalled();
-        expect(deps.transferStorage).not.toHaveBeenCalled();
+        expect(deps.transferStorageFetch).not.toHaveBeenCalled();
     });
 
     it('maps challenge session failure to quota manager communication failure', async () => {
@@ -60,7 +60,7 @@ describe(createAllocateOwnerQuota.name, () => {
                 .mockResolvedValue(
                     err({ type: 'HttpError', code: 500, message: 'Internal error' }),
                 ),
-            transferStorage: jest.fn(),
+            transferStorageFetch: jest.fn(),
         });
 
         const result = await createAllocateOwnerQuota(deps)({
@@ -77,7 +77,7 @@ describe(createAllocateOwnerQuota.name, () => {
                 caused: { type: 'HttpError', code: 500, message: 'Internal error' },
             }),
         );
-        expect(deps.transferStorage).not.toHaveBeenCalled();
+        expect(deps.transferStorageFetch).not.toHaveBeenCalled();
     });
 
     it('requests storage transfer when owner storage is missing', async () => {
@@ -86,7 +86,7 @@ describe(createAllocateOwnerQuota.name, () => {
             prepareChallengeSession: jest
                 .fn()
                 .mockResolvedValue(ok({ sessionId: 'session-123', challenge: 'aa55' })),
-            transferStorage: jest
+            transferStorageFetch: jest
                 .fn()
                 .mockResolvedValue(ok({ publicKeyUnspentSpace: 0, ownerTotalSpace: 0 })),
         });
@@ -101,7 +101,7 @@ describe(createAllocateOwnerQuota.name, () => {
 
         expect(result).toEqual(ok());
         expect(deps.prepareChallengeSession).toHaveBeenCalledWith();
-        expect(deps.transferStorage).toHaveBeenCalledWith({
+        expect(deps.transferStorageFetch).toHaveBeenCalledWith({
             params: {
                 ownerId,
                 publicKey:
@@ -123,7 +123,7 @@ describe(createAllocateOwnerQuota.name, () => {
             prepareChallengeSession: jest
                 .fn()
                 .mockResolvedValue(ok({ sessionId: 'session-456', challenge: 'bb66' })),
-            transferStorage: jest
+            transferStorageFetch: jest
                 .fn()
                 .mockResolvedValue(ok({ publicKeyUnspentSpace: 0, ownerTotalSpace: 0 })),
         });
@@ -136,7 +136,7 @@ describe(createAllocateOwnerQuota.name, () => {
             isWriteMode: true,
         });
 
-        expect(deps.transferStorage).toHaveBeenCalledWith(
+        expect(deps.transferStorageFetch).toHaveBeenCalledWith(
             expect.objectContaining({
                 params: expect.objectContaining({
                     size: remainingQuota,

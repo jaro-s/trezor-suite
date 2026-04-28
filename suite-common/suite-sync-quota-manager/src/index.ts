@@ -1,12 +1,13 @@
-export { createProvisionalIncreaseOwnerQuota } from './owner/createProvisionalIncreaseOwnerQuota';
-export type { FetchDep } from './quotaManagerFetch';
 export { createSuiteSyncQuotaManagerCompositionRoot } from './createSuiteSyncQuotaManagerCompositionRoot';
 export type { EnsureQuotaDep } from './createEnsureQuota';
-export type { GetOwnerHasAllowanceDep } from './owner/getOwnerHasAllowance';
 export type {
-    IncreaseOwnerQuotaErr,
+    IncreaseOwnerQuota,
     IncreaseOwnerQuotaDep,
+    IncreaseOwnerQuotaErr,
 } from './owner/createIncreaseOwnerQuota';
+export type { GetOwnerHasAllowanceDep } from './owner/getOwnerHasAllowance';
+export type { FetchDep } from './quotaManagerFetch';
+
 export type {
     QuotaManagerCommunicationFailedErrType,
     QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType,
@@ -17,7 +18,6 @@ export {
     enforceQuotaManagerUpdated,
     eraseFetchedData,
     noQuotaLeftWarningDismissed,
-    quotaManagerDeviceFetched,
     suiteSyncQuotaManagerActions,
     updateQuotaManagerBaseUrl,
 } from './quotaManagerActions';

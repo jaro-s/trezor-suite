@@ -1,7 +1,6 @@
 import {
     type QuotaManagerCommunicationFailedErrType,
-    type QuotaManagerNoQuotaErrType,
-    type QuotaManagerNoQuotaLeftToAllocateErrType,
+    type QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType,
     type WriteModeRequiredForAllocationErrType,
 } from '@suite-common/suite-sync-quota-manager';
 import { type SuiteSyncSchema, type SuiteSyncStorage } from '@suite-common/suite-sync-storage';
@@ -43,8 +42,7 @@ export type EnsureSubscribedStorage = (
         | DeviceCancelledErrType
         | WriteModeRequiredForAllocationErrType
         | QuotaManagerCommunicationFailedErrType
-        | QuotaManagerNoQuotaErrType
-        | QuotaManagerNoQuotaLeftToAllocateErrType
+        | QuotaManagerNoQuotaLeftOnDeviceToAllocateErrType
     >
 >;
 

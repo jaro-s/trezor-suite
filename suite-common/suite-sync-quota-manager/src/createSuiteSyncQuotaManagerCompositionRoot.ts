@@ -130,6 +130,7 @@ export const createSuiteSyncQuotaManagerCompositionRoot = (
         getLeftDeviceQuota,
         prepareChallengeSession,
         transferStorageFetch,
+        getState: deps.getState,
     });
 
     return {

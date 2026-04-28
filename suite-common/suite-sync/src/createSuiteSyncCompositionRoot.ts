@@ -8,7 +8,6 @@ import { type PlatformEncryptionDep } from '@suite-common/platform-encryption';
 import {
     type FetchDep,
     type IncreaseOwnerQuotaErr,
-    createProvisionalIncreaseOwnerQuota,
     createSuiteSyncQuotaManagerCompositionRoot,
 } from '@suite-common/suite-sync-quota-manager';
 import {
@@ -126,14 +125,9 @@ export const createSuiteSyncCompositionRoot = (
             fetch: deps.fetch,
         });
 
-    const provisionalIncreaseOwnerQuota = createProvisionalIncreaseOwnerQuota({
-        getState: deps.getState,
-        increaseOwnerQuota,
-    });
-
     deps.subscribeError(
         createSuiteSyncErrorHandler({
-            increaseOwnerQuota: provisionalIncreaseOwnerQuota,
+            increaseOwnerQuota,
             onError: (error: IncreaseOwnerQuotaErr | SuiteSyncOtherError) => {
                 console.error('SuiteSync error', error);
             },
