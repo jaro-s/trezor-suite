@@ -4,23 +4,19 @@
 
 import { blake256 as nobleBlake256 } from '@noble/hashes/blake1.js';
 import { hmac } from '@noble/hashes/hmac.js';
-import { sha512 } from '@noble/hashes/sha2.js';
-import { createHash } from 'crypto';
+import { ripemd160 as nobleRipemd160, sha1 as nobleSha1 } from '@noble/hashes/legacy.js';
+import { sha256 as nobleSha256, sha512 } from '@noble/hashes/sha2.js';
 
 export function ripemd160(buffer: Buffer): Buffer {
-    try {
-        return createHash('rmd160').update(buffer).digest();
-    } catch {
-        return createHash('ripemd160').update(buffer).digest();
-    }
+    return Buffer.from(nobleRipemd160(buffer));
 }
 
 export function sha1(buffer: Buffer): Buffer {
-    return createHash('sha1').update(buffer).digest();
+    return Buffer.from(nobleSha1(buffer));
 }
 
 export function sha256(buffer: Buffer): Buffer {
-    return createHash('sha256').update(buffer).digest();
+    return Buffer.from(nobleSha256(buffer));
 }
 
 export function blake256(buffer: Buffer): Buffer {
