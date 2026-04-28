@@ -237,10 +237,13 @@ class BluetoothManager {
             connectionStatus: { type: 'connecting' },
         });
 
+        let device: Device;
+
         // Get a list of known devices by their identifiers.
         const devices = await this.getBleManager().devices([deviceId]);
         debugLog(`Found ${devices.length} already known device(s)`);
-        let device = devices[0];
+        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        [device] = devices;
 
         if (!device) {
             // Get a list of the peripherals currently connected to the system which have discovered
@@ -250,7 +253,8 @@ class BluetoothManager {
             ]);
             const matchingConnectedDevices = connectedDevices.filter(d => d.id === deviceId);
             debugLog(`Found ${matchingConnectedDevices.length} already connected device(s)`);
-            device = matchingConnectedDevices[0];
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            [device] = matchingConnectedDevices;
         }
 
         const connectionOptions: ConnectionOptions = {
