@@ -20,7 +20,7 @@ type CreateWalletBackupModalProps = {
     onCancel: () => void;
 };
 
-type Step = 'disclaimer' | 'how-it-works' | 'verify-ownership' | 'verified' | 'backup' | 'done';
+type Step = 'disclaimer' | 'how-it-works' | 'verify-ownership' | 'backup' | 'done';
 
 const getStepIndex = (step: Step) => {
     if (step === 'disclaimer') return 0;
@@ -62,14 +62,12 @@ export const CreateWalletBackupModal = ({ onCancel }: CreateWalletBackupModalPro
         });
 
         if (response.success) {
-            setStep('verified');
+            setStep('backup');
         } else {
             onCancel();
-        }
-    };
 
-    const startBackup = async () => {
-        setStep('backup');
+            return;
+        }
 
         const backupResponse = await TrezorConnect.backupDevice({
             backup_method: PROTO.BackupMethod.N4W1,
@@ -85,7 +83,7 @@ export const CreateWalletBackupModal = ({ onCancel }: CreateWalletBackupModalPro
         }
     };
 
-    const isDeviceStep = step === 'verify-ownership' || step === 'backup';
+    const isDeviceStep = step === 'backup';
     const stepIndex = getStepIndex(step);
 
     const getStepConfig = () => {
@@ -137,7 +135,6 @@ export const CreateWalletBackupModal = ({ onCancel }: CreateWalletBackupModalPro
                             </LearnMoreButton>
                         </>
                     ),
-                    onBackClick: () => setStep('disclaimer'),
                 };
 
             case 'verify-ownership':
@@ -150,25 +147,6 @@ export const CreateWalletBackupModal = ({ onCancel }: CreateWalletBackupModalPro
                     ),
                     children: <AdditionalBackupSteps step="verify-ownership" />,
                     onCancel: undefined,
-                };
-
-            case 'verified':
-                return {
-                    description: (
-                        <Translation
-                            id="TR_STEP_OF_TOTAL"
-                            values={{ index: stepIndex, total: 2 }}
-                        />
-                    ),
-                    children: <AdditionalBackupSteps step="verified" />,
-                    bottomContent: (
-                        <Modal.Button
-                            onClick={startBackup}
-                            data-testid="@additional-backup/create-backup-button"
-                        >
-                            <Translation id="TR_CONTINUE" />
-                        </Modal.Button>
-                    ),
                 };
 
             case 'backup':
