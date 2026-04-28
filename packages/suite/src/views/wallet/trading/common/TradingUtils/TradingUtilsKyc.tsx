@@ -57,7 +57,7 @@ export const TradingUtilsKyc = ({
                         data-testid="@trading/kyc/dex"
                     />
                     <Text typographyStyle="body-xs" color="contentBrand">
-                        Anonymous
+                        <Translation id="TR_TRADING_KYC_ANONYMOUS" />
                     </Text>
                 </Row>
             );

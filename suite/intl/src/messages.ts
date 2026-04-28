@@ -1221,6 +1221,10 @@ export const messages = defineMessages({
         defaultMessage: 'KYC is never required. Exceptional cases are automatically refunded.',
         id: 'TR_TRADING_KYC_NO_KYC',
     },
+    TR_TRADING_KYC_ANONYMOUS: {
+        defaultMessage: 'Anonymous.',
+        id: 'TR_TRADING_KYC_ANONYMOUS',
+    },
     TR_TRADING_BUY_AND_SELL: {
         defaultMessage: 'Buy & sell',
         id: 'TR_TRADING_BUY_AND_SELL',
