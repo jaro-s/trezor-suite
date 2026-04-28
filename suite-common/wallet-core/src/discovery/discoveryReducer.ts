@@ -13,12 +13,13 @@ export type DiscoveryRootState = {
 export const discoveryInitialState: Discovery = {};
 
 const update = (draft: Discovery, payload: { status: DiscoveryStatus; path: DeviceUniquePath }) => {
-    if (!draft[payload.path]) {
+    const { path } = payload;
+    if (!draft[path]) {
         return;
     }
 
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const currentStatus: (typeof draft)[DeviceUniquePath] = draft[payload.path];
+    const currentStatus: (typeof draft)[DeviceUniquePath] = draft[path];
     const hasLoadedAnyNonEmptyAccount =
         currentStatus.hasLoadedAnyNonEmptyAccount || payload.status.hasLoadedAnyNonEmptyAccount;
 
