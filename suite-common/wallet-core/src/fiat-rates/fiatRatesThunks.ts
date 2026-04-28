@@ -80,12 +80,9 @@ export const updateTxsFiatRatesThunk = createThunk(
                 }
             }
 
-            const tokenTxs = groupedTokensTxs[token];
-            if (!tokenTxs) {
-                continue;
-            }
-
-            const tokenTimestamps = tokenTxs
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            const txsForToken: WalletAccountTransaction[] = groupedTokensTxs[token];
+            const tokenTimestamps = txsForToken
                 .map(tx => (tx.blockTime !== undefined ? asTimestamp(tx.blockTime) : undefined))
                 .filter(it => it !== undefined);
 

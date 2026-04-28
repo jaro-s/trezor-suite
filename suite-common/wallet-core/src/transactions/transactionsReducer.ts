@@ -132,13 +132,11 @@ export const prepareTransactionsReducer = createReducerWithExtraDeps(
                 };
             })
             .addCase(fetchAllTransactionsForAccountThunk.fulfilled, (state, { meta }) => {
-                const currentDetail = state.fetchStatusDetail[meta.arg.accountKey];
-                if (currentDetail) {
-                    state.fetchStatusDetail[meta.arg.accountKey] = {
-                        ...currentDetail,
-                        areAllTransactionsLoaded: true,
-                    };
-                }
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess widens fetchStatusDetail
+                state.fetchStatusDetail[meta.arg.accountKey] = {
+                    ...state.fetchStatusDetail[meta.arg.accountKey],
+                    areAllTransactionsLoaded: true,
+                };
             })
             .addMatcher(
                 isAnyOf(

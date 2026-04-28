@@ -191,20 +191,15 @@ export const composeSolanaTransactionFeeLevelsThunk = createThunk<
                 message: 'Token accounts not found.',
             });
 
-        const solFirstOutput = formState.outputs[0];
-        if (!solFirstOutput) {
-            return rejectWithValue({
-                error: 'fee-levels-compose-failed',
-                message: 'No outputs found.',
-            });
-        }
-
-        if (formState.setMaxOutputId !== undefined && !solFirstOutput.amount) {
+        const { outputs: composeOutputsList } = formState;
+        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        const firstOutput: (typeof composeOutputsList)[number] = composeOutputsList[0];
+        if (formState.setMaxOutputId !== undefined && !firstOutput.amount) {
             if (tokenInfo?.balance) {
-                solFirstOutput.amount = tokenInfo.balance;
+                firstOutput.amount = tokenInfo.balance;
             } else {
                 // minimal amount for purpose of fee estimation, at least to cover rent + 1 lamport
-                solFirstOutput.amount = convertAmountSubunitsToUnits(
+                firstOutput.amount = convertAmountSubunitsToUnits(
                     (account.misc?.rent ?? 0) + 1,
                     decimals,
                 );
@@ -217,8 +212,8 @@ export const composeSolanaTransactionFeeLevelsThunk = createThunk<
         // The real transaction is constructed in `signTransaction`, this one is used solely for fee estimation and is never submitted.
         const transaction = await TrezorConnect.solanaComposeTransaction({
             fromAddress: account.descriptor,
-            toAddress: solFirstOutput.address,
-            amount: solFirstOutput.amount,
+            toAddress: firstOutput.address,
+            amount: firstOutput.amount,
             token: tokenInfo
                 ? {
                       mint: tokenInfo.contract,
@@ -261,10 +256,12 @@ export const composeSolanaTransactionFeeLevelsThunk = createThunk<
         let fetchedFeeLimit: string | undefined;
         if (estimatedFee.success) {
             // We access the array directly like this because the fee response from the solana worker always returns an array of size 1
-            const feeLevel = estimatedFee.payload.levels[0];
-            fetchedFee = feeLevel?.feePerTx;
-            fetchedFeePerUnit = feeLevel?.feePerUnit;
-            fetchedFeeLimit = feeLevel?.feeLimit;
+            const { levels: estimatedFeeLevels } = estimatedFee.payload;
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            const feeLevel: (typeof estimatedFeeLevels)[number] = estimatedFeeLevels[0];
+            fetchedFee = feeLevel.feePerTx;
+            fetchedFeePerUnit = feeLevel.feePerUnit;
+            fetchedFeeLimit = feeLevel.feeLimit;
         } else {
             // Error fetching fee, fall back on default values defined in `/packages/connect/src/data/defaultFeeLevels.ts`
             console.warn('Error fetching fee, using default values.', estimatedFee.error.message);
@@ -297,17 +294,17 @@ export const composeSolanaTransactionFeeLevelsThunk = createThunk<
             ),
         );
         response.forEach((tx, index) => {
-            const level = predefinedLevels[index];
-            if (!level) return;
-            const feeLabel = level.label as FeeLevel['label'];
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            const predefinedLevel: (typeof predefinedLevels)[number] = predefinedLevels[index];
+            const feeLabel = predefinedLevel.label as FeeLevel['label'];
             resultLevels[feeLabel] = tx;
         });
 
         // format max (calculate sends it as lamports)
         // update errorMessage values (symbol)
         Object.keys(resultLevels).forEach(key => {
-            const tx = resultLevels[key];
-            if (!tx) return;
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            const tx: (typeof resultLevels)[string] = resultLevels[key];
             if (tx.type !== 'error') {
                 tx.max = tx.max ? convertAmountSubunitsToUnits(tx.max, decimals) : undefined;
             }
@@ -366,18 +363,13 @@ export const signSolanaSendFormTransactionThunk = createThunk<
                 message: 'Missing token accounts.',
             });
 
-        const solSignOutput = formState.outputs[0];
-        if (!solSignOutput) {
-            return rejectWithValue({
-                error: 'sign-transaction-failed',
-                message: 'No outputs found.',
-            });
-        }
-
+        const { outputs: signOutputs } = formState;
+        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        const firstSignOutput: (typeof signOutputs)[number] = signOutputs[0];
         const transaction = await TrezorConnect.solanaComposeTransaction({
             fromAddress: selectedAccount.descriptor,
-            toAddress: solSignOutput.address,
-            amount: solSignOutput.amount,
+            toAddress: firstSignOutput.address,
+            amount: firstSignOutput.amount,
             token: token
                 ? {
                       mint: token.contract,

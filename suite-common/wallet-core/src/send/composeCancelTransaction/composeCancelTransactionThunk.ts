@@ -82,10 +82,9 @@ const calculateNewTransactionSize = createThunk<
             return rejectWithValue(`Unexpected compose error: ${tempCancelTxResult.error.message}`);
         }
 
-        const tempCancelTx = tempCancelTxResult.payload[0];
-        if (!tempCancelTx) {
-            return rejectWithValue('Unexpected compose error: empty payload');
-        }
+        const { payload } = tempCancelTxResult;
+        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        const tempCancelTx: (typeof payload)[number] = payload[0];
 
         if (tempCancelTx.type !== 'final') {
             return rejectWithValue('Unexpected compose tempCancelTxResult (non-final)');
@@ -137,10 +136,9 @@ export const composeCancelTransactionThunk = createThunk<
             return rejectWithValue('Unexpected compose result (error)');
         }
 
-        const composedTx = sizeCalculationResponse.payload[0];
-        if (!composedTx) {
-            return rejectWithValue('Unexpected compose result (empty payload)');
-        }
+        const { payload: sizeCalculationPayload } = sizeCalculationResponse;
+        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        const composedTx: (typeof sizeCalculationPayload)[number] = sizeCalculationPayload[0];
 
         if (composedTx.type !== 'final') {
             return rejectWithValue('Unexpected compose result (non-final)');

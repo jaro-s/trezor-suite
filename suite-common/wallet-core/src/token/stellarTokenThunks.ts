@@ -62,11 +62,12 @@ const manageTrustline = async (
         feePerUnit = feeLevel.feePerUnit;
     }
 
-    const [code, issuer] = contractAddress.split('-');
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const [code, issuer]: [string, string] = contractAddress.split('-');
 
     const asset = {
-        type: (code?.length ?? 0) <= 4 ? StellarAssetType.ALPHANUM4 : StellarAssetType.ALPHANUM12,
-        code: code ?? '',
+        type: code.length <= 4 ? StellarAssetType.ALPHANUM4 : StellarAssetType.ALPHANUM12,
+        code,
         issuer,
     };
 

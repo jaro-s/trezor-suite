@@ -149,8 +149,10 @@ export const addFakePendingTxThunk = createThunk(
             [affectedAccountKey: string]: Account;
         }>(
             (result, output) => {
-                const firstAddress = output.addresses?.[0];
-                if (firstAddress) {
+                if (output.addresses) {
+                    const { addresses } = output;
+                    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                    const firstAddress: string = addresses[0];
                     findAccountsByAddress(account.symbol, firstAddress, accounts).forEach(
                         affectedAccount => {
                             if (affectedAccount.key === account.key) return accounts;
@@ -168,8 +170,8 @@ export const addFakePendingTxThunk = createThunk(
         );
 
         Object.keys(affectedAccounts).forEach(key => {
-            const affectedAccount = affectedAccounts[key];
-            if (!affectedAccount) return;
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            const affectedAccount: Account = affectedAccounts[key];
             if (!isRbfBumpFeeTransaction(precomposedTransaction)) {
                 // create and profile pending transaction for affected account if it's not a replacement tx
                 const affectedAccountTransaction = blockbookUtils.transformTransaction(
@@ -223,12 +225,11 @@ const buildFakePendingEvmTx = ({
     deadline: number;
     token?: TokenInfo;
 }): AccountTransaction & Partial<WalletAccountTransaction> => {
-    const output = precomposedTransaction.outputs[0];
-    if (!output) {
-        throw new Error('Missing transaction output');
-    }
+    const { outputs: precomposedOutputs } = precomposedTransaction;
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const output: (typeof precomposedOutputs)[number] = precomposedOutputs[0];
     const fromAddress = account.descriptor;
-    const toAddress = output.address ?? '';
+    const toAddress = output.address!;
     const amount = output.amount.toString();
     const isLegacyTx = !isEip1559(precomposedTransaction);
 

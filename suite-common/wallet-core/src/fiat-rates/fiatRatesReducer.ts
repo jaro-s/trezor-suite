@@ -54,10 +54,8 @@ export const prepareFiatRatesReducer = createReducerWithExtraDeps(
                 for (const result of action.payload) {
                     index++;
 
-                    const ticker = tickers[index];
-                    if (!ticker) {
-                        continue;
-                    }
+                    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                    const ticker: (typeof tickers)[number] = tickers[index];
 
                     if (isTestnet(ticker.symbol)) {
                         continue;
@@ -88,10 +86,10 @@ export const prepareFiatRatesReducer = createReducerWithExtraDeps(
 
                     const currentRate = state[rateType]?.[fiatRateKey];
 
+                    // @ts-expect-error: rate widened via noUncheckedIndexedAccess in fiat-rates types
                     state[rateType][fiatRateKey] = {
                         ...currentRate,
                         ...rate,
-                        ticker,
                         rate: rate.rate,
                         lastTickerTimestamp: (rate.lastTickerTimestamp * 1000) as Timestamp,
                         lastSuccessfulFetchTimestamp: fetchAttemptTimestamp,
@@ -109,11 +107,11 @@ export const prepareFiatRatesReducer = createReducerWithExtraDeps(
 
                 tickers.forEach(ticker => {
                     const fiatRateKey = getFiatRateKeyFromTicker(ticker, baseCurrencyCode);
-                    const currentRate = state[rateType]?.[fiatRateKey];
-                    if (currentRate) {
-                        currentRate.error = errorMessage;
-                        currentRate.isLoading = false;
-                    }
+                    const rates = state[rateType];
+                    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                    const rateEntry: (typeof rates)[string] = rates[fiatRateKey];
+                    rateEntry.error = errorMessage;
+                    rateEntry.isLoading = false;
                 });
             })
             .addCase(updateTxsFiatRatesThunk.fulfilled, (state, action) => {

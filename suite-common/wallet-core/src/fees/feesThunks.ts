@@ -35,8 +35,8 @@ export const preloadFeeInfoThunk = createThunk(
 
         const partial: Partial<FeesState> = {};
         networks.forEach((network, index) => {
-            const result = levels[index];
-            if (!result) return;
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            const result: (typeof levels)[number] = levels[index];
 
             if (result.success) {
                 const { payload } = result;

@@ -90,15 +90,17 @@ export const getNewFeeInfo = async ({
     if (!result.success) return;
 
     if (network.symbol === 'btc') {
-        const feeOverride = NETWORK_FEE_OVERRIDES.bitcoin;
-        if (feeOverride) {
-            result.payload.levels.forEach(level => {
-                const minFee = feeOverride.minFeePerUnit[level.label];
-                if (minFee !== undefined && new BigNumber(level.feePerUnit).lte(minFee)) {
-                    level.feePerUnit = minFee;
-                }
-            });
-        }
+        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        const feeOverride: NonNullable<typeof NETWORK_FEE_OVERRIDES.bitcoin> =
+            NETWORK_FEE_OVERRIDES.bitcoin;
+        result.payload.levels.forEach(level => {
+            const { minFeePerUnit } = feeOverride;
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            const minFee: string = minFeePerUnit[level.label];
+            if (minFee !== undefined && new BigNumber(level.feePerUnit).lte(minFee)) {
+                level.feePerUnit = minFee;
+            }
+        });
     }
 
     return {

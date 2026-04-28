@@ -10,15 +10,25 @@ type ResolveCancelAddress = {
 export const resolveCancelAddress = ({ account, tx }: ResolveCancelAddress): string => {
     const firstChangeAddress = tx.details.vout.find(vout => vout.isAccountOwned);
 
-    const firstAddress = firstChangeAddress?.addresses?.[0];
-    if (firstAddress !== undefined) {
+    if (
+        firstChangeAddress !== undefined &&
+        firstChangeAddress.addresses !== undefined &&
+        firstChangeAddress.addresses.length > 0
+    ) {
+        const { addresses } = firstChangeAddress;
+        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        const firstAddress: string = addresses[0];
+
         return firstAddress;
     }
 
-    const firstUnused = account.addresses.unused[0];
-    if (!firstUnused) {
+    if (account.addresses.unused.length < 1) {
         throw new Error('No unused addresses, should not happen!');
     }
+
+    const { unused } = account.addresses;
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const firstUnused: (typeof unused)[number] = unused[0];
 
     return firstUnused.address;
 };
