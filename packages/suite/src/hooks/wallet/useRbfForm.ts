@@ -80,26 +80,31 @@ const getEthereumFeeInfo = (info: FeeInfo, rbfParams: RbfTransactionParamsEthere
         const currentMaxFee = new BigNumber(rbfParams.maxFeePerGas);
         const currentMaxPriorityFee = new BigNumber(rbfParams.maxPriorityFeePerGas);
 
-        const highLevel = feeInfo.levels.find(level => level.label === 'high') || feeInfo.levels[0];
+        const { levels: feeLevelsForEip1559 } = feeInfo;
+        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        const fallbackLevel: (typeof feeLevelsForEip1559)[number] = feeLevelsForEip1559[0];
+        const highLevel =
+            feeLevelsForEip1559.find(level => level.label === 'high') || fallbackLevel;
+        const highMaxFeePerGas = highLevel.maxFeePerGas;
+        const highMaxPriorityFeePerGas = highLevel.maxPriorityFeePerGas;
+        const newMaxFeePerGas = BigNumber.maximum(currentMaxFee, highMaxFeePerGas ?? 0)
+            .multipliedBy(ETH_SPEED_UP_TX_MULTIPLIER)
+            .toString();
+        const newMaxPriorityFeePerGas = BigNumber.maximum(
+            currentMaxPriorityFee,
+            highMaxPriorityFeePerGas ?? 0,
+        )
+            .multipliedBy(ETH_SPEED_UP_TX_MULTIPLIER)
+            .toString();
 
         return {
             ...feeInfo,
             levels: [
-                // @ts-expect-error: highLevel widened via noUncheckedIndexedAccess
                 {
                     ...highLevel,
                     label: 'normal' as const,
-                    // @ts-expect-error: indexing with noUncheckedIndexedAccess
-                    maxFeePerGas: BigNumber.maximum(currentMaxFee, highLevel.maxFeePerGas ?? 0)
-                        .multipliedBy(ETH_SPEED_UP_TX_MULTIPLIER)
-                        .toString(),
-                    maxPriorityFeePerGas: BigNumber.maximum(
-                        currentMaxPriorityFee,
-                        // @ts-expect-error: indexing with noUncheckedIndexedAccess
-                        highLevel.maxPriorityFeePerGas ?? 0,
-                    )
-                        .multipliedBy(ETH_SPEED_UP_TX_MULTIPLIER)
-                        .toString(),
+                    maxFeePerGas: newMaxFeePerGas,
+                    maxPriorityFeePerGas: newMaxPriorityFeePerGas,
                 },
             ],
         };
