@@ -86,9 +86,9 @@ export abstract class AbstractMiscGetAddress<
 
     getButtonRequestData(code: string) {
         if (code === 'ButtonRequest_Address') {
-            const { params } = this;
+            const { params, progress } = this;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const currentParam: (typeof params)[number] = params[this.progress];
+            const currentParam: (typeof params)[number] = params[progress];
 
             return {
                 type: 'address' as const,
@@ -131,9 +131,10 @@ export abstract class AbstractMiscGetAddress<
             mac?: string;
         }[] = [];
 
-        for (let i = 0; i < this.params.length; i++) {
+        const { params } = this;
+        for (let i = 0; i < params.length; i++) {
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const batch: (typeof this.params)[number] = this.params[i];
+            const batch: (typeof params)[number] = params[i];
             if (batch.proto.show_display) {
                 const silent = await this._call({
                     ...batch,
@@ -159,7 +160,7 @@ export abstract class AbstractMiscGetAddress<
             if (this.hasBundle) {
                 sendCoreMessage(
                     createUiMessage(UI_REQUEST.BUNDLE_PROGRESS, {
-                        total: this.params.length,
+                        total: params.length,
                         progress: i,
                         response,
                     }),
