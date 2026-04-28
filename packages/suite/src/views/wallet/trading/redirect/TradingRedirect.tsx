@@ -42,23 +42,18 @@ export const TradingRedirect = () => {
         const hashPart = router?.hash?.replace(/^#/, '').split('?')[0];
         const params = hashPart?.split('/');
         if (!params) return;
-        const param = (i: number): string => {
-            // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const value: string = params[i];
-
-            return value;
-        };
 
         const redirectCommonParams = {
-            routeType: param(0) as
+            routeType: params[0] as
                 | 'detail'
                 | 'offers'
                 | 'sell-detail'
                 | 'sell-offers'
                 | 'exchange-offers',
-            symbol: param(1) as Account['symbol'],
-            accountType: param(2) as Account['accountType'],
-            index: parseInt(param(3), 10),
+            symbol: params[1] as Account['symbol'],
+            accountType: params[2] as Account['accountType'],
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            index: parseInt(params[3], 10),
         };
 
         dispatch(updateFeeInfoThunk({ networkSymbol: redirectCommonParams.symbol }));
@@ -66,42 +61,54 @@ export const TradingRedirect = () => {
         if (redirectCommonParams.routeType === 'offers') {
             redirectToBuyOffers({
                 ...redirectCommonParams,
-                wantCrypto: param(4) === 'qc',
-                fiatCurrency: param(6),
-                amount: param(7),
-                receiveCurrency: param(8) as CryptoId,
-                country: param(5),
-                paymentMethod: param(9) as BuyCryptoPaymentMethod,
+                wantCrypto: params[4] === 'qc',
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                fiatCurrency: params[6],
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                amount: params[7],
+                receiveCurrency: params[8] as CryptoId,
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                country: params[5],
+                paymentMethod: params[9] as BuyCryptoPaymentMethod,
             });
         }
 
         if (redirectCommonParams.routeType === 'detail') {
-            redirectToBuyDetail({ ...redirectCommonParams, transactionId: param(4) });
+            redirectToBuyDetail({
+                ...redirectCommonParams,
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                transactionId: params[4],
+            });
         }
 
         if (redirectCommonParams.routeType === 'sell-offers') {
             let feeIndex = 10;
             let orderId: string | undefined;
-            if (param(4).startsWith('p-')) {
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            if (params[4].startsWith('p-')) {
                 feeIndex = 11;
-                params[4] = param(4).substring(2);
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                params[4] = params[4].substring(2);
 
-                orderId = param(10);
+                orderId = params[10];
             }
             redirectToSellOffers({
                 ...redirectCommonParams,
-                amountInCrypto: param(4) === 'qc',
-                fiatCurrency: param(6),
-                amount: param(7),
-                cryptoCurrency: param(8) as CryptoId,
-                country: param(5),
-                paymentMethod: param(9) as SellCryptoPaymentMethod,
+                amountInCrypto: params[4] === 'qc',
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                fiatCurrency: params[6],
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                amount: params[7],
+                cryptoCurrency: params[8] as CryptoId,
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                country: params[5],
+                paymentMethod: params[9] as SellCryptoPaymentMethod,
                 orderId,
-                selectedFee: param(feeIndex) as FeeLevel['label'],
-                feePerByte: param(feeIndex + 1),
-                maxFeePerGas: param(feeIndex + 2),
-                maxPriorityFeePerGas: param(feeIndex + 3),
-                feeLimit: param(feeIndex + 4),
+                selectedFee: params[feeIndex] as FeeLevel['label'],
+                feePerByte: params[feeIndex + 1],
+                maxFeePerGas: params[feeIndex + 2],
+                maxPriorityFeePerGas: params[feeIndex + 3],
+                feeLimit: params[feeIndex + 4],
             });
         }
 
@@ -109,15 +116,17 @@ export const TradingRedirect = () => {
             const feeIndex = 8;
             redirectToExchangeOffers({
                 ...redirectCommonParams,
-                send: param(4) as CryptoId,
-                receive: param(5) as CryptoId,
-                amount: param(6),
-                orderId: param(7),
-                selectedFee: param(feeIndex) as FeeLevel['label'],
-                feePerByte: param(feeIndex + 1),
-                maxFeePerGas: param(feeIndex + 2),
-                maxPriorityFeePerGas: param(feeIndex + 3),
-                feeLimit: param(feeIndex + 4),
+                send: params[4] as CryptoId,
+                receive: params[5] as CryptoId,
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                amount: params[6],
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                orderId: params[7],
+                selectedFee: params[feeIndex] as FeeLevel['label'],
+                feePerByte: params[feeIndex + 1],
+                maxFeePerGas: params[feeIndex + 2],
+                maxPriorityFeePerGas: params[feeIndex + 3],
+                feeLimit: params[feeIndex + 4],
             });
         }
     }, [
