@@ -151,11 +151,15 @@ export const groupJointTransactions = (transactions: WalletAccountTransaction[])
                 ? [...prev, [...last, tx]]
                 : [...prev, last, [tx]];
         }, [])
-        .map(txs =>
-            txs.length > 1
-                ? ({ type: 'joint-batch', rounds: txs } as const)
-                : ({ type: 'single-tx', tx: txs[0] } as const),
-        );
+        .map(txs => {
+            if (txs.length > 1) {
+                return { type: 'joint-batch', rounds: txs } as const;
+            }
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            const onlyTx: (typeof txs)[number] = txs[0];
+
+            return { type: 'single-tx', tx: onlyTx } as const;
+        });
 
 export const formatCardanoWithdrawal = (tx: WalletAccountTransaction) =>
     tx.cardanoSpecific?.withdrawal
