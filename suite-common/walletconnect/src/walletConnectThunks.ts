@@ -232,9 +232,9 @@ export const switchSelectedAccountThunk = createThunk<
             return console.warn(`No adapter found for network type ${account.networkType}`);
         }
         const sessionNamespaces = session.namespaces;
+        const { namespaceId } = adapter;
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const sessionNamespace: (typeof sessionNamespaces)[string] =
-            sessionNamespaces[adapter.namespaceId];
+        const sessionNamespace: (typeof sessionNamespaces)[string] = sessionNamespaces[namespaceId];
         const { chains } = sessionNamespace;
         if (!chains) {
             return console.warn(`No chains found for namespace ${adapter.namespaceId}`);
@@ -242,8 +242,7 @@ export const switchSelectedAccountThunk = createThunk<
 
         const approvedEvents = sessionNamespace.events ?? [];
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        const updatedNamespace: (typeof updatedNamespaces)[string] =
-            updatedNamespaces[adapter.namespaceId];
+        const updatedNamespace: (typeof updatedNamespaces)[string] = updatedNamespaces[namespaceId];
         for (const chainId of chains) {
             if (network.chainId && approvedEvents.includes('chainChanged')) {
                 await walletKit.emitSessionEvent({
