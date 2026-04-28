@@ -44,10 +44,11 @@ export const useCoinjoinSessionPhase = (accountKey: AccountKey) => {
         // Queue is cleared on Round Phase change
         const { isExpired, currentTimestamp } = checkExpiration(lastChangeTimestamp);
 
-        const firstPhase = sessionPhaseQueue?.[0];
         if (isExpired && sessionPhaseQueue) {
+            // @ts-expect-error: indexing with noUncheckedIndexedAccess
+            const firstPhase: SessionPhase = sessionPhaseQueue[0];
             setPhaseIndex(0);
-            setSessionPhase(firstPhase ?? sessionPhase);
+            setSessionPhase(firstPhase);
             setLastChangeTimestamp(currentTimestamp);
         } else {
             /**
@@ -57,7 +58,7 @@ export const useCoinjoinSessionPhase = (accountKey: AccountKey) => {
              */
             setPhaseIndex(-1);
         }
-    }, [lastChangeTimestamp, sessionPhase, sessionPhaseQueue]);
+    }, [lastChangeTimestamp, sessionPhaseQueue]);
 
     // Handle sessionPhaseQueue change.
     useEffect(() => {
