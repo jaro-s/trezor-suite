@@ -43,6 +43,8 @@ export const TradingRedirect = () => {
         const params = hashPart?.split('/');
         if (!params) return;
 
+        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        const indexParam: string = params[3];
         const redirectCommonParams = {
             routeType: params[0] as
                 | 'detail'
@@ -52,8 +54,7 @@ export const TradingRedirect = () => {
                 | 'exchange-offers',
             symbol: params[1] as Account['symbol'],
             accountType: params[2] as Account['accountType'],
-            // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            index: parseInt(params[3], 10),
+            index: parseInt(indexParam, 10),
         };
 
         dispatch(updateFeeInfoThunk({ networkSymbol: redirectCommonParams.symbol }));
@@ -85,10 +86,10 @@ export const TradingRedirect = () => {
             let feeIndex = 10;
             let orderId: string | undefined;
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            if (params[4].startsWith('p-')) {
+            const sellOffersFlag: string = params[4];
+            if (sellOffersFlag.startsWith('p-')) {
                 feeIndex = 11;
-                // @ts-expect-error: indexing with noUncheckedIndexedAccess
-                params[4] = params[4].substring(2);
+                params[4] = sellOffersFlag.substring(2);
 
                 orderId = params[10];
             }
