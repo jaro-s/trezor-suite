@@ -25,12 +25,13 @@ describe(arrayShuffle.name, () => {
             }
         }
 
-        KEYS.forEach(key =>
+        KEYS.forEach(key => {
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            samples[key].forEach(count => {
+            const keyCounts: number[] = samples[key];
+            keyCounts.forEach(count => {
                 expect(count).toBeGreaterThanOrEqual(LOWER_BOUND);
                 expect(count).toBeLessThanOrEqual(UPPER_BOUND);
-            }),
-        );
+            });
+        });
     });
 });
