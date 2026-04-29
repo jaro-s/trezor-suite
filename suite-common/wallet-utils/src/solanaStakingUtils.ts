@@ -119,11 +119,14 @@ export const getSolStakingAccountsInfo = (account: Account) => {
         return [status, balance];
     });
 
-    const balances: Record<StakeStateType, string> = balanceResults.reduce(
+    const balances: Record<StakeStateType, string> = balanceResults.reduce((acc, entry) => {
         // @ts-expect-error: indexing with noUncheckedIndexedAccess
-        (acc, [status, balance]) => ({ ...acc, [status]: balance }),
-        {},
-    );
+        const status: StakeStateType = entry[0];
+        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        const balance: string = entry[1];
+
+        return { ...acc, [status]: balance };
+    }, {});
 
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
     const deactivatedBalance: string = balances[StakeState.Deactivated];
