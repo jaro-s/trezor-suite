@@ -32,11 +32,10 @@ export const TradingOffersModalExchange = ({
 
     const showDex = activeTab === 'all' || activeTab === 'dex';
     const showCex = activeTab === 'all' || activeTab === 'cex';
-    const isFilterActive = activeTab !== 'all';
     const isEmpty =
-        isFilterActive &&
-        ((activeTab === 'dex' && dex.length === 0) ||
-            (activeTab === 'cex' && fixed.length === 0 && float.length === 0));
+        (activeTab === 'all' && dex.length === 0 && fixed.length === 0 && float.length === 0) ||
+        (activeTab === 'dex' && dex.length === 0) ||
+        (activeTab === 'cex' && fixed.length === 0 && float.length === 0);
 
     return (
         <Column gap={24} height="100%">

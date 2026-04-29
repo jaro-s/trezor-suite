@@ -11,7 +11,7 @@ import { type NetworkSymbol, getNetworkDecimals } from '@suite-common/wallet-con
 import { type BaseCurrencyAmount, asBaseCurrencyAmount } from '@suite-common/wallet-types';
 import { BigNumber } from '@trezor/utils';
 
-const TOKEN_DECIMALS_LENGTH = 16;
+const TOKEN_DECIMALS_LENGTH = 18;
 
 export const useTradingOfferRate = (trade: TradingTradeType | undefined): string | undefined => {
     const { CryptoAmountFormatter, BaseCurrencyAmountFormatter } = useFormatters();
