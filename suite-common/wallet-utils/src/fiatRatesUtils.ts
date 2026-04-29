@@ -38,8 +38,9 @@ export const getFiatRateKeyFromTicker = (
 };
 
 export function getTickerFromFiatRateKey(fiatRateKey: CryptoBaseCurrencyPair): TickerId | null {
+    const parts = fiatRateKey.split('-');
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const [symbol, tokenAddress]: [string, string] = fiatRateKey.split('-');
+    const [symbol, tokenAddress]: [string, string] = parts;
 
     if (!isNetworkSymbol(symbol)) {
         console.error(`Failed to get ticker from fiat rate key: ${fiatRateKey}`);

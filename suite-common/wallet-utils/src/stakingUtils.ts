@@ -227,8 +227,11 @@ export const getOutputTxAmount = (composedLevels?: PrecomposedLevels) => {
     const precomposedTx = composedLevels['normal'];
     if (precomposedTx?.type !== 'final') return null;
 
+    const { outputs } = precomposedTx;
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    return precomposedTx.outputs[0].amount;
+    const firstOutput: (typeof outputs)[number] = outputs[0];
+
+    return firstOutput.amount;
 };
 
 export const calculateRewards = (amount: string, apyPercent: number | null, days = 365) => {
