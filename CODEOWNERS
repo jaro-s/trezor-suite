@@ -5,7 +5,7 @@
 /scripts/list-outdated-dependencies/connect-dependencies.txt @martykan
 /scripts/list-outdated-dependencies/foundation-dependencies.txt @matejkriz
 /scripts/list-outdated-dependencies/growth-dependencies.txt @jvaclavik
-/scripts/list-outdated-dependencies/trade-dependencies.txt @vytick
+/scripts/list-outdated-dependencies/trade-dependencies.txt @trezor/suite-trading
 /scripts/list-outdated-dependencies/qa-dependencies.txt @HajekOndrej
 /scripts/list-outdated-dependencies/wallet-dependencies.txt @tomasklim
 /scripts @karliatto
@@ -49,8 +49,6 @@
 /suite-common/token-definitions @tomasklim
 
 /packages/suite-desktop-api @szymonlesisz @marekrjpolak
-
-/suite-native @trezor/suite-mobile
 
 /packages/suite-storage @matejkriz
 
@@ -118,3 +116,18 @@
 /suite-common/analytics/src/events @jvaclavik @kolomaznikt
 /suite-common/analytics/src/constants.ts @jvaclavik @kolomaznikt
 /suite-common/analytics/src/types.ts @jvaclavik @kolomaznikt
+
+# Mobile
+/suite-native @trezor/suite-mobile
+
+## Trading — owned by trading team, supersedes the broader /suite-native rule above.
+/suite-native/trading-* @trezor/suite-trading
+/suite-native/module-trading @trezor/suite-trading
+/suite-common/trading @trezor/suite-trading
+/suite/trading @trezor/suite-trading
+
+## Wallet
+/suite-native/module-earn @trezor/suite-wallet
+/suite-native/module-stellar-token-management @trezor/suite-wallet
+/suite-native/ethereum-tokens @trezor/suite-wallet
+/suite-native/staking @trezor/suite-wallet
