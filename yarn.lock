@@ -13869,10 +13869,9 @@ __metadata:
   resolution: "@suite-native/nfc@workspace:suite-native/nfc"
   dependencies:
     "@suite-native/atoms": "workspace:*"
-    "@suite-native/icons": "workspace:*"
     "@suite-native/intl": "workspace:*"
-    "@suite-native/test-utils": "workspace:*"
     "@trezor/styles-native": "workspace:*"
+    "@trezor/theme": "workspace:*"
     react: "npm:19.2.4"
     react-native: "npm:0.83.2"
   languageName: unknown
