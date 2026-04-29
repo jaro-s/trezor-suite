@@ -16,6 +16,9 @@ import { DeviceDisconnectedScreen } from '../screens/DeviceDisconnectedScreen';
 import { DeviceTutorialScreen } from '../screens/DeviceTutorialScreen';
 import { FirmwareInfoScreen } from '../screens/FirmwareInfoScreen';
 import { FirmwareInstallationScreen } from '../screens/FirmwareInstallationScreen';
+import { NfcBackupTypeScreen } from '../screens/NfcBackupTypeScreen';
+import { NfcHowItWorksScreen } from '../screens/NfcHowItWorksScreen';
+import { NoNfcTagsScreen } from '../screens/NoNfcTagsScreen';
 import { RecoveryInstructionsScreen } from '../screens/RecoveryInstructionsScreen';
 import { SecurityCheckScreen } from '../screens/SecurityCheckScreen';
 import { SuspiciousDeviceScreen } from '../screens/SuspiciousDeviceScreen';
@@ -145,6 +148,18 @@ export const DeviceOnboardingStackNavigator = () => (
         <DeviceOnboardingStack.Screen
             name={DeviceOnboardingStackRoutes.CreatePin}
             component={CreatePinScreen}
+        />
+        <DeviceOnboardingStack.Screen
+            name={DeviceOnboardingStackRoutes.NfcBackupType}
+            component={NfcBackupTypeScreen}
+        />
+        <DeviceOnboardingStack.Screen
+            name={DeviceOnboardingStackRoutes.NfcHowItWorks}
+            component={NfcHowItWorksScreen}
+        />
+        <DeviceOnboardingStack.Screen
+            name={DeviceOnboardingStackRoutes.NoNfcTags}
+            component={NoNfcTagsScreen}
         />
     </DeviceOnboardingStack.Navigator>
 );

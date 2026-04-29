@@ -80,6 +80,9 @@ export enum DeviceOnboardingStackRoutes {
     WalletRecovery = 'WalletRecovery',
     WalletRecoveryRecap = 'WalletRecoveryRecap',
     CreatePin = 'CreatePin',
+    NfcBackupType = 'NfcBackupType',
+    NfcHowItWorks = 'NfcHowItWorks',
+    NoNfcTags = 'NoNfcTags',
 }
 
 export enum AccountsImportStackRoutes {
