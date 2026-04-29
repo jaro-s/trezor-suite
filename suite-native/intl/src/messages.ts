@@ -2963,6 +2963,7 @@ export const messages = {
                 sell: 'Sell',
                 exchange: 'Swap',
                 settings: 'Advanced settings',
+                concierge: 'Concierge',
             },
             kycWarning: 'This provider requires to know your identity.',
             kycRequired: 'Identity verification will be required.',
