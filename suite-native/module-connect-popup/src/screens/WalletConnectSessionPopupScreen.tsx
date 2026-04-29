@@ -91,7 +91,8 @@ export const WalletConnectSessionPopupScreen = () => {
         network => network.status === 'active',
     );
     // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const accountToShow: (typeof accounts)[number] = selectedDefaultAccount ?? accounts[0];
+    const firstAccount: (typeof accounts)[number] = accounts[0];
+    const accountToShow = selectedDefaultAccount ?? firstAccount;
     const [ignoreWarning, setIgnoreWarning] = useState(false);
     const isDisabled =
         !pendingProposal ||
