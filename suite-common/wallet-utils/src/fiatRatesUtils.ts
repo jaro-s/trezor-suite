@@ -159,11 +159,15 @@ export const fetchTransactionsRates = async (
             rates.push({
                 tickerId,
                 localCurrency,
-                // @ts-expect-error: indexing with noUncheckedIndexedAccess
-                rates: results.tickers.map((ticker, index) => ({
-                    rate: ticker?.rates[localCurrency],
-                    lastTickerTimestamp: uniqueTimestamps[index],
-                })),
+                rates: results.tickers.map((ticker, index) => {
+                    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                    const lastTickerTimestamp: Timestamp = uniqueTimestamps[index];
+
+                    return {
+                        rate: ticker?.rates[localCurrency],
+                        lastTickerTimestamp,
+                    };
+                }),
             });
         }
     } catch (error) {
