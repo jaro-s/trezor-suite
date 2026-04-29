@@ -42,6 +42,7 @@ import { versionUtils } from '@trezor/utils';
 
 import {
     DEVICE_LOW_BATTERY_PERCENTAGE_THRESHOLD,
+    EXTENDABLE_SHAMIR_BACKUP_TYPES,
     PORTFOLIO_TRACKER_DEVICE_ID,
 } from './deviceConstants';
 import { type DeviceRootState } from './deviceReducer';
@@ -151,6 +152,22 @@ export const selectIsDeviceBackupRequired = createMemoizedSelector(
 export const selectIsDeviceBackupUnfinished = createMemoizedSelector(
     [selectDeviceFeatures],
     features => features?.unfinished_backup === true,
+);
+
+export const selectIsAdditionalShamirBackupInProgress = createMemoizedSelector(
+    [selectDeviceFeatures],
+    features =>
+        features?.recovery_status === 'Backup' &&
+        features.recovery_type === undefined &&
+        features.backup_availability === 'Available',
+);
+
+export const selectHasExtendableShamirBackup = createMemoizedSelector(
+    [selectDeviceFeatures],
+    features =>
+        features?.backup_type !== undefined &&
+        features?.backup_type !== null &&
+        EXTENDABLE_SHAMIR_BACKUP_TYPES.includes(features.backup_type),
 );
 
 export const selectDeviceLanguage = createMemoizedSelector(
