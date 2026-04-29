@@ -144,15 +144,24 @@ export const getStakingDataForNetwork = (
                 solPendingUnstakeBalance,
             } = getSolStakingAccountsInfo(account);
 
+            //@ts-expect-error: indexing with noUncheckedIndexedAccess
+            const stakedBalance: string = solStakedBalance;
+            //@ts-expect-error: indexing with noUncheckedIndexedAccess
+            const claimableBalance: string = solClaimableBalance;
+            //@ts-expect-error: indexing with noUncheckedIndexedAccess
+            const pendingStakeBalance: string = solPendingStakeBalance;
+            //@ts-expect-error: indexing with noUncheckedIndexedAccess
+            const pendingUnstakeBalance: string = solPendingUnstakeBalance;
+
             return {
-                autocompoundBalance: solStakedBalance,
-                claimableAmount: solClaimableBalance,
-                depositedBalance: solStakedBalance,
+                autocompoundBalance: stakedBalance,
+                claimableAmount: claimableBalance,
+                depositedBalance: stakedBalance,
                 pendingBalance: '',
                 pendingDepositedBalance: '',
-                totalPendingStakeBalance: solPendingStakeBalance,
+                totalPendingStakeBalance: pendingStakeBalance,
                 restakedReward: '',
-                withdrawTotalAmount: solPendingUnstakeBalance,
+                withdrawTotalAmount: pendingUnstakeBalance,
                 canClaim: canClaimSol,
             };
         }
@@ -218,6 +227,7 @@ export const getOutputTxAmount = (composedLevels?: PrecomposedLevels) => {
     const precomposedTx = composedLevels['normal'];
     if (precomposedTx?.type !== 'final') return null;
 
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
     return precomposedTx.outputs[0].amount;
 };
 
