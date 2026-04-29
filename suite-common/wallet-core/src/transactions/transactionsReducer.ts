@@ -132,11 +132,11 @@ export const prepareTransactionsReducer = createReducerWithExtraDeps(
                 };
             })
             .addCase(fetchAllTransactionsForAccountThunk.fulfilled, (state, { meta }) => {
+                const { accountKey } = meta.arg;
+                const previousDetail = state.fetchStatusDetail[accountKey];
+                const updatedDetail = { ...previousDetail, areAllTransactionsLoaded: true };
                 // @ts-expect-error: indexing with noUncheckedIndexedAccess widens fetchStatusDetail
-                state.fetchStatusDetail[meta.arg.accountKey] = {
-                    ...state.fetchStatusDetail[meta.arg.accountKey],
-                    areAllTransactionsLoaded: true,
-                };
+                state.fetchStatusDetail[accountKey] = updatedDetail;
             })
             .addMatcher(
                 isAnyOf(
