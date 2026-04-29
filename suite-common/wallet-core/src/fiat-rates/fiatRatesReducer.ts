@@ -86,11 +86,12 @@ export const prepareFiatRatesReducer = createReducerWithExtraDeps(
 
                     const currentRate = state[rateType]?.[fiatRateKey];
 
-                    // @ts-expect-error: rate widened via noUncheckedIndexedAccess in fiat-rates types
+                    // @ts-expect-error: rate.rate widened via noUncheckedIndexedAccess
+                    const rateValue: number = rate.rate;
                     state[rateType][fiatRateKey] = {
                         ...currentRate,
                         ...rate,
-                        rate: rate.rate,
+                        rate: rateValue,
                         lastTickerTimestamp: (rate.lastTickerTimestamp * 1000) as Timestamp,
                         lastSuccessfulFetchTimestamp: fetchAttemptTimestamp,
                         isLoading: false,
