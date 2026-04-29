@@ -89,7 +89,9 @@ const buildCoinUrls = (ticker: TickerId) => {
     }
 
     if (networkType === 'stellar') {
-        const [code = '', issuer = ''] = ticker.tokenAddress.split('-');
+        const parts = ticker.tokenAddress.split('-');
+        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        const [code, issuer]: [string, string] = parts;
         // Use the public Stellar network here because CoinGecko does not provide testnet market data.
         const sorobanContractAddress = new Asset(code, issuer).contractId(Networks.PUBLIC);
 
@@ -145,12 +147,13 @@ export const findClosestTimestampValue = (
     timestamp: number,
     prices: Array<[number, number]>,
 ): number => {
-    let closestTimestamp = prices[0] ?? [0, 0];
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    let closestTimestamp: [number, number] = prices[0];
 
     for (let i = 1; i < prices.length; i++) {
         const currentTimeDelta = Math.abs(timestamp - closestTimestamp[0] / 1000);
-        const next = prices[i];
-        if (!next) break;
+        // @ts-expect-error: indexing with noUncheckedIndexedAccess
+        const next: [number, number] = prices[i];
         const nextTimeDelta = Math.abs(timestamp - next[0] / 1000);
 
         // The timestamps are ordered, if next time delta is higher, we can stop the iteration.
@@ -185,9 +188,12 @@ export const getFiatRatesForTimestamps = async (
     const sortedTimestampsInSeconds = [...timestamps].sort((ts1, ts2) => ts1 - ts2);
 
     // adjust from and to timestamps to get better range of data
-    const fromTimestamp = (sortedTimestampsInSeconds[0] ?? 0) - ONE_DAY_IN_S;
-    const toTimestamp =
-        (sortedTimestampsInSeconds[sortedTimestampsInSeconds.length - 1] ?? 0) + ONE_DAY_IN_S;
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const firstTs: number = sortedTimestampsInSeconds[0];
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const lastTs: number = sortedTimestampsInSeconds[sortedTimestampsInSeconds.length - 1];
+    const fromTimestamp = firstTs - ONE_DAY_IN_S;
+    const toTimestamp = lastTs + ONE_DAY_IN_S;
 
     const params = `?vs_currency=${fiatCurrencyCode}&from=${fromTimestamp}&to=${toTimestamp}`;
 

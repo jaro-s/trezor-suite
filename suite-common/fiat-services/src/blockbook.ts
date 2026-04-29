@@ -13,8 +13,10 @@ type Ticker = keyof typeof ENDPOINTS;
 const randomEndpoint = (ticker: Ticker) => {
     const endpoints = ENDPOINTS[ticker];
     const index = Math.floor(Math.random() * endpoints.length);
+    // @ts-expect-error: indexing with noUncheckedIndexedAccess
+    const endpoint: (typeof endpoints)[number] = endpoints[index];
 
-    return endpoints[index] ?? endpoints[0] ?? 'btc1';
+    return endpoint;
 };
 
 const getQuery = (query?: { currency?: string; timestamp?: number | string }) =>
@@ -66,7 +68,12 @@ const getMultiTickers = async (
         rates && {
             ts: new Date().getTime(),
             symbol: ticker,
-            tickers: rates.map((rate, i) => ({ ...rate, ts: timestamps[i] ?? 0 })),
+            tickers: rates.map((rate, i) => {
+                // @ts-expect-error: indexing with noUncheckedIndexedAccess
+                const ts: (typeof timestamps)[number] = timestamps[i];
+
+                return { ...rate, ts };
+            }),
         }
     );
 };
