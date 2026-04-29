@@ -86,17 +86,17 @@ export const prepareFiatRatesReducer = createReducerWithExtraDeps(
 
                     const currentRate = state[rateType]?.[fiatRateKey];
 
-                    // @ts-expect-error: rate.rate widened via noUncheckedIndexedAccess
-                    const rateValue: number = rate.rate;
-                    state[rateType][fiatRateKey] = {
+                    const updatedRate = {
                         ...currentRate,
                         ...rate,
-                        rate: rateValue,
+                        rate: rate.rate,
                         lastTickerTimestamp: (rate.lastTickerTimestamp * 1000) as Timestamp,
                         lastSuccessfulFetchTimestamp: fetchAttemptTimestamp,
                         isLoading: false,
                         error: null,
                     };
+                    // @ts-expect-error: rate.rate / rate.ticker widened via noUncheckedIndexedAccess
+                    state[rateType][fiatRateKey] = updatedRate;
                 }
             })
             .addCase(updateFiatRatesThunk.rejected, (state, action) => {
