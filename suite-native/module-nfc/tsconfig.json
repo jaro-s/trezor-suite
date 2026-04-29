@@ -19,10 +19,10 @@
         {
             "path": "../../packages/connect-common"
         },
-        { "path": "../../packages/type-utils" },
         {
             "path": "../../packages/styles-native"
         },
+        { "path": "../../packages/type-utils" },
         { "path": "../../packages/urls" }
     ]
 }

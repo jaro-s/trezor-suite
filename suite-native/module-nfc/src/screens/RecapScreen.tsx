@@ -3,10 +3,12 @@ import { useNavigation } from '@react-navigation/native';
 import { Box, Button, VStack } from '@suite-native/atoms';
 import { Translation } from '@suite-native/intl';
 import {
+    AppTabsRoutes,
     type CreateAdditionalBackupStackParamList,
     type CreateAdditionalBackupStackRoutes,
-    type DeviceSettingsStackParamList,
-    DeviceSettingsStackRoutes,
+    HomeStackRoutes,
+    type RootStackParamList,
+    RootStackRoutes,
     Screen,
     ScreenHeader,
     type StackToStackCompositeNavigationProps,
@@ -17,14 +19,19 @@ import { SwipeableWalkthroughStepHeader } from '@suite-native/swipeable-walkthro
 type NavigationProps = StackToStackCompositeNavigationProps<
     CreateAdditionalBackupStackParamList,
     CreateAdditionalBackupStackRoutes,
-    DeviceSettingsStackParamList
+    RootStackParamList
 >;
 
 export const RecapScreen = () => {
     const navigation = useNavigation<NavigationProps>();
 
     const handleClose = () => {
-        navigation.popTo(DeviceSettingsStackRoutes.DeviceBackupAndPassphrase);
+        navigation.popTo(RootStackRoutes.AppTabs, {
+            screen: AppTabsRoutes.HomeStack,
+            params: {
+                screen: HomeStackRoutes.Home,
+            },
+        });
     };
 
     useOverrideBackNavigation({ onNavigateBack: handleClose });
