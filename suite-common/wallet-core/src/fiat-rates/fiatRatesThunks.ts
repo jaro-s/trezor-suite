@@ -81,8 +81,8 @@ export const updateTxsFiatRatesThunk = createThunk(
             }
 
             // @ts-expect-error: indexing with noUncheckedIndexedAccess
-            const txsForToken: WalletAccountTransaction[] = groupedTokensTxs[token];
-            const tokenTimestamps = txsForToken
+            const tokenTransactions: WalletAccountTransaction[] = groupedTokensTxs[token];
+            const tokenTimestamps = tokenTransactions
                 .map(tx => (tx.blockTime !== undefined ? asTimestamp(tx.blockTime) : undefined))
                 .filter(it => it !== undefined);
 
