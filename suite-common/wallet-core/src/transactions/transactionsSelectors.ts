@@ -349,8 +349,8 @@ export const selectTransactionsWithMissingRates = (
     const transactions = selectTransactions(state);
     const historicFiatRates = selectHistoricFiatRates(state);
 
-    // @ts-expect-error: indexing with noUncheckedIndexedAccess
-    const accountTransactions: WalletAccountTransaction[] = transactions[accountKey ?? ''];
+    const accountTransactions: WalletAccountTransaction[] =
+        accountKey && transactions[accountKey] ? transactions[accountKey] : [];
     const scopedTransactions: Record<string, WalletAccountTransaction[]> = accountKey
         ? { [accountKey]: accountTransactions }
         : transactions;
