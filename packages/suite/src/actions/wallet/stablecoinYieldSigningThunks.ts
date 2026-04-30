@@ -1,7 +1,6 @@
 import { fromWei } from 'web3-utils';
 
 import { closeModal, openDeferredModal, preserveModal } from '@suite/modal';
-import { selectAddressDisplayType } from '@suite/settings';
 import { selectSelectedDevice } from '@suite-common/device';
 import {
     type TransactionDto,
@@ -21,6 +20,7 @@ import {
     getYieldSupplyTransaction,
     getYieldWithdrawTransaction,
     openYieldApproveModal,
+    selectAddressDisplayType,
     setYieldGenericError,
     stablecoinYieldActions,
     submitYieldOpportunity,
