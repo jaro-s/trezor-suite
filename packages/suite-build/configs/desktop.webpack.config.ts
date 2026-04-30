@@ -48,11 +48,10 @@ const config: webpack.Configuration = {
     },
     resolve: {
         // conditionally mocks message-system config that is being used during build
-        alias: isTestBuild
-            ? {
-                  [messageSystemFile]: messageSystemMockFile,
-              }
-            : {},
+        alias: {
+            '@trezor/connect$': '@trezor/connect/src/index-renderer',
+            ...(isTestBuild ? { [messageSystemFile]: messageSystemMockFile } : {}),
+        },
     },
     plugins: [
         new CopyWebpackPlugin({
