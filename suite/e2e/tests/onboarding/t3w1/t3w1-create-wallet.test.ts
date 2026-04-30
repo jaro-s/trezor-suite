@@ -54,6 +54,7 @@ test.describe('Onboarding - create wallet', { tag: ['@T3W1'] }, () => {
             await device.pressYes();
 
             await test.step('Finish wallet creation', async () => {
+                await onboardingPage.finalButton.click();
                 await expect(onboardingPage.suiteLoadedIndicator).toBeVisible({ timeout: 30_000 });
                 await expect(dashboardPage.walletReady).toBeVisible({ timeout: 30_000 });
             });
