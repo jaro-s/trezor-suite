@@ -155,6 +155,48 @@ describe('TrezorConnect.cancel', () => {
         await assertGetAddressWorks();
     });
 
+    it('Passphrase request - Cancel by callId', async () => {
+        await setup(controller, {
+            mnemonic: 'mnemonic_all',
+            passphrase_protection: true,
+        });
+        await initTrezorConnect(controller);
+
+        // Start two concurrent calls with different callIds
+        const callA = TrezorConnect.getAddress({
+            path: "m/84'/1'/0'/0/0",
+            coin: 'regtest',
+            showOnTrezor: false,
+            callId: 'call-A',
+        });
+        const callB = TrezorConnect.getAddress({
+            path: "m/84'/1'/0'/0/0",
+            coin: 'regtest',
+            showOnTrezor: false,
+            callId: 'call-B',
+        });
+
+        // Wait until at least one passphrase prompt appears then cancel call-A.
+        // Use `once` so this listener is automatically removed after firing.
+        await new Promise<void>(resolve => {
+            TrezorConnect.once('ui-request_passphrase', () => resolve());
+        });
+        TrezorConnect.cancel({ callId: 'call-A' });
+
+        const responseA = await callA;
+        expect(responseA.success).toEqual(false);
+
+        // Provide passphrase for call-B — it may still be waiting or may ask again.
+        // Use `once` so the listener is removed after responding once.
+        TrezorConnect.once('ui-request_passphrase', passphraseHandler(''));
+        TrezorConnect.once('ui-request_confirmation', addressHandler());
+        const responseB = await callB;
+        expect(responseB).toMatchObject({
+            success: true,
+            payload: { address: expect.any(String) },
+        });
+    });
+
     conditionalTest(['2'], 'Pin request - Cancel', async () => {
         await controller.stopBridge();
         await controller.stopEmu();

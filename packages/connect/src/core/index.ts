@@ -649,12 +649,23 @@ const registerDeviceEvents =
  * @returns {void}
  * @memberof Core
  */
-const onPopupClosed = (context: CoreContext, customErrorMessage?: string) => {
+const onPopupClosed = (context: CoreContext, customErrorMessage?: string, callId?: string) => {
     const { uiPromises, deviceList, callMethods, resetWaitForFirstMethod, sendCoreMessage } =
         context;
     const error = customErrorMessage
         ? ERRORS.TypedError('Method_Cancel', customErrorMessage)
         : ERRORS.TypedError('Method_Interrupted');
+
+    if (callId) {
+        const index = callMethods.findIndex(m => m.callId === callId);
+        if (index >= 0) {
+            const [method] = callMethods.splice(index, 1);
+            sendCoreMessage(createResponseMessage(method.responseID, false, { error }));
+        }
+
+        return;
+    }
+
     // Device was already acquired. Try to interrupt running action which will throw error from onCall try/catch block
     if (deviceList.isConnected() && deviceList.getDeviceCount() > 0) {
         deviceList.getAllDevices().forEach(d => {
@@ -776,6 +787,7 @@ export class Core extends EventEmitter {
                 onPopupClosed(
                     this.getCoreContext(),
                     message.payload ? message.payload.error : null,
+                    message.payload?.callId,
                 );
                 break;
 

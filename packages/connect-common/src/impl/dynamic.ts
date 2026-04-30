@@ -152,8 +152,8 @@ export class TrezorConnectDynamic implements ConnectFactoryDependencies<{}> {
         }
     }
 
-    public cancel(error?: string) {
-        return this.getTarget().cancel(error);
+    public cancel(params?: string | { error?: string; callId?: string }) {
+        return this.getTarget().cancel(params);
     }
 
     public dispose() {
