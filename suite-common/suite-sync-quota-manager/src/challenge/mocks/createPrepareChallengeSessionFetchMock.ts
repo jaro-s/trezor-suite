@@ -3,7 +3,7 @@ import { mock } from '@suite-common/dependency-injection';
 import {
     type PrepareChallengeSessionFetch,
     type PrepareChallengeSessionResult,
-} from '../prepareChallengeSession';
+} from '../createPrepareChallengeSessionFetch';
 
 export const createPrepareChallengeSessionFetchMock = (
     responses: PrepareChallengeSessionResult[],

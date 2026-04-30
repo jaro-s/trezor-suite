@@ -12,7 +12,7 @@ import { asDelegatedIdentityKey } from '@suite-common/suite-types';
 import { parseDeviceStaticSessionId } from '@suite-common/wallet-utils';
 import { type Result, err, ok } from '@trezor/type-utils';
 
-import { type PrepareChallengeSessionFetchDep } from '../challenge/prepareChallengeSession';
+import { type PrepareChallengeSessionFetchDep } from '../challenge/createPrepareChallengeSessionFetch';
 import {
     DEFAULT_DEVICE_SIZE_QUOTA,
     EVOLU_SIGN_ADD_SPACE_TO_OWNER_REQUEST_HEADER,
@@ -65,6 +65,13 @@ export const createIncreaseOwnerQuota =
         }
 
         const { walletDescriptor } = parseDeviceStaticSessionId(device.state.staticSessionId);
+
+        const delegatedKey = await deps.ensureDelegatedIdentityKey({ device });
+
+        if (!delegatedKey.success) {
+            return ok();
+        }
+
         // Todo: ------ end of temporary code ------
 
         const leftDeviceQuota = deps.getLeftDeviceQuota(device.id);
@@ -76,19 +83,12 @@ export const createIncreaseOwnerQuota =
             return err(QuotaManagerNoQuotaLeftOnDeviceToAllocate());
         }
 
-        const delegatedKey = await deps.ensureDelegatedIdentityKey({ device });
-
-        if (!delegatedKey.success) {
-            return ok();
-        }
-
-        const delegatedPublicKey = getPublicIdentityKeyFromDelegatedKey(delegatedKey.payload);
-
         const sessionChallenge = await deps.prepareChallengeSessionFetch();
-
         if (!sessionChallenge.success) {
             return err(QuotaManagerCommunicationFailed(sessionChallenge.error));
         }
+
+        const delegatedPublicKey = getPublicIdentityKeyFromDelegatedKey(delegatedKey.payload);
 
         const proof = getProofOfDelegatedIdentity({
             delegatedKey: asDelegatedIdentityKey(delegatedKey.payload),

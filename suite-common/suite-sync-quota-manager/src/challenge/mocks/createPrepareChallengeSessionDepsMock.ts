@@ -3,7 +3,7 @@ import { createMockDeps } from '@suite-common/dependency-injection';
 import { createQuotaManagerFetchMock } from '../../mocks/createQuotaManagerFetchMock';
 import { type QuotaManagerFetchResult } from '../../quotaManagerFetch';
 import { createGenerateSessionIdMock } from '../../session/mocks/createGenerateSessionIdMock';
-import { type PrepareChallengeSessionDeps } from '../prepareChallengeSession';
+import { type PrepareChallengeSessionDeps } from '../createPrepareChallengeSessionFetch';
 
 type CreatePrepareChallengeSessionDepsMockParams = {
     sessionIds: string[];

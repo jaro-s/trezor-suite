@@ -80,7 +80,6 @@ export const createEnsureQuota =
         const allocatedQuota = await deps.ensureOwnerHasAllocatedQuota({
             deviceStaticSessionId,
             ownerId: owner.ownerId,
-            delegatedKey,
             isWriteMode,
         });
 

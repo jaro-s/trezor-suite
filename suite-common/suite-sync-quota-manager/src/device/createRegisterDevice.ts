@@ -14,7 +14,7 @@ import {
 import { type TrezorConnect } from '@trezor/connect';
 import { type Result, err, ok } from '@trezor/type-utils';
 
-import { type PrepareChallengeSessionFetchDep } from '../challenge/prepareChallengeSession';
+import { type PrepareChallengeSessionFetchDep } from '../challenge/createPrepareChallengeSessionFetch';
 import { DEFAULT_DEVICE_SIZE_QUOTA } from '../constants';
 import {
     QuotaManagerCommunicationFailed,

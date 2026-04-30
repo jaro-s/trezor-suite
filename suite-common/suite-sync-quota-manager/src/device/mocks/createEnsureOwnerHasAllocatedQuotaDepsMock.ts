@@ -3,8 +3,8 @@ import { ok } from '@trezor/type-utils';
 
 import { type CheckStorageByOwnerIdResult } from '../../owner/createCheckStorageByOwnerId';
 import { type EnsureOwnerHasAllocatedQuotaDeps } from '../../owner/createEnsureOwnerHasAllocatedQuota';
-import { createAllocateOwnerQuotaMock } from '../../owner/mocks/createAllocateOwnerQuotaMock';
 import { createCheckStorageByOwnerIdMock } from '../../owner/mocks/createCheckStorageByOwnerIdMock';
+import { createIncreaseOwnerQuotaMock } from '../../owner/mocks/createIncreaseOwnerQuotaMock';
 
 type CreateEnsureOwnerHasAllocatedQuotaDepsMockParams = {
     checkStorageByOwnerIdResponses: CheckStorageByOwnerIdResult[];
@@ -16,8 +16,8 @@ export const createEnsureOwnerHasAllocatedQuotaDepsMock = ({
     patch = {},
 }: CreateEnsureOwnerHasAllocatedQuotaDepsMockParams) =>
     createMockDeps<EnsureOwnerHasAllocatedQuotaDeps>({
-        allocateOwnerQuota: createAllocateOwnerQuotaMock([ok()]),
         checkStorageByOwnerId: createCheckStorageByOwnerIdMock(checkStorageByOwnerIdResponses),
         dispatch: jest.fn(),
+        increaseOwnerQuota: createIncreaseOwnerQuotaMock([ok()]),
         ...patch,
     });

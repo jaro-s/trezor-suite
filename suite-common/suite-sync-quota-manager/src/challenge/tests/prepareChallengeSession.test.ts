@@ -1,9 +1,9 @@
 import { ok } from '@trezor/type-utils';
 
+import { createPrepareChallengeSessionFetch } from '../createPrepareChallengeSessionFetch';
 import { createPrepareChallengeSessionDepsMock } from '../mocks/createPrepareChallengeSessionDepsMock';
-import { createPrepareChallengeSession } from '../prepareChallengeSession';
 
-describe(createPrepareChallengeSession.name, () => {
+describe(createPrepareChallengeSessionFetch.name, () => {
     it('should prepare challenge unique for each session', async () => {
         const deps = createPrepareChallengeSessionDepsMock({
             sessionIds: ['mocked-session-id', 'mocked-session-id-2'],
@@ -18,7 +18,7 @@ describe(createPrepareChallengeSession.name, () => {
             ],
         });
 
-        const prepareChallengeSession = createPrepareChallengeSession(deps);
+        const prepareChallengeSession = createPrepareChallengeSessionFetch(deps);
 
         const challengeSession = await prepareChallengeSession();
         const challengeSession2 = await prepareChallengeSession();

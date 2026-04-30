@@ -4,7 +4,7 @@ import { type EnsureDelegatedIdentityKeyDep } from '@suite-common/delegated-iden
 import { toGetter } from '@suite-common/dependency-injection';
 import { type TrezorConnect } from '@trezor/connect';
 
-import { createPrepareChallengeSession } from './challenge/prepareChallengeSession';
+import { createPrepareChallengeSessionFetch } from './challenge/createPrepareChallengeSessionFetch';
 import { createEnsureQuota } from './createEnsureQuota';
 import { createCheckStorageByPublicKeyFetch } from './device/createCheckStorageByPublicKeyFetch';
 import { createEnsureDeviceHasQuota } from './device/createEnsureDeviceHasQuota';
@@ -14,7 +14,6 @@ import { type GetDeviceForStaticSessionIdDep } from './device/getDeviceForStatic
 import { type GetHasDeviceRegisteredAndOwnerHasAllowance } from './getHasDeviceRegisteredAndOwnerHasAllowance';
 import { type GetIsUsingTrezorRelayDep } from './getIsDefaultRelayUrlSet';
 import { type GetIsQuotaManagerEnabled } from './getIsQuotaManagerEnabled';
-import { createAllocateOwnerQuota } from './owner/createAllocateOwnerQuota';
 import { createCheckStorageByOwnerId } from './owner/createCheckStorageByOwnerId';
 import { createEnsureOwnerHasAllocatedQuota } from './owner/createEnsureOwnerHasAllocatedQuota';
 import { createIncreaseOwnerQuota } from './owner/createIncreaseOwnerQuota';
@@ -68,7 +67,7 @@ export const createSuiteSyncQuotaManagerCompositionRoot = (
 
     // Challenge
 
-    const prepareChallengeSession = createPrepareChallengeSession({
+    const prepareChallengeSession = createPrepareChallengeSessionFetch({
         generateSessionId,
         quotaManagerFetch,
     });
@@ -104,16 +103,18 @@ export const createSuiteSyncQuotaManagerCompositionRoot = (
         quotaManagerFetch,
     });
 
-    const allocateOwnerQuota = createAllocateOwnerQuota({
+    const increaseOwnerQuota = createIncreaseOwnerQuota({
+        ensureDelegatedIdentityKey: deps.ensureDelegatedIdentityKey,
         getLeftDeviceQuota,
+        getState: deps.getState,
         prepareChallengeSessionFetch: prepareChallengeSession,
         transferStorageFetch,
     });
 
     const ensureOwnerHasAllocatedQuota = createEnsureOwnerHasAllocatedQuota({
-        allocateOwnerQuota,
         checkStorageByOwnerId,
         dispatch: deps.dispatch,
+        increaseOwnerQuota,
     });
 
     // Main
@@ -123,14 +124,6 @@ export const createSuiteSyncQuotaManagerCompositionRoot = (
         ensureOwnerHasAllocatedQuota,
         getDeviceForStaticSessionId: deps.getDeviceForStaticSessionId,
         getHasDeviceRegisteredAndOwnerHasAllowance,
-    });
-
-    const increaseOwnerQuota = createIncreaseOwnerQuota({
-        ensureDelegatedIdentityKey: deps.ensureDelegatedIdentityKey,
-        getLeftDeviceQuota,
-        prepareChallengeSessionFetch: prepareChallengeSession,
-        transferStorageFetch,
-        getState: deps.getState,
     });
 
     return {

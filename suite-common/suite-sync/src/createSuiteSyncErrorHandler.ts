@@ -33,6 +33,6 @@ export const createSuiteSyncErrorHandler =
                 return;
 
             default:
-                exhaustive(error);
+                return exhaustive(error);
         }
     };

@@ -2,12 +2,11 @@ import { type Dispatch } from '@reduxjs/toolkit';
 
 import { type ProofOfDelegatedSignFailedType } from '@suite-common/delegated-identity-key-types';
 import { type SuiteSyncOwnerId } from '@suite-common/suite-sync-storage';
-import { type DelegatedIdentityKey } from '@suite-common/suite-types';
 import { parseDeviceStaticSessionId } from '@suite-common/wallet-utils';
 import { type StaticSessionId } from '@trezor/connect';
 import { type Result, err, exhaustive, ok } from '@trezor/type-utils';
 
-import { type AllocateOwnerQuotaDep } from './createAllocateOwnerQuota';
+import { type IncreaseOwnerQuotaDep } from './createIncreaseOwnerQuota';
 import {
     QuotaManagerCommunicationFailed,
     type QuotaManagerCommunicationFailedErrType,
@@ -20,7 +19,6 @@ import { type CheckStorageByOwnerIdDep } from './createCheckStorageByOwnerId';
 export type EnsureOwnerHasAllocatedQuotaParams = {
     ownerId: SuiteSyncOwnerId;
     deviceStaticSessionId: StaticSessionId;
-    delegatedKey: DelegatedIdentityKey;
     isWriteMode: boolean;
 };
 
@@ -39,7 +37,7 @@ export type EnsureOwnerHasAllocatedQuota = (
 export type EnsureOwnerHasAllocatedQuotaDeps = {
     dispatch: Dispatch;
 } & CheckStorageByOwnerIdDep &
-    AllocateOwnerQuotaDep;
+    IncreaseOwnerQuotaDep;
 
 export type EnsureOwnerHasAllocatedQuotaDep = {
     ensureOwnerHasAllocatedQuota: EnsureOwnerHasAllocatedQuota;
@@ -47,8 +45,8 @@ export type EnsureOwnerHasAllocatedQuotaDep = {
 
 export const createEnsureOwnerHasAllocatedQuota =
     (deps: EnsureOwnerHasAllocatedQuotaDeps): EnsureOwnerHasAllocatedQuota =>
-    async ({ ownerId, deviceStaticSessionId, delegatedKey, isWriteMode }) => {
-        const { walletDescriptor, deviceId } = parseDeviceStaticSessionId(deviceStaticSessionId);
+    async ({ ownerId, deviceStaticSessionId, isWriteMode }) => {
+        const { walletDescriptor } = parseDeviceStaticSessionId(deviceStaticSessionId);
 
         const hasOwnerStorage = await deps.checkStorageByOwnerId({ ownerId });
 
@@ -71,12 +69,12 @@ export const createEnsureOwnerHasAllocatedQuota =
             }
 
             case 'NoQuota': {
-                return deps.allocateOwnerQuota({
+                if (isWriteMode === false) {
+                    return ok();
+                }
+
+                return deps.increaseOwnerQuota({
                     ownerId,
-                    delegatedKey,
-                    deviceId,
-                    walletDescriptor,
-                    isWriteMode,
                 });
             }
 
