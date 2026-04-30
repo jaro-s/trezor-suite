@@ -191,6 +191,7 @@ const verifyOnlyDeviceCertificate = async ({
     }
     const modelFromSubject = parseModelFromDeviceCertSubject(deviceCert);
     if (modelFromSubject !== deviceModel) {
+        // Note that this path is practically unreachable, see unit test case.
         return {
             valid: false,
             rootPubKey: rootPubKeyMatch,
