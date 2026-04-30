@@ -14,7 +14,7 @@ import { useSelector } from 'src/hooks/suite';
 import { useComposedLevelsPlaceholder } from 'src/hooks/wallet/form/useComposedLevelsPlaceholder';
 import { type FeesFormValues, useFees } from 'src/hooks/wallet/form/useFees';
 
-type SelectedFee =
+export type SelectedFee =
     | {
           gasPrice: undefined;
           maxFeePerGas: string;

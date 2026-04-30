@@ -221,7 +221,22 @@ export type UserContextPayload =
     | {
           type: 'earn-yield-tx-simulation';
           data: unknown;
-          decision: Deferred<boolean>;
+          decision: Deferred<{
+              value: boolean;
+              selectedFee?:
+                  | {
+                        gasPrice: undefined;
+                        maxFeePerGas: string;
+                        maxPriorityFeePerGas: string;
+                        gasLimit: string;
+                    }
+                  | {
+                        gasPrice: string;
+                        maxFeePerGas: undefined;
+                        maxPriorityFeePerGas: undefined;
+                        gasLimit: string;
+                    };
+          }>;
       }
     | {
           type: 'wipe-device-success';

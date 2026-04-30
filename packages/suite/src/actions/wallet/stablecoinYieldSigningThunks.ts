@@ -39,6 +39,7 @@ import {
 } from '@suite-common/wallet-utils';
 import TrezorConnect, { type EthereumSignTransaction, type TokenInfo } from '@trezor/connect';
 
+import { type SelectedFee } from 'src/components/tx-simulation/common';
 import type { AppState, Dispatch } from 'src/types/suite';
 
 const YIELD_THUNK_PREFIX = `${STABLECOIN_YIELD_PREFIX}/thunk`;
@@ -58,7 +59,7 @@ type BuildYieldReviewTokenParams = {
 };
 
 type BuildYieldReviewStateParams = BuildYieldReviewTokenParams & {
-    parsedTransaction: ParsedTransactionForSigning;
+    tx: ParsedTransactionForSigning;
     amount: string;
 };
 
@@ -74,6 +75,7 @@ type SendYieldTransactionParams = {
     transaction: TransactionDto;
     dispatch: Dispatch;
     getState: () => AppState;
+    selectedFee?: SelectedFee;
 };
 
 const getTransactionForSigning = (
@@ -127,15 +129,13 @@ const buildYieldReviewToken = ({
 };
 
 const buildYieldReviewState = ({
-    parsedTransaction,
+    tx,
     amount,
     token,
     symbol,
 }: BuildYieldReviewStateParams): BuildYieldReviewStateResult => {
-    const gasLimit = BigInt(parsedTransaction.gasLimit);
-    const gasPriceWei = BigInt(
-        parsedTransaction.maxFeePerGas ?? parsedTransaction.gasPrice ?? ('0x0' as `0x${string}`),
-    );
+    const gasLimit = BigInt(tx.gasLimit);
+    const gasPriceWei = BigInt(tx.maxFeePerGas ?? tx.gasPrice ?? ('0x0' as `0x${string}`));
     const feeWei = gasLimit * gasPriceWei;
     const reviewToken = buildYieldReviewToken({ token, symbol });
     const amountSubunits = convertAmountUnitsToSubunits(amount, token.decimals);
@@ -143,10 +143,10 @@ const buildYieldReviewState = ({
         Pick<PrecomposedTransactionFinal, 'maxFeePerGas' | 'maxPriorityFeePerGas'>
     > = {};
 
-    if (parsedTransaction.maxFeePerGas && parsedTransaction.maxPriorityFeePerGas) {
+    if (tx.maxFeePerGas && tx.maxPriorityFeePerGas) {
         eip1559ReviewFields = {
-            maxFeePerGas: toGweiAmount(BigInt(parsedTransaction.maxFeePerGas)),
-            maxPriorityFeePerGas: toGweiAmount(BigInt(parsedTransaction.maxPriorityFeePerGas)),
+            maxFeePerGas: toGweiAmount(BigInt(tx.maxFeePerGas)),
+            maxPriorityFeePerGas: toGweiAmount(BigInt(tx.maxPriorityFeePerGas)),
         };
     }
 
@@ -154,12 +154,12 @@ const buildYieldReviewState = ({
         outputs: [
             {
                 type: 'payment',
-                address: parsedTransaction.to,
+                address: tx.to,
                 amount,
                 fiat: '',
                 currency: { value: '', label: '' },
                 token: reviewToken?.contract ?? null,
-                dataHex: parsedTransaction.data,
+                dataHex: tx.data,
             },
         ],
         selectedFee: 'custom',
@@ -167,7 +167,7 @@ const buildYieldReviewState = ({
         feeLimit: gasLimit.toString(),
         ...eip1559ReviewFields,
         options: ['broadcast', 'transactionData'],
-        transactionData: parsedTransaction.data,
+        transactionData: tx.data,
         isCoinControlEnabled: false,
         hasCoinControlBeenOpened: false,
         selectedUtxos: [],
@@ -183,7 +183,7 @@ const buildYieldReviewState = ({
         inputs: [],
         outputs: [
             {
-                address: parsedTransaction.to,
+                address: tx.to,
                 amount: amountSubunits,
             },
         ],
@@ -202,6 +202,7 @@ const sendYieldTransaction = async ({
     transaction,
     dispatch,
     getState,
+    selectedFee,
 }: SendYieldTransactionParams) => {
     const device = selectSelectedDevice(getState());
     const addressDisplayType = selectAddressDisplayType(getState());
@@ -214,17 +215,24 @@ const sendYieldTransaction = async ({
         throw new Error('Yield actions currently support only EVM accounts.');
     }
 
-    const parsedTransaction = parseUnsignedEvmTransactionForSigning(
-        transaction.unsignedTransaction,
-    );
+    const parsedTx = parseUnsignedEvmTransactionForSigning(transaction.unsignedTransaction);
 
-    if (!parsedTransaction) {
+    if (!parsedTx) {
         throw new Error('Unsupported yield transaction payload.');
     }
 
-    const transactionForSigning = getTransactionForSigning(parsedTransaction);
+    const tx: ParsedTransactionForSigning = {
+        ...parsedTx,
+        gasLimit: (selectedFee?.gasLimit as `0x${string}`) ?? parsedTx.gasLimit,
+        gasPrice: (selectedFee?.gasPrice as `0x${string}`) ?? parsedTx.gasPrice,
+        maxFeePerGas: (selectedFee?.maxFeePerGas as `0x${string}`) ?? parsedTx.maxFeePerGas,
+        maxPriorityFeePerGas:
+            (selectedFee?.maxPriorityFeePerGas as `0x${string}`) ?? parsedTx.maxPriorityFeePerGas,
+    } satisfies ParsedTransactionForSigning;
+
+    const transactionForSigning = getTransactionForSigning(tx);
     const { formState, precomposedTransaction } = buildYieldReviewState({
-        parsedTransaction,
+        tx,
         amount,
         token,
         symbol: account.symbol,
@@ -367,6 +375,8 @@ export const submitYieldActionThunk = createThunk(
                 return;
             }
 
+            let selectedFee: SelectedFee | undefined;
+
             if (flowType === 'supply') {
                 if (typeof actionTransaction.unsignedTransaction !== 'string') {
                     setYieldGenericError({ dispatch, flowType, flowKey });
@@ -384,9 +394,11 @@ export const submitYieldActionThunk = createThunk(
                     }),
                 );
 
-                if (!userAcceptedTxSimulation) {
+                if (userAcceptedTxSimulation?.value === false) {
                     return;
                 }
+
+                selectedFee = userAcceptedTxSimulation?.selectedFee;
             }
 
             const result = await sendYieldTransaction({
@@ -396,6 +408,7 @@ export const submitYieldActionThunk = createThunk(
                 transaction: actionTransaction,
                 dispatch,
                 getState,
+                selectedFee,
             });
 
             if (!result) {

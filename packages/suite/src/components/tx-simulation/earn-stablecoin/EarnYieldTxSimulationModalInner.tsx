@@ -40,14 +40,20 @@ export function EarnYieldTxSimulationModalInner({
 }: EarnYieldTxSimulationModalInnerProps) {
     const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
 
-    const { form, changeFeeLevel, feeInfo, composedLevels, handleTxSimulationResult } =
-        useEvmTxSimulationFeesForm({
-            networkType: account.networkType,
-            networkSymbol: account.symbol,
-            defaultGasLimit: areTxSimulationMethods(TX_METHODS_WITH_FEES, action)
-                ? action.payload.transaction.gasLimit
-                : undefined,
-        });
+    const {
+        form,
+        changeFeeLevel,
+        feeInfo,
+        composedLevels,
+        handleTxSimulationResult,
+        getSelectedFee,
+    } = useEvmTxSimulationFeesForm({
+        networkType: account.networkType,
+        networkSymbol: account.symbol,
+        defaultGasLimit: areTxSimulationMethods(TX_METHODS_WITH_FEES, action)
+            ? action.payload.transaction.gasLimit
+            : undefined,
+    });
 
     const simulation = useTxSimulation(action, {
         onSuccess(result) {
@@ -72,7 +78,9 @@ export function EarnYieldTxSimulationModalInner({
 
     function cancel() {
         closeModal();
-        decision.resolve(false);
+        decision.resolve({
+            value: false,
+        });
     }
 
     return (
@@ -84,13 +92,14 @@ export function EarnYieldTxSimulationModalInner({
                 bottomContent={
                     <TxSimulationFooter
                         onConfirm={() => {
-                            if (areTxSimulationMethods(TX_METHODS_WITH_FEES, action)) {
-                                // TODO:
-                                // getSelectedFee()
-                            }
+                            const selectedFee = areTxSimulationMethods(TX_METHODS_WITH_FEES, action)
+                                ? getSelectedFee()
+                                : undefined;
 
-                            closeModal();
-                            decision.resolve(true);
+                            decision.resolve({
+                                value: true,
+                                selectedFee,
+                            });
                         }}
                         onCancel={cancel}
                         isConfirmDisabled={Boolean(
