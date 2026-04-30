@@ -2012,16 +2012,6 @@ export const messages = {
             },
         },
     },
-    moduleLabeling: {
-        exportBip329BottomSheet: {
-            title: 'Export labels',
-            button: 'Export labels',
-            description: 'Export address and output labels form this account in BIP 329 format.',
-        },
-        exportSuccessfulToast: 'Labels exported.',
-        exportFailedToast: 'Failed to export labels.',
-        fileSavingNotSupported: 'File saving is not supported on this platform.',
-    },
     moduleAccounts: {
         accountNotFound: 'Account {accountKey} not found.',
         tokens: {
@@ -2072,7 +2062,10 @@ export const messages = {
             title: 'Export labels',
             button: 'Export',
             description:
-                'Export your transaction labels for this account to a .jsonl file. You can import this file into other wallet apps that support label import.',
+                'Export transaction labels for this account. Compatible with other wallet applications that support the BIP-329 format.',
+            exportSuccessfulToast: 'Labels exported.',
+            exportFailedToast: 'Failed to export labels.',
+            fileSavingNotSupported: 'File saving is not supported on this platform.',
         },
     },
     transactions: {
