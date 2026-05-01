@@ -27,7 +27,7 @@
         }
     },
     "scripts": {
-        "build:lib": "yarn g:rimraf ./lib ./libESM && yarn g:tsc --build tsconfig.lib.json && cp -r lib libESM && cp src/index.d.ts lib/index.d.ts && cp src/index.d.ts libESM/index.d.mts",
+        "build:lib": "yarn g:rimraf ./lib ./libESM && yarn g:tsc -p tsconfig.lib.json && cp -r lib libESM && cp src/index.d.ts lib/index.d.ts && cp src/index.d.ts libESM/index.d.mts",
         "type-check": "yarn g:tsc --build",
         "test:unit": "yarn g:jest",
         "depcheck": "yarn g:depcheck",
