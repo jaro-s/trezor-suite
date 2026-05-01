@@ -9,6 +9,7 @@ import {
     defaultOptigaProps,
 } from '../../mocks/mockDeviceAuthenticityData';
 import { verifyAuthenticityProofFixtures } from '../__fixtures__/verifyAuthenticityProof';
+import { getRootPubKeys } from '../utils';
 import {
     matchRootPubKeyToCertificate,
     prepareDeviceAuthenticityData,
@@ -70,6 +71,18 @@ describe(matchRootPubKeyToCertificate.name, () => {
                 cert,
             }),
         ).resolves.toBe(undefined);
+    });
+
+    verifyAuthenticityProofFixtures.forEach(({ description, params, result }) => {
+        it(description, async () => {
+            const { config, deviceModel, allowDebugKeys, certificates } = params;
+            const allRootPubKeys = getRootPubKeys({ config, deviceModel, allowDebugKeys });
+
+            const signedCertificate = certificates.at(-1) as string; // always at least one certificate
+            const cert = parseCertificate(new Uint8Array(Buffer.from(signedCertificate, 'hex')));
+            const match = await matchRootPubKeyToCertificate({ allRootPubKeys, cert });
+            expect(match).toBe(result.rootPubKey);
+        });
     });
 });
 
