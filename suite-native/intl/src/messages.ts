@@ -1941,6 +1941,7 @@ export const messages = {
             },
             parametersSheet: {
                 confirmations: 'Confirmations',
+                tronNote: 'Note',
                 feeRate: 'Fee rate',
                 rbf: 'RBF',
                 lockTime: 'Lock time',
@@ -2181,6 +2182,14 @@ export const messages = {
             accountActivationFeeTitle: 'Activation fee',
             accountActivationFeeDescription:
                 'New TRON accounts require a one-time 1 TRX network fee to activate.',
+            note: {
+                label: 'Note',
+                addButton: 'Add note',
+                editButton: 'Edit note',
+                inputPlaceholder: 'Enter your note',
+                saveButton: 'Save note',
+                removeButton: 'Remove note',
+            },
         },
         fees: {
             recipient: {
@@ -3219,6 +3228,7 @@ export const messages = {
                 tokenLabel: 'Token',
                 feeLimitLabel: 'Fee Limit',
                 feeLimitSummaryLabel: 'Summary',
+                noteLabel: 'Note',
                 summary: {
                     label: 'Total including fee',
                     totalAmount: 'Total amount',
