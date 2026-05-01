@@ -18,9 +18,7 @@ const loadInstance = (settings: ReturnType<typeof getCoinjoinConfig>) => {
         ] as const);
     }
 
-    return import(/* webpackChunkName: "coinjoin" */ '@trezor/coinjoin').then(
-        pkg => [new pkg.CoinjoinBackend(settings), new pkg.CoinjoinClient(settings)] as const,
-    );
+    throw new Error('Coinjoin not supported in browser');
 };
 
 export interface CoinjoinServiceInstance {
