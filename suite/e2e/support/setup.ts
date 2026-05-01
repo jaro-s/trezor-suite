@@ -80,8 +80,15 @@ export const electronTeardown = async (
     await closePromise;
 };
 
-export const webSetup = async (browserContext: BrowserContext) => {
-    await TrezorUserEnvLink.startBridge(BRIDGE_VERSION);
+export const webSetup = async (
+    browserContext: BrowserContext,
+    options: { startBridge?: boolean } = {},
+) => {
+    const { startBridge = true } = options;
+
+    if (startBridge) {
+        await TrezorUserEnvLink.startBridge(BRIDGE_VERSION);
+    }
 
     // Need to allow this to be able to access bridge on localhost
     // When running tests against suite deployed elsewhere

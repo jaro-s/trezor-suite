@@ -20,6 +20,7 @@ type SuiteBaseFixture = {
     wipeEvoluRelayExecution: void;
     startEmulator: boolean;
     setupEmulator: boolean;
+    useTrezorUserEnv: boolean;
     deviceSetup: SetupEmu;
     electronConf: ElectronConf;
     ignoreJSExceptions: Array<string>;
@@ -52,6 +53,7 @@ const suiteBaseTest = currentsTest.extend<SuiteTestOptions & SuiteBaseFixture>({
     firmwareVersion: [undefined, { option: true }],
     startEmulator: true,
     setupEmulator: true,
+    useTrezorUserEnv: true,
     deviceSetup: {},
     trezorUserEnv: async ({}, use) => {
         // This proxy limits the exposed methods from TrezorUserEnvLink and wraps the calls with test.step
@@ -76,10 +78,16 @@ const suiteBaseTest = currentsTest.extend<SuiteTestOptions & SuiteBaseFixture>({
     },
     device: [
         async (
-            { startEmulator, setupEmulator, model, firmwareVersion, deviceSetup },
+            { startEmulator, setupEmulator, useTrezorUserEnv, model, firmwareVersion, deviceSetup },
             use,
             testInfo,
         ) => {
+            if (!useTrezorUserEnv) {
+                await use(undefined as unknown as DeviceFixture);
+
+                return;
+            }
+
             const setupPromise = (async () => {
                 await TrezorUserEnvLink.logTestDetails(
                     ` - - - EXECUTING TENV CLEANUP FOR TEST ${testInfo.titlePath.join(' - ')}`,
@@ -145,14 +153,18 @@ const suiteBaseTest = currentsTest.extend<SuiteTestOptions & SuiteBaseFixture>({
         await use(getUrl(testInfo, target));
     },
 
-    page: async ({ target, locale, colorScheme, context, electronConf }, use, testInfo) => {
+    page: async (
+        { target, locale, colorScheme, context, electronConf, useTrezorUserEnv },
+        use,
+        testInfo,
+    ) => {
         if (isDesktopProject(target)) {
             const suite = await electronSetup(testInfo, locale, colorScheme, electronConf);
             enhancePage(suite.window);
             await use(suite.window);
             await electronTeardown(suite, testInfo, electronConf);
         } else {
-            const page = await webSetup(context);
+            const page = await webSetup(context, { startBridge: useTrezorUserEnv });
             enhancePage(page);
             await use(page);
         }
