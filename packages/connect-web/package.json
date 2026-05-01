@@ -49,7 +49,7 @@
         "depcheck": "yarn g:depcheck",
         "test:unit": "yarn g:jest",
         "type-check": "yarn g:tsc --build",
-        "build:lib": "yarn g:tsdown",
+        "build:lib": "yarn g:tsc --build tsconfig.json && yarn g:tsdown",
         "test:e2e": "yarn playwright install && yarn xvfb-maybe -- playwright test --config=./e2e/playwright.config.ts",
         "lint:js": "yarn g:eslint '**/*.{ts,tsx,js}'"
     },

@@ -76,7 +76,7 @@
         }
     },
     "scripts": {
-        "build:lib": "yarn g:tsdown",
+        "build:lib": "yarn g:tsc --build tsconfig.json && yarn g:tsdown",
         "type-check": "yarn g:tsc --build tsconfig.json",
         "test:unit": "yarn g:jest",
         "depcheck": "yarn g:depcheck",

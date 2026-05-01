@@ -44,7 +44,7 @@
     ],
     "types": "src/index.ts",
     "scripts": {
-        "build:lib": "yarn g:tsdown",
+        "build:lib": "yarn g:tsc --build tsconfig.json && yarn g:tsdown",
         "depcheck": "yarn g:depcheck",
         "type-check": "yarn g:tsc --build",
         "lint:js": "yarn g:eslint '**/*.{ts,tsx,js}'"
