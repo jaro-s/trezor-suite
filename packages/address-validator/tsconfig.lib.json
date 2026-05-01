@@ -1,0 +1,16 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "rootDir": "./src",
+        "outDir": "./lib",
+        "allowJs": true,
+        "checkJs": false,
+        "noEmit": false,
+        "emitDeclarationOnly": false,
+        "declaration": true,
+        "module": "commonjs",
+        "moduleResolution": "node"
+    },
+    "include": ["./src"],
+    "exclude": ["./src/**/*.d.ts"]
+}
