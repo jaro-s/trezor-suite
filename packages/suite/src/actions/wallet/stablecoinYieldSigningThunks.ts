@@ -613,10 +613,6 @@ export const claimMerkleRewardsThunk = createThunk(
             throw new Error('Yield claim currently supports only EVM accounts.');
         }
 
-        if (account.symbol !== 'eth') {
-            throw new Error('Yield claim currently supports only Ethereum accounts.');
-        }
-
         const network = getNetwork(account.symbol);
 
         if (!network.chainId) {
