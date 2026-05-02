@@ -46,6 +46,13 @@ import { awaitNonButton, expectResponse, pressYes, thpBootstrap } from './thpBoo
 const MNEMONIC12 = 'alcohol woman abuse must during monitor noble actual mixed trade anger aisle';
 const EMPTY_BITMAP = Buffer.alloc(32);
 
+// Time the script keeps the dialog visible on the SDL window before pressing
+// YES via DebugLink. Long enough that a human watching can read what they're
+// "approving"; short enough that the test still feels snappy.
+const BUTTON_PRESS_DELAY_MS = 2000;
+
+const sleep = (ms: number) => new Promise<void>(r => setTimeout(r, ms));
+
 const hex = (b: Buffer) => b.toString('hex');
 const fromHex = (s: string | undefined) =>
     !s || s.length === 0 ? Buffer.alloc(0) : Buffer.from(s, 'hex');
@@ -58,11 +65,58 @@ type KvHeadHex = {
     signature: string;
 };
 
-const printHead = (label: string, head: KvHeadHex) => {
-    console.log(`  [${label}] schema=${head.schema_version} seq=${head.seq}`);
-    console.log(`        records_root  = ${head.records_root}`);
-    console.log(`        prev_head_hash= ${head.prev_head_hash ?? ''}`);
-    console.log(`        signature[:8] = ${head.signature.slice(0, 16)}...`);
+const computeHeadHash = (head: KvHeadHex) =>
+    smtHeadHash(
+        head.schema_version,
+        head.seq,
+        fromHex(head.records_root),
+        fromHex(head.prev_head_hash),
+    );
+
+/**
+ * Print the just-signed head and its derived head_hash, with inline assertions
+ * showing that:
+ *   - records_root equals the `proposed_new_root` we sent in the request
+ *     (the device computed the same root from our SMT proof)
+ *   - prev_head_hash equals the head_hash of the previous step
+ *     (the chain is continuous)
+ * Throws on mismatch so the script can't silently disagree with the device.
+ * Returns the new head's head_hash so the next step can pass it in as
+ * `expectedPrev`.
+ */
+const printSigned = (
+    label: string,
+    expectedPrev: string,
+    head: KvHeadHex,
+    proposedRoot: string,
+): string => {
+    const headHashBytes = computeHeadHash(head);
+    const headHashHex = hex(headHashBytes);
+    const rootOk = head.records_root === proposedRoot;
+    const prevOk = (head.prev_head_hash ?? '') === expectedPrev;
+    console.log(`      [SIGNED ${label}] seq=${head.seq}`);
+    console.log(
+        `        records_root   = ${head.records_root}  ${rootOk ? '✓ matches proposed_new_root' : '✗ MISMATCH (sent ' + proposedRoot + ')'}`,
+    );
+    console.log(
+        `        prev_head_hash = ${head.prev_head_hash ?? '(empty)'}  ${prevOk ? '✓ chains from previous head' : '✗ MISMATCH (expected ' + expectedPrev + ')'}`,
+    );
+    console.log(
+        `        signature      = ${head.signature.slice(0, 32)}... (secp256k1 over head_hash by device KV authority)`,
+    );
+    console.log(`        head_hash      = ${headHashHex}  (next step's prev_head_hash)`);
+    if (!rootOk) {
+        throw new Error(
+            `records_root mismatch after ${label}: got ${head.records_root}, sent ${proposedRoot}`,
+        );
+    }
+    if (!prevOk) {
+        throw new Error(
+            `prev_head_hash mismatch after ${label}: got ${head.prev_head_hash}, expected ${expectedPrev}`,
+        );
+    }
+
+    return headHashHex;
 };
 
 const main = async () => {
@@ -110,13 +164,14 @@ const main = async () => {
     const debug = await setupTransport({ debugLink: true });
     console.log(`      debug-link session=${debug.session}`);
 
-    const onButton = (msg: Record<string, unknown>) => {
+    const onButton = async (msg: Record<string, unknown>) => {
         const code = (msg.code as string | undefined) ?? '?';
         console.log(
-            `        ButtonRequest code=${code} -> sending ButtonAck + DebugLink press YES`,
+            `        ButtonRequest code=${code} — viewing dialog ${BUTTON_PRESS_DELAY_MS}ms ...`,
         );
-
-        return pressYes({ debugTransport: debug.transport, debugSession: debug.session });
+        await sleep(BUTTON_PRESS_DELAY_MS);
+        console.log('        DebugLink: pressing YES');
+        await pressYes({ debugTransport: debug.transport, debugSession: debug.session });
     };
 
     console.log('[2/7] THP bootstrap (SkipPairing) ...');
@@ -169,41 +224,61 @@ const main = async () => {
     expectResponse(newSessionRes, 'Success');
     console.log(`      seeded session id=0x${thpState.sessionId.toString('hex')}`);
 
-    console.log('[4/7] Add transition');
     const key = 'alice';
     const value_v1 = 'value-one';
+    const value_v2 = 'value-two';
 
     const ridResp = expectResponse(await tcall('KvGetRecordId', { key }), 'KvRecordId') as {
         record_id: string;
     };
     const recordId = fromHex(ridResp.record_id);
-    console.log(`      record_id = ${hex(recordId)}`);
 
     const commitment_v1 = recordCommitment(recordId, key, value_v1);
     const leaf_v1 = leafHash(recordId, commitment_v1);
     const addRoot = rootForSingleLeaf(recordId, commitment_v1);
 
-    const genesisHead = {
+    const commitment_v2 = recordCommitment(recordId, key, value_v2);
+    const leaf_v2 = leafHash(recordId, commitment_v2);
+    const updateRoot = rootForSingleLeaf(recordId, commitment_v2);
+
+    const genesisHead: KvHeadHex = {
         schema_version: 1,
         seq: 0,
         records_root: hex(EMPTY_HASHES[0]),
         prev_head_hash: '',
         signature: '',
     };
-    const addProof = {
-        leaf_key: hex(recordId),
-        sibling_hashes: [],
-        sibling_bitmap: hex(EMPTY_BITMAP),
-        exists: false,
-    };
-    console.log('      >>> approve "Add entry" on emulator window');
+    const genesisHash = hex(computeHeadHash(genesisHead));
+
+    // ─── [4/7] Add ──────────────────────────────────────────────────────────
+    console.log('[4/7] Add transition');
+    console.log(`      key           = "${key}"`);
+    console.log(`      new value     = "${value_v1}"`);
+    console.log(`      record_id     = ${hex(recordId)}`);
+    console.log(
+        `        (HMAC-SHA256(device-secret, "kv-record-id-v1" || key) — fetched from device)`,
+    );
+    console.log(`      commitment    = ${hex(commitment_v1)}`);
+    console.log(
+        `        (sha256("kv-record-v1" || record_id || compact_size(key) || key || compact_size(value) || value))`,
+    );
+    console.log(`      leaf_hash     = ${hex(leaf_v1)}`);
+    console.log(`      proposed root = ${hex(addRoot)}  (single-leaf SMT root)`);
+    console.log(`      proof         = absence (this key has no prior leaf)`);
+    console.log(`      old head      = empty tree, seq=0, head_hash=${genesisHash}`);
+    console.log('      sending KvSignTransition{KvOperation_Add} ...');
     const addResp = await awaitNonButton(
         await tcall('KvSignTransition', {
             operation: 'KvOperation_Add',
             key,
             old_head: genesisHead,
             new_value: value_v1,
-            proof: addProof,
+            proof: {
+                leaf_key: hex(recordId),
+                sibling_hashes: [],
+                sibling_bitmap: hex(EMPTY_BITMAP),
+                exists: false,
+            },
             proposed_new_root: hex(addRoot),
         }),
         tcall,
@@ -211,21 +286,21 @@ const main = async () => {
     );
     const addHead = (expectResponse(addResp, 'KvSignedTransition') as { new_head: KvHeadHex })
         .new_head;
-    printHead('after Add', addHead);
+    const addHeadHash = printSigned('Add', genesisHash, addHead, hex(addRoot));
 
+    // ─── [5/7] Update ───────────────────────────────────────────────────────
     console.log('[5/7] Update transition');
-    const value_v2 = 'value-two';
-    const commitment_v2 = recordCommitment(recordId, key, value_v2);
-    const leaf_v2 = leafHash(recordId, commitment_v2);
-    const updateRoot = rootForSingleLeaf(recordId, commitment_v2);
-    const updateProof = {
-        leaf_key: hex(recordId),
-        leaf_hash: hex(leaf_v1),
-        sibling_hashes: [],
-        sibling_bitmap: hex(EMPTY_BITMAP),
-        exists: true,
-    };
-    console.log('      >>> approve "Update entry" on emulator window');
+    console.log(`      key           = "${key}"`);
+    console.log(`      old value     = "${value_v1}"  (becomes proof input)`);
+    console.log(`      new value     = "${value_v2}"`);
+    console.log(`      record_id     = ${hex(recordId)}  (deterministic, same as Add)`);
+    console.log(`      old leaf_hash = ${hex(leaf_v1)}  (prior commitment of "${value_v1}")`);
+    console.log(`      new commitment= ${hex(commitment_v2)}`);
+    console.log(`      new leaf_hash = ${hex(leaf_v2)}`);
+    console.log(`      proposed root = ${hex(updateRoot)}  (root after replacing leaf)`);
+    console.log(`      proof         = inclusion of old leaf (empty bitmap, 0 siblings)`);
+    console.log(`      old head      = seq=${addHead.seq}, head_hash=${addHeadHash}`);
+    console.log('      sending KvSignTransition{KvOperation_Update} ...');
     const updResp = await awaitNonButton(
         await tcall('KvSignTransition', {
             operation: 'KvOperation_Update',
@@ -233,7 +308,13 @@ const main = async () => {
             old_head: addHead,
             old_value: value_v1,
             new_value: value_v2,
-            proof: updateProof,
+            proof: {
+                leaf_key: hex(recordId),
+                leaf_hash: hex(leaf_v1),
+                sibling_hashes: [],
+                sibling_bitmap: hex(EMPTY_BITMAP),
+                exists: true,
+            },
             proposed_new_root: hex(updateRoot),
         }),
         tcall,
@@ -241,24 +322,31 @@ const main = async () => {
     );
     const updHead = (expectResponse(updResp, 'KvSignedTransition') as { new_head: KvHeadHex })
         .new_head;
-    printHead('after Update', updHead);
+    const updHeadHash = printSigned('Update', addHeadHash, updHead, hex(updateRoot));
 
+    // ─── [6/7] Delete ───────────────────────────────────────────────────────
     console.log('[6/7] Delete transition');
-    const deleteProof = {
-        leaf_key: hex(recordId),
-        leaf_hash: hex(leaf_v2),
-        sibling_hashes: [],
-        sibling_bitmap: hex(EMPTY_BITMAP),
-        exists: true,
-    };
-    console.log('      >>> approve "Delete entry" on emulator window');
+    console.log(`      key           = "${key}"`);
+    console.log(`      old value     = "${value_v2}"  (becomes proof input)`);
+    console.log(`      record_id     = ${hex(recordId)}`);
+    console.log(`      leaf_hash     = ${hex(leaf_v2)}  (commitment being removed)`);
+    console.log(`      proposed root = ${hex(EMPTY_HASHES[0])}  (back to empty tree)`);
+    console.log(`      proof         = inclusion of leaf to delete`);
+    console.log(`      old head      = seq=${updHead.seq}, head_hash=${updHeadHash}`);
+    console.log('      sending KvSignTransition{KvOperation_Delete} ...');
     const delResp = await awaitNonButton(
         await tcall('KvSignTransition', {
             operation: 'KvOperation_Delete',
             key,
             old_head: updHead,
             old_value: value_v2,
-            proof: deleteProof,
+            proof: {
+                leaf_key: hex(recordId),
+                leaf_hash: hex(leaf_v2),
+                sibling_hashes: [],
+                sibling_bitmap: hex(EMPTY_BITMAP),
+                exists: true,
+            },
             proposed_new_root: hex(EMPTY_HASHES[0]),
         }),
         tcall,
@@ -266,29 +354,34 @@ const main = async () => {
     );
     const delHead = (expectResponse(delResp, 'KvSignedTransition') as { new_head: KvHeadHex })
         .new_head;
-    printHead('after Delete', delHead);
+    const delHeadHash = printSigned('Delete', updHeadHash, delHead, hex(EMPTY_HASHES[0]));
 
-    console.log('[7/7] Verify chain');
+    // ─── [7/7] Final summary ────────────────────────────────────────────────
+    console.log('[7/7] Final verification');
     const auth = expectResponse(await tcall('KvGetAuthority', {}), 'KvAuthority') as {
         public_key: string;
         schema_version: number;
     };
     console.log(`      authority public_key = ${auth.public_key}`);
-
-    const expectedGenesis = smtHeadHash(1, 0, EMPTY_HASHES[0], Buffer.alloc(0));
-    console.log(`      genesis head_hash    = ${hex(expectedGenesis)}`);
-    if (addHead.prev_head_hash !== hex(expectedGenesis)) {
-        throw new Error(
-            `prev_head_hash mismatch: got ${addHead.prev_head_hash}, expected ${hex(expectedGenesis)}`,
-        );
-    }
+    console.log(
+        `        (uncompressed secp256k1; verify each head's signature with this key + head_hash above)`,
+    );
+    console.log('      chain summary:');
+    console.log(`        genesis    head_hash = ${genesisHash}  (empty tree)`);
+    console.log(
+        `        after Add  head_hash = ${addHeadHash}  (records_root=${addHead.records_root.slice(0, 12)}…)`,
+    );
+    console.log(
+        `        after Upd  head_hash = ${updHeadHash}  (records_root=${updHead.records_root.slice(0, 12)}…)`,
+    );
+    console.log(`        after Del  head_hash = ${delHeadHash}  (records_root=EMPTY_HASHES[0])`);
     if (delHead.records_root !== hex(EMPTY_HASHES[0])) {
         throw new Error(
             `delete should leave empty tree: got ${delHead.records_root}, expected ${hex(EMPTY_HASHES[0])}`,
         );
     }
 
-    console.log('\nAll three transitions accepted and chained correctly.');
+    console.log('\nAll three transitions accepted, chained, and signed by device.');
 
     // Both transports run a recurring listenLoop that keeps Node alive — stop
     // both before exiting, and force-exit as a safety net so a hanging
