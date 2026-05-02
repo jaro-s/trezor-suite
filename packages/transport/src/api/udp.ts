@@ -151,9 +151,10 @@ export class UdpApi extends AbstractApi {
 
     public async enumerate(signal?: AbortSignal) {
         // in theory we could support multiple devices, but we don't yet
+        const basePort = Number.parseInt(process.env.TREZOR_UDP_PORT ?? '21324', 10) || 21324;
         const paths = this.debugLink
-            ? [PathInternal('127.0.0.1:21325')]
-            : [PathInternal('127.0.0.1:21324')];
+            ? [PathInternal(`127.0.0.1:${basePort + 1}`)]
+            : [PathInternal(`127.0.0.1:${basePort}`)];
 
         try {
             const enumerateResult = await Promise.all(
