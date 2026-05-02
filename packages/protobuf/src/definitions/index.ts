@@ -80,6 +80,12 @@ import {
     CipheredKeyValue,
     ECDHSessionKey,
     GetECDHSessionKey,
+    KvAuthority,
+    KvGetAuthority,
+    KvGetRecordId,
+    KvRecordId,
+    KvSignTransition,
+    KvSignedTransition,
     PaymentNotification,
     SignIdentity,
     SignedIdentity,
@@ -404,6 +410,12 @@ export const MessageType = Type.Object(
         GetECDHSessionKey,
         ECDHSessionKey,
         PaymentNotification,
+        KvGetAuthority,
+        KvAuthority,
+        KvGetRecordId,
+        KvRecordId,
+        KvSignTransition,
+        KvSignedTransition,
         Initialize,
         GetFeatures,
         Features,
@@ -654,6 +666,9 @@ export type WireInMessage =
     | 'SignIdentity'
     | 'GetECDHSessionKey'
     | 'PaymentNotification'
+    | 'KvGetAuthority'
+    | 'KvGetRecordId'
+    | 'KvSignTransition'
     | 'Initialize'
     | 'GetFeatures'
     | 'LockDevice'
@@ -784,6 +799,9 @@ export type WireOutMessage =
     | 'CipheredKeyValue'
     | 'SignedIdentity'
     | 'ECDHSessionKey'
+    | 'KvAuthority'
+    | 'KvRecordId'
+    | 'KvSignedTransition'
     | 'Features'
     | 'DataChunkRequest'
     | 'Entropy'
