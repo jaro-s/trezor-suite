@@ -277,11 +277,20 @@ const main = async () => {
 
     console.log('\nAll three transitions accepted and chained correctly.');
 
-    await transport.release({ path: path as any, session });
+    // Both transports run a recurring listenLoop that keeps Node alive — stop
+    // both before exiting, and force-exit as a safety net so a hanging
+    // setTimeout doesn't keep the process around.
+    await transport.release({ path: path as any, session }).catch(() => {});
+    await debug.transport
+        .release({ path: debug.path as any, session: debug.session })
+        .catch(() => {});
     transport.stop();
+    debug.transport.stop();
 };
 
-main().catch(err => {
-    console.error('FAILED:', err);
-    process.exit(1);
-});
+main()
+    .then(() => process.exit(0))
+    .catch(err => {
+        console.error('FAILED:', err);
+        process.exit(1);
+    });
