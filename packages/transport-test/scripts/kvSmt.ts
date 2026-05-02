@@ -190,3 +190,105 @@ export const rootForSingleLeaf = (recordId: Buffer, valueHash: Buffer): Buffer =
         siblingHashes: [],
         siblingBitmap: Buffer.alloc(HASH_SIZE),
     });
+
+/**
+ * Hash a single subtree of the (otherwise empty) sparse Merkle tree given the
+ * leaves that fall under it. `depth` is the depth of the subtree's root
+ * (0 = whole tree, TREE_DEPTH = leaf level). The leaves passed in must all
+ * share the same first `depth` key bits — the caller is responsible for that
+ * partitioning.
+ */
+const subtreeRoot = (leaves: Array<{ rid: Buffer; vh: Buffer }>, depth: number): Buffer => {
+    if (leaves.length === 0) return EMPTY_HASHES[depth];
+    if (depth === TREE_DEPTH) {
+        if (leaves.length !== 1) {
+            throw new Error('multiple leaves with the same record_id');
+        }
+
+        return leafHash(leaves[0].rid, leaves[0].vh);
+    }
+    const left: typeof leaves = [];
+    const right: typeof leaves = [];
+    for (const l of leaves) {
+        (keyBit(l.rid, depth) === 0 ? left : right).push(l);
+    }
+
+    return nodeHash(subtreeRoot(left, depth + 1), subtreeRoot(right, depth + 1));
+};
+
+export type KvSparseTreeProof = {
+    exists: boolean;
+    leafHash?: Buffer;
+    siblingHashes: Buffer[];
+    siblingBitmap: Buffer;
+};
+
+/**
+ * Tiny in-memory sparse Merkle tree compatible with the firmware's
+ * `KvSparseMerkleProof` (compact form: only non-default sibling hashes are
+ * sent, with a 32-byte bitmap marking their positions).
+ *
+ * Designed for small N (a handful of leaves in a manual test). Root and proof
+ * computations are O(TREE_DEPTH * N), which is fine here.
+ */
+export class KvSparseTree {
+    private leaves: Array<{ rid: Buffer; vh: Buffer }> = [];
+
+    insert(recordId: Buffer, valueHash: Buffer): void {
+        if (recordId.length !== HASH_SIZE) throw new Error('recordId must be 32 bytes');
+        if (valueHash.length !== HASH_SIZE) throw new Error('valueHash must be 32 bytes');
+        const idx = this.leaves.findIndex(l => l.rid.equals(recordId));
+        if (idx >= 0) this.leaves[idx] = { rid: recordId, vh: valueHash };
+        else this.leaves.push({ rid: recordId, vh: valueHash });
+    }
+
+    delete(recordId: Buffer): void {
+        this.leaves = this.leaves.filter(l => !l.rid.equals(recordId));
+    }
+
+    root(): Buffer {
+        return subtreeRoot(this.leaves, 0);
+    }
+
+    proof(recordId: Buffer): KvSparseTreeProof {
+        if (recordId.length !== HASH_SIZE) throw new Error('recordId must be 32 bytes');
+        const present = this.leaves.find(l => l.rid.equals(recordId));
+
+        // Siblings are accumulated as we descend from root (d = 0) down to the
+        // leaf (d = TREE_DEPTH). `computeRootFromProof` walks the OTHER way —
+        // from leaf back up to root — and at its iteration step `index = i`
+        // it combines with the sibling at depth `TREE_DEPTH - i`. So the
+        // sibling we discover at d corresponds to the verifier's
+        // `index = TREE_DEPTH - 1 - d`. Build the bitmap at that index, and
+        // emit the siblings array ordered by ascending verifier index
+        // (= descending d), which is what the verifier consumes.
+        const siblingsByDescendingD: Buffer[] = [];
+        const siblingBitmap = Buffer.alloc(HASH_SIZE);
+
+        let onPath = this.leaves.slice();
+        for (let d = 0; d < TREE_DEPTH; d++) {
+            const targetBit = keyBit(recordId, d);
+            const onTargetSide: typeof onPath = [];
+            const onSiblingSide: typeof onPath = [];
+            for (const l of onPath) {
+                (keyBit(l.rid, d) === targetBit ? onTargetSide : onSiblingSide).push(l);
+            }
+            const sibHash = subtreeRoot(onSiblingSide, d + 1);
+            if (!sibHash.equals(EMPTY_HASHES[d + 1])) {
+                const verifierIdx = TREE_DEPTH - 1 - d;
+                siblingsByDescendingD.push(sibHash);
+                siblingBitmap[verifierIdx >> 3] |= 1 << (7 - (verifierIdx & 7));
+            }
+            onPath = onTargetSide;
+        }
+        // Reverse so the deepest-d sibling (smallest verifier index) is first.
+        const siblingHashes = siblingsByDescendingD.reverse();
+
+        return {
+            exists: !!present,
+            leafHash: present ? leafHash(recordId, present.vh) : undefined,
+            siblingHashes,
+            siblingBitmap,
+        };
+    }
+}
