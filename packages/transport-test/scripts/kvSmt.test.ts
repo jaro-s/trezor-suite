@@ -3,6 +3,7 @@ import { createHash } from 'crypto';
 import {
     EMPTY_HASHES,
     HASH_SIZE,
+    KvSparseTree,
     TREE_DEPTH,
     computeRootFromProof,
     headHash,
@@ -192,6 +193,143 @@ describe('kvSmt — SMT primitives', () => {
                     siblingBitmap: emptyBitmap,
                 }),
             ).toThrow();
+        });
+    });
+
+    describe('KvSparseTree', () => {
+        const ridA = sha256(Buffer.from('alice'));
+        const ridB = sha256(Buffer.from('bob'));
+        const ridC = sha256(Buffer.from('carol'));
+        const ridZ = sha256(Buffer.from('zelda')); // never inserted
+
+        const vhA = recordCommitment(ridA, 'alice', 'value-alice');
+        const vhB = recordCommitment(ridB, 'bob', 'value-bob');
+        const vhC = recordCommitment(ridC, 'carol', 'value-carol');
+
+        it('empty tree root equals EMPTY_HASHES[0]', () => {
+            const t = new KvSparseTree();
+            expect(hex(t.root())).toBe(hex(EMPTY_HASHES[0]));
+        });
+
+        it('single-leaf root agrees with rootForSingleLeaf', () => {
+            const t = new KvSparseTree();
+            t.insert(ridA, vhA);
+            expect(hex(t.root())).toBe(hex(rootForSingleLeaf(ridA, vhA)));
+        });
+
+        it('insert + delete same key returns to empty root', () => {
+            const t = new KvSparseTree();
+            t.insert(ridA, vhA);
+            t.delete(ridA);
+            expect(hex(t.root())).toBe(hex(EMPTY_HASHES[0]));
+        });
+
+        it('updating an existing key changes the root', () => {
+            const t = new KvSparseTree();
+            t.insert(ridA, vhA);
+            const r1 = t.root();
+            t.insert(ridA, recordCommitment(ridA, 'alice', 'value-alice-v2'));
+            const r2 = t.root();
+            expect(hex(r1)).not.toBe(hex(r2));
+        });
+
+        it('two distinct leaves produce a different root than either single leaf', () => {
+            const single = rootForSingleLeaf(ridA, vhA);
+            const t = new KvSparseTree();
+            t.insert(ridA, vhA);
+            t.insert(ridB, vhB);
+            expect(hex(t.root())).not.toBe(hex(single));
+        });
+
+        describe('proof generation (compact form)', () => {
+            it('inclusion proof for present leaf round-trips through computeRootFromProof', () => {
+                const t = new KvSparseTree();
+                t.insert(ridA, vhA);
+                t.insert(ridB, vhB);
+                const root = t.root();
+                const proof = t.proof(ridA);
+                expect(proof.exists).toBe(true);
+                expect(proof.leafHash).toBeDefined();
+                const computed = computeRootFromProof({
+                    leafKey: ridA,
+                    exists: true,
+                    leafHash: proof.leafHash,
+                    siblingHashes: proof.siblingHashes,
+                    siblingBitmap: proof.siblingBitmap,
+                });
+                expect(hex(computed)).toBe(hex(root));
+            });
+
+            it('inclusion proof for the OTHER leaf also round-trips against the same root', () => {
+                const t = new KvSparseTree();
+                t.insert(ridA, vhA);
+                t.insert(ridB, vhB);
+                const root = t.root();
+                const proof = t.proof(ridB);
+                const computed = computeRootFromProof({
+                    leafKey: ridB,
+                    exists: true,
+                    leafHash: proof.leafHash,
+                    siblingHashes: proof.siblingHashes,
+                    siblingBitmap: proof.siblingBitmap,
+                });
+                expect(hex(computed)).toBe(hex(root));
+            });
+
+            it('absence proof for missing leaf round-trips against current root', () => {
+                const t = new KvSparseTree();
+                t.insert(ridA, vhA);
+                t.insert(ridB, vhB);
+                const root = t.root();
+                const proof = t.proof(ridZ);
+                expect(proof.exists).toBe(false);
+                expect(proof.leafHash).toBeUndefined();
+                const computed = computeRootFromProof({
+                    leafKey: ridZ,
+                    exists: false,
+                    siblingHashes: proof.siblingHashes,
+                    siblingBitmap: proof.siblingBitmap,
+                });
+                expect(hex(computed)).toBe(hex(root));
+            });
+
+            it('absence proof against an empty tree has no siblings and verifies to EMPTY_HASHES[0]', () => {
+                const t = new KvSparseTree();
+                const proof = t.proof(ridA);
+                expect(proof.exists).toBe(false);
+                expect(proof.siblingHashes).toEqual([]);
+                expect(proof.siblingBitmap.equals(Buffer.alloc(HASH_SIZE))).toBe(true);
+                const computed = computeRootFromProof({
+                    leafKey: ridA,
+                    exists: false,
+                    siblingHashes: [],
+                    siblingBitmap: proof.siblingBitmap,
+                });
+                expect(hex(computed)).toBe(hex(EMPTY_HASHES[0]));
+            });
+
+            it('all three inclusion proofs in a 3-leaf tree round-trip to the same root', () => {
+                const t = new KvSparseTree();
+                t.insert(ridA, vhA);
+                t.insert(ridB, vhB);
+                t.insert(ridC, vhC);
+                const root = t.root();
+                for (const [rid, _vh] of [
+                    [ridA, vhA],
+                    [ridB, vhB],
+                    [ridC, vhC],
+                ] as const) {
+                    const p = t.proof(rid);
+                    const computed = computeRootFromProof({
+                        leafKey: rid,
+                        exists: true,
+                        leafHash: p.leafHash,
+                        siblingHashes: p.siblingHashes,
+                        siblingBitmap: p.siblingBitmap,
+                    });
+                    expect(hex(computed)).toBe(hex(root));
+                }
+            });
         });
     });
 });
