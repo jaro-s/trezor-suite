@@ -5,6 +5,15 @@ import { type Static, Type } from '@trezor/schema-utils';
 
 import { PaymentRequest } from './messages-common';
 
+export enum KvOperationType {
+    KvOperation_Add = 1,
+    KvOperation_Update = 2,
+    KvOperation_Delete = 3,
+}
+
+export type EnumKvOperationType = Static<typeof EnumKvOperationType>;
+export const EnumKvOperationType = Type.Enum(KvOperationType);
+
 export type CipheredKeyValue = Static<typeof CipheredKeyValue>;
 export const CipheredKeyValue = Type.Object(
     {
@@ -57,6 +66,80 @@ export const GetECDHSessionKey = Type.Object(
         ecdsa_curve_name: Type.Optional(Type.String()),
     },
     { $id: 'GetECDHSessionKey' },
+);
+
+export type KvAuthority = Static<typeof KvAuthority>;
+export const KvAuthority = Type.Object(
+    {
+        schema_version: Type.Number(),
+        public_key: Type.String(),
+    },
+    { $id: 'KvAuthority' },
+);
+
+export type KvGetAuthority = Static<typeof KvGetAuthority>;
+export const KvGetAuthority = Type.Object({}, { $id: 'KvGetAuthority' });
+
+export type KvGetRecordId = Static<typeof KvGetRecordId>;
+export const KvGetRecordId = Type.Object(
+    {
+        key: Type.String(),
+    },
+    { $id: 'KvGetRecordId' },
+);
+
+export type KvHead = Static<typeof KvHead>;
+export const KvHead = Type.Object(
+    {
+        schema_version: Type.Number(),
+        seq: Type.Number(),
+        records_root: Type.String(),
+        prev_head_hash: Type.Optional(Type.String()),
+        signature: Type.String(),
+    },
+    { $id: 'KvHead' },
+);
+
+export type KvRecordId = Static<typeof KvRecordId>;
+export const KvRecordId = Type.Object(
+    {
+        record_id: Type.String(),
+    },
+    { $id: 'KvRecordId' },
+);
+
+export type KvSignedTransition = Static<typeof KvSignedTransition>;
+export const KvSignedTransition = Type.Object(
+    {
+        new_head: KvHead,
+    },
+    { $id: 'KvSignedTransition' },
+);
+
+export type KvSparseMerkleProof = Static<typeof KvSparseMerkleProof>;
+export const KvSparseMerkleProof = Type.Object(
+    {
+        leaf_key: Type.String(),
+        leaf_hash: Type.Optional(Type.String()),
+        sibling_hashes: Type.Array(Type.String()),
+        exists: Type.Boolean(),
+        sibling_bitmap: Type.Optional(Type.String()),
+    },
+    { $id: 'KvSparseMerkleProof' },
+);
+
+export type KvSignTransition = Static<typeof KvSignTransition>;
+export const KvSignTransition = Type.Object(
+    {
+        operation: EnumKvOperationType,
+        key: Type.String(),
+        old_head: KvHead,
+        old_value: Type.Optional(Type.String()),
+        new_value: Type.Optional(Type.String()),
+        proof: KvSparseMerkleProof,
+        proposed_new_root: Type.String(),
+    },
+    { $id: 'KvSignTransition' },
 );
 
 export type PaymentNotification = Static<typeof PaymentNotification>;
