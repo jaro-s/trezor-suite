@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import type { Config } from 'jest';
 
 export const config: Config = {
