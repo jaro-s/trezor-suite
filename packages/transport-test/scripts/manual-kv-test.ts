@@ -128,21 +128,34 @@ const main = async () => {
         transport.call({ session, name, data, protocol: protocolV2, thpState });
 
     console.log('[3/7] Load device + create seeded session ...');
-    // The emulator is started with --temporary-profile so storage starts empty.
-    // Skip WipeDevice: on a paired THP device, WipeDevice invalidates the
-    // channel and the next call gets ThpUnallocatedChannel.
-    const loadRes = await awaitNonButton(
-        await tcall('LoadDevice', {
-            mnemonics: [MNEMONIC12],
-            passphrase_protection: false,
-            label: 'manual-kv-test',
-            skip_checksum: true,
-        }),
-        tcall,
-        onButton,
-    );
-    expectResponse(loadRes, 'Success');
-    console.log('      device loaded');
+    // Probe device state with Initialize. If it's already initialized (re-run
+    // against a still-running emulator), skip LoadDevice — re-loading would
+    // get Failure_UnexpectedMessage{Already initialized}, and on a paired THP
+    // device WipeDevice would invalidate the channel (ThpUnallocatedChannel
+    // on the next call). The mnemonic we'd load is the same constant so the
+    // existing seed is correct for our test.
+    const featuresRes = expectResponse(await tcall('GetFeatures', {}), 'Features') as {
+        initialized?: boolean | null;
+        label?: string | null;
+    };
+    if (featuresRes.initialized) {
+        console.log(
+            `      device already initialized (label=${featuresRes.label ?? '?'}) — reusing existing seed`,
+        );
+    } else {
+        const loadRes = await awaitNonButton(
+            await tcall('LoadDevice', {
+                mnemonics: [MNEMONIC12],
+                passphrase_protection: false,
+                label: 'manual-kv-test',
+                skip_checksum: true,
+            }),
+            tcall,
+            onButton,
+        );
+        expectResponse(loadRes, 'Success');
+        console.log('      device loaded with manual-kv-test seed');
+    }
 
     // Default session 0 is "seedless" (firmware/wire/thp/session_context.py).
     // Allocate a fresh session and ask the device to derive the seed for it
